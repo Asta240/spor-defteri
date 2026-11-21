@@ -1,0 +1,5 @@
+{
+  "name": "spor-defteri",
+  "private": true,
+  "engines": { "node": ">=18" }
+}

@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#141518">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Spor Defteri · CardiacAI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Renkler ve yazı tipi Sınav Haftası Asistanı ile aynı */
+  :root{
+    --bg:#f6f5f1; --card:#ffffff; --ink:#1d1f24; --muted:#6b6f78; --line:#e6e3dc;
+    --accent:#3b5bdb; --accent-soft:#e8edff; --good:#2f9e44; --good-soft:#e6f6ea;
+    --warn:#e67700; --warn-soft:#fff3e0; --bad:#e03131; --bad-soft:#ffe9e9; --r:14px; color-scheme:light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#141518; --card:#1d1f24; --ink:#eceef2; --muted:#9a9fab; --line:#2c2f36;
+      --accent:#748ffc; --accent-soft:#232a45; --good:#51cf66; --good-soft:#1b2e20;
+      --warn:#ffa94d; --warn-soft:#33281b; --bad:#ff6b6b; --bad-soft:#3a2020; color-scheme:dark }
+  }
+  *{box-sizing:border-box;min-width:0}
+  body{margin:0;font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45;overflow-x:clip}
+  .wrap{max-width:760px;margin:0 auto;padding:22px 16px 60px}
+  header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+  h1{font-size:28px;margin:0;letter-spacing:-.02em}
+  h1 span{color:var(--accent)}
+  .sub{color:var(--muted);margin:4px 0 0;font-size:14px}
+  h2{font-size:16px;margin:0 0 12px;letter-spacing:-.01em}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:14px}
+  label.f{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:600;color:var(--muted);flex:1 1 130px}
+  input,select{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 11px;width:100%;min-height:44px}
+  input:focus,select:focus{outline:2px solid var(--accent);outline-offset:-1px}
+  button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:10px 16px;cursor:pointer;background:var(--accent);color:#fff;min-height:44px}
+  button.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+  button.ghost:hover{color:var(--ink)}
+  button.icon{background:transparent;color:var(--muted);padding:6px 10px;min-width:40px;min-height:40px}
+  button.icon:hover{color:var(--bad)}
+  button:disabled{opacity:.45;cursor:default}
+  button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+  .muted{color:var(--muted)} .small{font-size:13px}
+  .pill{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap;background:var(--accent-soft);color:var(--accent)}
+  .sync{font-size:12px;color:var(--muted);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .codechip{background:var(--card);border:1px solid var(--line);color:var(--ink);font-size:13px;padding:6px 10px;min-height:34px;letter-spacing:.08em}
+  /* sekmeler */
+  .tabs{display:flex;gap:4px;padding:4px;margin:0 0 16px;background:var(--card);border:1px solid var(--line);border-radius:99px;position:sticky;top:8px;z-index:5}
+  .tabs button{flex:1;background:transparent;color:var(--muted);border-radius:99px;padding:8px 6px;font-size:14px;font-weight:700;min-height:40px}
+  .tabs button.on{background:var(--accent);color:#fff}
+  /* halkalar */
+  .rings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;text-align:center}
+  .rw{position:relative;max-width:150px;margin:0 auto}
+  .rw svg{width:100%;display:block}
+  .rv{position:absolute;inset:0;display:grid;place-content:center;font-weight:800;font-size:clamp(18px,5.4vw,26px);line-height:1;letter-spacing:-.02em}
+  .rv small{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-top:4px;white-space:nowrap;letter-spacing:0}
+  .ring b{display:block;font-size:14px;margin-top:6px}
+  circle.p{transition:stroke-dashoffset .5s ease}
+  .bal{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+  .bal div{font-size:12px;font-weight:600;color:var(--muted)}
+  .bal strong{display:block;font-size:22px;font-weight:800;color:var(--ink);white-space:nowrap;letter-spacing:-.02em}
+  .neg{color:var(--good)!important}.pos{color:var(--bad)!important}
+  .datebar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px}
+  .datebar strong{font-size:17px}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .chips button{min-height:36px;font-weight:600;font-size:13px;border-radius:99px;padding:0 12px;background:var(--accent-soft);color:var(--accent)}
+  .chips button.on{background:var(--accent);color:#fff}
+  ul.list{list-style:none;margin:12px 0 0;padding:0}
+  ul.list li{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--line)}
+  ul.list .n{flex:1}
+  ul.list .k{white-space:nowrap;color:var(--muted);font-size:14px}
+  .empty{color:var(--muted);font-size:14px;margin:12px 0 0}
+  .water{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .water strong{font-size:24px;font-weight:800;min-width:4.4em;text-align:center}
+  .cups{display:flex;gap:5px;flex-wrap:wrap;flex:1 1 100%}
+  .cup{width:20px;height:26px;border:2px solid var(--accent);border-radius:3px 3px 7px 7px}
+  .cup.f{background:var(--accent)}
+  /* hareket görseli: 2 kare dönüşümlü */
+  .anim{position:relative;aspect-ratio:3/2;border-radius:10px;overflow:hidden;background:#222}
+  .anim img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .anim img.b{animation:flip 2.4s infinite}
+  @keyframes flip{0%,42%{opacity:0}50%,92%{opacity:1}100%{opacity:0}}
+  @media (prefers-reduced-motion:reduce){.anim img.b{animation:none;opacity:0}}
+  /* kütüphane */
+  .exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-top:12px}
+  .exc{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:8px;text-align:left;color:var(--ink);display:flex;flex-direction:column;gap:6px;font-weight:600;min-height:0}
+  .exc span{font-size:14px;line-height:1.25;padding:0 2px}
+  .exc small{font-size:12px;color:var(--muted);font-weight:500;padding:0 2px 2px}
+  /* kartlar */
+  .wcard summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px}
+  .wcard summary::-webkit-details-marker{display:none}
+  .wcard summary h2{margin:0;flex:1}
+  .exrow{display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+  .exrow .anim{width:72px;border-radius:8px}
+  .exrow .nm{font-weight:600;font-size:15px;line-height:1.25}
+  .exrow .nm button{all:unset;cursor:pointer}
+  .exrow .sr{display:flex;align-items:center;gap:4px;white-space:nowrap;margin-top:4px;font-size:13px;color:var(--muted)}
+  .exrow .sr input{width:56px;min-height:34px;padding:4px 6px;font-size:15px;text-align:center}
+  .exrow .ops{display:flex;flex-direction:column}
+  .exrow .ops button{min-height:30px;padding:2px 8px}
+  /* antrenman modu */
+  .logex{padding:12px 0;border-top:1px solid var(--line)}
+  .logex h3{font-size:15px;margin:0 0 2px}
+  .sets{display:grid;grid-template-columns:2.2em minmax(0,1fr) minmax(0,1fr) auto;gap:6px;align-items:center;margin-top:8px}
+  .sets input{min-height:40px;text-align:center;padding:6px}
+  .sets .h{font-size:12px;color:var(--muted);font-weight:600;text-align:center}
+  .sets .i{font-size:13px;color:var(--muted);text-align:center}
+  .sets button{min-height:40px;padding:0 10px}
+  .done{background:var(--good)!important}
+  /* tablo */
+  .scroll{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:right;font-size:11px;color:var(--muted);letter-spacing:.04em;font-weight:700;padding:0 6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+  td{padding:9px 6px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+  th:first-child,td:first-child{text-align:left}
+  tr.cur td{font-weight:700}
+  .fig{position:relative;height:200px;margin-top:10px}
+  .fig svg{position:absolute;inset:0;width:100%;height:100%}
+  /* pencere */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;display:flex;align-items:flex-end;justify-content:center;padding:0}
+  .modal[hidden]{display:none}
+  .sheet{background:var(--card);width:100%;max-width:620px;max-height:92vh;overflow-y:auto;border-radius:18px 18px 0 0;padding:18px 18px 26px;overscroll-behavior:contain}
+  @media (min-width:700px){.modal{align-items:center}.sheet{border-radius:18px}}
+  .sheet ol{padding-left:20px;margin:10px 0}
+  .sheet ol li{margin:6px 0}
+  .tip{background:var(--warn-soft);color:var(--ink);border-radius:10px;padding:10px 12px;font-size:14px}
+  .yt{display:inline-flex;align-items:center;gap:8px;background:#e03131;color:#fff;text-decoration:none;font-weight:700;border-radius:10px;padding:0 16px;min-height:44px}
+  .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;z-index:60;max-width:90vw}
+  .toast[hidden]{display:none}
+  .login{max-width:420px;margin:8vh auto 0;text-align:center}
+  .login .card{text-align:left}
+  .bigcode{font-size:40px;font-weight:800;letter-spacing:.18em;text-align:center;margin:10px 0}
+  footer{margin-top:24px;text-align:center;font-size:12px;color:var(--muted)}
+  footer a{color:inherit}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div><h1>Spor <span>Defteri</span></h1><p class="sub">Kalori, su, antrenman kartları ve ağırlık defteri</p></div>
+    <div class="sync" id="syncBox" hidden><span id="sync"></span><button class="codechip" id="codeBtn" title="Hesap kodun"></button></div>
+  </header>
+
+  <!-- GİRİŞ -->
+  <section id="vLogin" class="login" hidden>
+    <div class="card">
+      <h2>Yeni hesap</h2>
+      <p class="muted small">4 haneli bir kod alırsın. Başka cihazdan girerken bu kod lazım, not al.</p>
+      <button id="lgNew" style="width:100%">Yeni hesap aç</button>
+    </div>
+    <div class="card">
+      <h2>Kodum var</h2>
+      <form id="lgForm" class="row">
+        <input id="lgCode" placeholder="Örn. 7KQ4" maxlength="6" autocomplete="off" autocapitalize="characters" aria-label="Hesap kodu" style="flex:1 1 140px;text-transform:uppercase;letter-spacing:.12em">
+        <button>Giriş</button>
+      </form>
+      <p class="small" id="lgMsg" style="color:var(--bad);margin:8px 0 0"></p>
+    </div>
+    <button class="ghost" id="lgLocal">Kodsuz dene (sadece bu cihazda)</button>
+  </section>
+
+  <!-- UYGULAMA -->
+  <div id="vApp" hidden>
+    <nav class="tabs" id="tabs">
+      <button data-t="today" class="on">Bugün</button>
+      <button data-t="cards">Kartlar</button>
+      <button data-t="lib">Hareketler</button>
+      <button data-t="prog">İlerleme</button>
+    </nav>
+
+    <!-- BUGÜN -->
+    <section id="tToday">
+      <div class="datebar">
+        <button class="ghost" id="prev" aria-label="Önceki gün">‹</button>
+        <strong id="dlabel">Bugün</strong>
+        <button class="ghost" id="next" aria-label="Sonraki gün">›</button>
+      </div>
+      <div class="card"><div class="rings" id="rings"></div><div class="bal" id="bal"></div></div>
+      <div class="card">
+        <h2>Yemek</h2>
+        <form id="ff" class="row">
+          <input id="fn" placeholder="Ne yedin?" required aria-label="Yemek adı" style="flex:1 1 160px">
+          <input id="fk" type="number" inputmode="numeric" min="0" placeholder="kcal" required aria-label="Kalori" style="flex:0 1 92px">
+          <input id="fp" type="number" inputmode="numeric" min="0" placeholder="Protein g" aria-label="Protein" style="flex:0 1 110px">
+          <button>Ekle</button>
+        </form>
+        <div class="chips" id="pre"></div>
+        <ul class="list" id="fl"></ul>
+        <p class="empty" id="fe">Bu gün için henüz bir şey eklemedin.</p>
+      </div>
+      <div class="card">
+        <h2>Su</h2>
+        <div class="water">
+          <button class="ghost" id="wm" aria-label="Bir bardak çıkar">−</button>
+          <strong id="wv">0 L</strong>
+          <button id="wp">+ 1 bardak (250 ml)</button>
+          <div class="cups" id="cups"></div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Hareket ve kilo</h2>
+        <div class="row">
+          <label class="f">Antrenman<select id="wo"></select></label>
+          <label class="f">Kardiyo (dk)<input id="ca" type="number" inputmode="numeric" min="0"></label>
+          <label class="f">Adım<input id="st" type="number" inputmode="numeric" min="0"></label>
+          <label class="f">Yakılan toplam kcal<input id="bu" type="number" inputmode="numeric" min="0"></label>
+          <label class="f">Kilo (sabah, kg)<input id="kg" type="number" inputmode="decimal" step="0.05" min="0"></label>
+        </div>
+        <p class="small muted" style="margin:10px 0 0">Yakılanı telefonundaki Fitness/Sağlık uygulamasının TOPLAM değerinden yaz. Telefon ağırlık antrenmanını ve cepte olmayan kardiyoyu saymaz, o günler ~150–300 ekle.</p>
+      </div>
+      <details class="card">
+        <summary><b>Hedefler</b></summary>
+        <div class="row" style="margin-top:12px">
+          <label class="f">Kalori (kcal)<input id="gk" type="number" inputmode="numeric" min="0"></label>
+          <label class="f">Protein (g)<input id="gp" type="number" inputmode="numeric" min="0"></label>
+          <label class="f">Su (bardak)<input id="gw" type="number" inputmode="numeric" min="1"></label>
+        </div>
+      </details>
+    </section>
+
+    <!-- KARTLAR -->
+    <section id="tCards" hidden></section>
+
+    <!-- HAREKETLER -->
+    <section id="tLib" hidden>
+      <div class="card">
+        <input id="q" type="search" placeholder="Hareket ara…" aria-label="Hareket ara">
+        <div class="chips" id="groups"></div>
+        <div class="exgrid" id="exgrid"></div>
+      </div>
+    </section>
+
+    <!-- İLERLEME -->
+    <section id="tProg" hidden>
+      <div class="card">
+        <h2>Son 7 gün</h2>
+        <div class="scroll"><table><thead><tr><th>Gün</th><th>Alınan</th><th>Yakılan</th><th>Açık</th><th>Protein</th><th>Kilo</th></tr></thead><tbody id="wk"></tbody></table></div>
+        <p class="small muted" id="avg"></p>
+      </div>
+      <div class="card">
+        <h2>Kilo</h2>
+        <div class="fig" id="kgFig"></div>
+        <p class="small muted" id="kgNote"></p>
+      </div>
+      <div class="card">
+        <h2>Ağırlık defteri</h2>
+        <select id="liftSel" aria-label="Hareket seç"></select>
+        <div class="fig" id="liftFig"></div>
+        <div class="scroll"><table><thead><tr><th>Tarih</th><th>Setler (kg × tekrar)</th><th>En ağır</th></tr></thead><tbody id="liftTb"></tbody></table></div>
+        <p class="empty" id="liftEmpty">Bir kartla antrenman yapıp “Bitir ve kaydet”e bastığında kaldırdıkların burada birikir.</p>
+      </div>
+    </section>
+  </div>
+
+  <footer>CardiacAI · Hareket fotoğrafları: <a href="https://github.com/yuhonas/free-exercise-db">free-exercise-db</a> (kamu malı)</footer>
+</div>
+
+<div class="modal" id="modal" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+{
+const $ = id => document.getElementById(id);
+const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = n => Math.round(+n || 0).toLocaleString("tr-TR");
+const num = n => (+n || 0).toLocaleString("tr-TR", {maximumFractionDigits: 2});
+
+// ================= HAREKET KÜTÜPHANESİ =================
+// id = img/ klasörü. en = YouTube araması için. u = birim (yoksa tekrar).
+const EX = [
+  {id:"Leverage_Incline_Chest_Press", tr:"Incline Machine Press", en:"incline machine chest press", g:"Göğüs", s:4, r:10,
+   how:["Koltuğu, tutamaklar göğsünün üst hizasına gelecek şekilde ayarla.","Sırtını yasla, kürek kemiklerini geriye sık.","Tutamakları öne-yukarı it, dirseği kilitlemeden yavaşça geri getir."], tip:"Üst göğsü çalıştırır. Omuzların kulağa doğru kalkmasın."},
+  {id:"Leverage_Chest_Press", tr:"Chest Press (makine)", en:"machine chest press", g:"Göğüs", s:3, r:10,
+   how:["Tutamaklar göğsünün ortası hizasında olsun.","Sırtın koltukta, ayakların yerde sabit.","İt, 1 sn sık, yavaşça geri gel."], tip:"Bench press'e geçmeden önce güvenli bir başlangıç."},
+  {id:"Barbell_Bench_Press_-_Medium_Grip", tr:"Bench Press", en:"barbell bench press", g:"Göğüs", s:4, r:8,
+   how:["Sehpaya yat, gözlerin barın tam altında olsun.","Barı omuzdan biraz geniş tut, göğsünün alt kısmına kontrollü indir.","Göğse değince yukarı it. Kalça sehpadan kalkmasın."], tip:"Ağır kaldıracaksan yanına birini al."},
+  {id:"Dumbbell_Flyes", tr:"Bench Dumbbell Fly", en:"dumbbell chest fly", g:"Göğüs", s:4, r:10,
+   how:["Düz sehpaya yat, dambıllar göğsünün üstünde, avuçlar karşı karşıya.","Dirsekler hafif bükük, kolları yana doğru aç.","Göğüste gerilme hissedince kucaklar gibi tekrar birleştir."], tip:"Hafif kilo. Çok aşağı inersen omuz zorlanır."},
+  {id:"Cable_Crossover", tr:"Cable Crossover", en:"cable crossover", g:"Göğüs", s:3, r:12,
+   how:["İki makara arasında dur, bir ayağın önde.","Kabloları öne ve aşağı çek, göbek hizasında birleştir.","1 sn sık, kollar açılırken yavaşça bırak."], tip:"Kolla değil göğüsle çektiğini hisset."},
+  {id:"Leverage_Shoulder_Press", tr:"Machine Shoulder Press", en:"machine shoulder press", g:"Omuz", s:4, r:10,
+   how:["Koltuğu, tutamaklar omuz hizasında olacak şekilde ayarla.","Sırtını yasla, tutamakları başının üstüne it.","Dirseği kilitlemeden omuz hizasına kadar yavaşça indir."], tip:"Belini koltuktan ayırma, kavis yapma."},
+  {id:"Dumbbell_Shoulder_Press", tr:"Dumbbell Shoulder Press", en:"dumbbell shoulder press", g:"Omuz", s:3, r:10,
+   how:["Dik sırtlı sehpaya otur, dambıllar omuz hizasında.","Avuçların öne bakarken yukarı it.","Kulak hizasına kadar kontrollü indir."], tip:"Makineden daha çok denge ister, kiloyu biraz düşük tut."},
+  {id:"Side_Lateral_Raise", tr:"Dumbbell Lateral Raise", en:"dumbbell lateral raise", g:"Omuz", s:4, r:12,
+   how:["Ayakta dur, dambıllar yanında, dirsekler hafif bükük.","Kolları yana, omuz hizasına kadar kaldır.","Üstte 1 sn bekle, yavaşça indir."], tip:"Sallanma. 5–7 kg bile yeter, omzun yanı yanmalı."},
+  {id:"Face_Pull", tr:"Rope Face Pull", en:"cable rope face pull", g:"Omuz", s:3, r:12,
+   how:["Makarayı yüz hizasına ayarla, halat tak.","Halatı yüzüne doğru çek, elleri kulak yanlarına aç.","Dirsekler yukarıda; kürek kemiklerini sık, sonra bırak."], tip:"Arka omuz ve dik duruş için. Kilo hafif olsun."},
+  {id:"Cable_Rope_Overhead_Triceps_Extension", tr:"Cable Rope Overhead Triceps", en:"cable rope overhead triceps extension", g:"Triceps", s:3, r:12,
+   how:["Makaraya sırtını dön, halatı başının arkasından tut.","Bir adım öne çık, gövden hafif öne eğik.","Dirsekleri sabit tutup kolları öne-yukarı uzat, yavaşça geri bük."], tip:"Dirsekler kulak yanında kalsın, açılmasın."},
+  {id:"Triceps_Pushdown", tr:"Pushdown", en:"triceps pushdown", g:"Triceps", s:3, r:12,
+   how:["Makara yukarıda, barı ya da halatı tut.","Dirseklerini gövdene yapıştır.","Sadece ön kolla aşağı it, kollar düzleşince yavaşça geri gel."], tip:"Gövdenle bastırma, dirsek yerinden oynamasın."},
+  {id:"Dips_-_Triceps_Version", tr:"Dips", en:"triceps dips", g:"Triceps", s:3, r:10,
+   how:["Paralel barlarda kollar düz, vücut dik.","Dirsekler 90°'ye bükülene kadar in.","Kollarınla iterek yukarı çık."], tip:"Zor gelirse destekli (assisted) dips makinesini kullan."},
+  {id:"Wide-Grip_Lat_Pulldown", tr:"Lat Pulldown", en:"lat pulldown", g:"Sırt", s:4, r:10,
+   how:["Otur, dizlerini pedin altına sabitle.","Barı omuzdan geniş, üstten tut.","Barı göğsünün üstüne çek, dirsekler aşağı-geri; yavaşça bırak."], tip:"Arkaya yaslanıp sallanma. Kolla değil dirsekle çektiğini düşün."},
+  {id:"Leverage_Iso_Row", tr:"Low Row (makine)", en:"machine low row", g:"Sırt", s:4, r:10,
+   how:["Göğsünü pede daya, tutamakları tut.","Tutamakları karnına doğru çek.","Kürek kemiklerini sık, yavaşça geri bırak."], tip:"Omuzların kulağa kalkmasın."},
+  {id:"Seated_Cable_Rows", tr:"Seated Cable Row", en:"seated cable row", g:"Sırt", s:4, r:10,
+   how:["Otur, ayaklar platformda, dizler hafif bükük.","Sırtın dik, göğsün önde; tutamağı göbeğine çek.","Kürek kemiklerini sık, kollar uzayana kadar yavaşça bırak."], tip:"Gövdenle geriye sallanma."},
+  {id:"Rope_Straight-Arm_Pulldown", tr:"Rope Pulldown (düz kol)", en:"straight arm rope pulldown", g:"Sırt", s:3, r:12,
+   how:["Ayakta dur, makara yukarıda, halatı tut.","Kolların düz, hafif öne eğil.","Halatı uyluklarına kadar aşağı it, yavaşça yukarı bırak."], tip:"Dirsek bükülmez, hareket omuzdan gelir."},
+  {id:"Hyperextensions_Back_Extensions", tr:"Hyperextension", en:"hyperextension back extension", g:"Sırt", s:3, r:12,
+   how:["Bel sehpasına yüzüstü yerleş, kalçan pedin üstünde.","Gövdeni aşağı indir.","Vücudun düz bir çizgi olana kadar kalk."], tip:"Fazla geriye bükme, kontrollü yap."},
+  {id:"Bent_Over_Barbell_Row", tr:"Barbell Row", en:"bent over barbell row", g:"Sırt", s:3, r:10,
+   how:["Barı tut, dizler hafif bükük, gövde ~45° öne eğik.","Sırtın düz, barı göbeğine çek.","Yavaşça indir."], tip:"Belin yuvarlanmasın. İleri seviye hareket."},
+  {id:"Pullups", tr:"Barfiks", en:"pull up", g:"Sırt", s:3, r:6,
+   how:["Barı omuzdan geniş tut, kollar düz asıl.","Çenen barın üstüne çıkana kadar çek.","Yavaşça aşağı in."], tip:"Çekemiyorsan destekli barfiks makinesiyle başla."},
+  {id:"EZ-Bar_Curl", tr:"Z Bar Curl", en:"ez bar curl", g:"Biceps", s:4, r:12,
+   how:["Zikzaklı barı alttan, omuz genişliğinde tut.","Dirsekler gövdeye yapışık, barı göğsüne kaldır.","Üstte sık, yavaşça indir."], tip:"Belinle savurma. Kilo düşük, form temiz."},
+  {id:"Hammer_Curls", tr:"Hammer Curl", en:"dumbbell hammer curl", g:"Biceps", s:3, r:12,
+   how:["Dambıllar yanında, avuçların birbirine bakar.","Dirsek sabit, dambılı omzuna doğru kaldır.","Yavaşça indir."], tip:"Ön kol ve biceps. Ön kol damarları için en iyi hareket."},
+  {id:"Incline_Dumbbell_Curl", tr:"Incline Dumbbell Curl", en:"incline dumbbell curl", g:"Biceps", s:3, r:12,
+   how:["Sehpayı ~45° eğ, yaslan, kollar aşağı sarkık.","Avuçlar öne bakarken dambılları kaldır.","Kollar tamamen uzayana kadar yavaşça indir."], tip:"Biceps'i en gergin pozisyonda çalıştırır, hafif kilo yeter."},
+  {id:"Barbell_Squat", tr:"Squat", en:"barbell back squat", g:"Bacak", s:4, r:10,
+   how:["Bar omuzlarının üstünde (enseye değil), ayaklar omuz genişliğinde.","Kalçanı geriye vererek sandalyeye oturur gibi in.","Uyluk yere paralel olunca topuklarından iterek kalk."], tip:"İlk haftalar boş barla formu öğren. Dizler ayak ucu yönünde."},
+  {id:"Leg_Press", tr:"Leg Press", en:"leg press", g:"Bacak", s:4, r:10,
+   how:["Ayaklar platformda omuz genişliğinde.","Dizler ~90° olana kadar indir.","İt, ama dizini tam kilitleme."], tip:"Belin koltuktan kalkmasın."},
+  {id:"Leg_Extensions", tr:"Leg Extension", en:"leg extension machine", g:"Bacak", s:4, r:10,
+   how:["Otur, ped ayak bileğinin önünde.","Bacağını düz olana kadar kaldır.","Üstte 1 sn sık, yavaşça indir."], tip:"Ön bacak (quadriceps)."},
+  {id:"Lying_Leg_Curls", tr:"Leg Curl", en:"lying leg curl", g:"Bacak", s:4, r:10,
+   how:["Yüzüstü yat, ped bileğinin arkasında.","Bacağını kalçana doğru bük.","Yavaşça indir."], tip:"Arka bacak. Kalçanı pedden kaldırma."},
+  {id:"Romanian_Deadlift", tr:"Romanian Deadlift", en:"romanian deadlift", g:"Bacak", s:3, r:10,
+   how:["Barı tut, dizler hafif bükük, sırt düz.","Kalçanı geriye iterek barı bacaklarının önünden indir.","Arka bacakta gerilme hissedince kalçanı öne iterek kalk."], tip:"Arka bacak ve kalça. Sırt asla yuvarlanmasın."},
+  {id:"Thigh_Abductor", tr:"Abductor", en:"hip abductor machine", g:"Bacak", s:3, r:12,
+   how:["Otur, pedler dizlerinin dışında.","Bacaklarını dışa aç.","Yavaşça kapat."], tip:"Kalçanın yan kısmı."},
+  {id:"Thigh_Adductor", tr:"Adductor", en:"hip adductor machine", g:"Bacak", s:3, r:12,
+   how:["Otur, pedler dizlerinin içinde.","Bacaklarını içe doğru kapat.","Yavaşça aç."], tip:"İç bacak."},
+  {id:"Seated_Calf_Raise", tr:"Calf Raise", en:"seated calf raise", g:"Bacak", s:3, r:12,
+   how:["Ped dizlerinin üstünde, parmak uçların platformda.","Parmak ucunda yüksel, 1 sn bekle.","Topuklarını tamamen aşağı indir."], tip:"Baldır. Tam hareket açıklığı önemli."},
+  {id:"Crunches", tr:"Yarım Mekik", en:"crunch", g:"Karın", s:3, r:20,
+   how:["Sırtüstü yat, dizler bükük, eller göğsünde ya da başının yanında.","Omuzlarını yerden kaldırarak karnını sık.","Yavaşça in."], tip:"Boynunu çekme. Çenenle göğsün arasında bir yumruk boşluk kalsın."},
+  {id:"Weighted_Crunches", tr:"Ağırlıklı Mekik", en:"weighted crunch", g:"Karın", s:3, r:15,
+   how:["Sırtüstü yat, plakayı göğsüne bastır.","Omuzlarını kaldırarak karnını sık.","Yavaşça in."], tip:"Normal mekik kolay gelince geç, 5–10 kg ile başla."},
+  {id:"Reverse_Crunch", tr:"Reverse Crunch", en:"reverse crunch", g:"Karın", s:3, r:15,
+   how:["Sırtüstü yat, dizler bükük, eller yanında.","Dizlerini göğsüne çekip kalçanı yerden kaldır.","Yavaşça geri indir."], tip:"Alt karın. Hız değil kontrol."},
+  {id:"Air_Bike", tr:"Bicycle Crunch", en:"bicycle crunch", g:"Karın", s:3, r:20,
+   how:["Sırtüstü yat, eller başının yanında, bacaklar havada.","Sağ dirseğini sol dizine getirirken sağ bacağını uzat.","Taraf değiştir, yavaş ve kontrollü."], tip:"Sadece dirseği değil gövdeni döndür. Yanlarda yanma hissetmelisin."},
+  {id:"Cable_Crunch", tr:"Cable Crunch", en:"kneeling cable crunch", g:"Karın", s:3, r:12,
+   how:["Makaranın önünde diz çök, halatı başının yanında tut.","Kalçan sabit, omurganı kıvırarak dirseklerini dizlerine getir.","Yavaşça açıl."], tip:"Kollarla çekme, kalçayla geriye oturma. “Göbeğime bakıyorum” diye düşün."},
+  {id:"Flat_Bench_Lying_Leg_Raise", tr:"Leg Raise", en:"lying leg raise", g:"Karın", s:3, r:12,
+   how:["Sırtüstü yat, eller kalçanın altında.","Bacaklarını düz tutarak 90°'ye kaldır.","Yere değdirmeden yavaşça indir."], tip:"Belini yere bastır. Bel kalkarsa iş kalça kaslarına kayar."},
+  {id:"Hanging_Leg_Raise", tr:"Asılı Bacak Kaldırma", en:"hanging leg raise", g:"Karın", s:3, r:10,
+   how:["Barfiks barına asıl.","Dizlerini (ya da düz bacaklarını) göğsüne doğru çek.","Sallanmadan yavaşça indir."], tip:"Önce dizleri bükerek başla, kolay gelince düz bacakla yap."},
+  {id:"Plank", tr:"Plank", en:"forearm plank", g:"Karın", s:3, r:30, u:"sn",
+   how:["Dirsekler omuzlarının altında, ayak uçlarında dur.","Vücudun baştan topuğa düz bir çizgi olsun.","Karnını ve kalçanı sıkarak süre boyunca bekle."], tip:"Kalça ne düşük ne yüksek. Tekrar yerine saniye."},
+  {id:"Walking_Treadmill", tr:"Incline Yürüyüş", en:"incline treadmill walking", g:"Kardiyo", s:1, r:20, u:"dk",
+   how:["Bandı 4–4,5 km/s hıza ayarla.","Eğimi %8–12 yap.","Tutunmadan, dik yürü."], tip:"Antrenman sonunda 20 dk, ~150 kcal yakar."},
+];
+const EXM = Object.fromEntries(EX.map(e => [e.id, e]));
+const GROUPS = ["Tümü", ...new Set(EX.map(e => e.g))];
+const yt = e => "https://www.youtube.com/results?search_query=" + encodeURIComponent(e.en + " nasıl yapılır");
+const anim = (id, alt) => `<div class="anim"><img src="img/${id}/0.jpg" alt="${esc(alt)}" loading="lazy"><img class="b" src="img/${id}/1.jpg" alt="" loading="lazy"></div>`;
+const unit = e => e.u || "tekrar";
+
+// Hazır kartlar (yeni hesaba gelir; silinebilir, değiştirilebilir)
+const card = (name, list) => ({id: Math.random().toString(36).slice(2, 9), name, ex: list.map(([id, s, r]) => ({id, s: s ?? EXM[id].s, r: r ?? EXM[id].r}))});
+const defaultCards = () => [
+  card("İtiş", [["Leverage_Incline_Chest_Press"],["Dumbbell_Flyes"],["Cable_Crossover"],["Leverage_Shoulder_Press"],["Side_Lateral_Raise"],["Face_Pull"],["Cable_Rope_Overhead_Triceps_Extension"],["Triceps_Pushdown"],["Walking_Treadmill"]]),
+  card("Çekiş", [["Wide-Grip_Lat_Pulldown"],["Leverage_Iso_Row"],["Seated_Cable_Rows"],["Rope_Straight-Arm_Pulldown"],["Hyperextensions_Back_Extensions"],["EZ-Bar_Curl"],["Hammer_Curls"],["Walking_Treadmill"]]),
+  card("Bacak + Karın", [["Leg_Press"],["Barbell_Squat"],["Leg_Extensions"],["Lying_Leg_Curls"],["Thigh_Abductor"],["Thigh_Adductor"],["Seated_Calf_Raise"],["Crunches"],["Reverse_Crunch"],["Air_Bike"],["Plank"],["Walking_Treadmill"]]),
+  card("Kol + Karın", [["EZ-Bar_Curl",3,12],["Incline_Dumbbell_Curl"],["Hammer_Curls"],["Triceps_Pushdown"],["Cable_Rope_Overhead_Triceps_Extension"],["Side_Lateral_Raise",3,15],["Crunches"],["Reverse_Crunch"],["Air_Bike"],["Plank"],["Walking_Treadmill"]]),
+];
+const PRESETS = [["2 yumurta",150,12],["Tavuk göğsü 200 g",330,62],["1 kase yoğurt",130,8],["Ayran 200 ml",75,7],["Mercimek çorbası",220,12],["Yemekhane tepsisi",850,40],["1 dilim ekmek",130,4],["1 muz",100,1]];
+
+// ================= VERİ =================
+const iso = d => d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const today = () => iso(new Date());
+const shift = (s, n) => { const d = new Date(s+"T12:00"); d.setDate(d.getDate()+n); return iso(d); };
+const dayName = (s, o) => new Date(s+"T12:00").toLocaleDateString("tr-TR", o);
+const blankDay = () => ({f:[], w:0, wo:"", ca:"", st:"", bu:"", kg:""});
+const freshRoot = () => ({v:1, goals:{k:2100, p:130, w:12}, days:{}, cards:defaultCards(), lifts:{}, session:null, _ver:0, _dirty:true});
+const FIELDS = ["wo","ca","st","bu","kg"];
+let CUR = "", root = null, cur = today(), tab = "today", grp = "Tümü";
+
+function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function lsSet(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
+function lsDel(k){ try{ localStorage.removeItem(k); }catch(e){} }
+const storeKey = () => "sd-root-" + CUR;
+function fixRoot(r){
+  const f = freshRoot();
+  r = Object.assign(f, r || {});
+  r.goals = Object.assign({k:2100, p:130, w:12}, r.goals || {});
+  r.days = r.days || {}; r.lifts = r.lifts || {}; r.cards = Array.isArray(r.cards) ? r.cards : [];
+  return r;
+}
+const day = s => root.days[s] || (root.days[s] = blankDay());
+const sum = d => (d.f || []).reduce((a, x) => ({k: a.k + (+x.k || 0), p: a.p + (+x.p || 0)}), {k:0, p:0});
+
+// ================= KAYIT (Sınav Asistanı ile aynı mantık) =================
+const ONLINE = () => CUR !== "LOCAL";
+let pushT = null, busy = Promise.resolve();
+function setSync(t){ $("sync").textContent = t; }
+function save(){
+  root._dirty = true;
+  lsSet(storeKey(), JSON.stringify(root));
+  if(ONLINE()){ clearTimeout(pushT); pushT = setTimeout(() => { busy = busy.then(push); }, 1200); setSync("Kaydediliyor…"); }
+}
+async function push(){
+  if(!root._dirty) return;
+  const body = JSON.stringify(root);
+  try{
+    const r = await fetch("/api/data", {method:"PUT", headers:{"Content-Type":"application/json"}, body: JSON.stringify({code: CUR, json: body, base: root._ver || 0})});
+    if(r.status === 409){ applyRemote(await r.json(), "Başka cihazdaki güncel hali yüklendi"); return; }
+    if(!r.ok) throw 0;
+    const j = await r.json();
+    const changed = JSON.stringify(root) !== body;
+    root._ver = j.updatedAt; root._dirty = changed;
+    lsSet(storeKey(), JSON.stringify(root));
+    setSync("Kaydedildi"); if(changed) save();
+  }catch(e){ setSync("Bağlantı yok, bu cihazda saklanıyor"); }
+}
+function applyRemote(j, note){
+  let r = null; try{ r = JSON.parse(j.json); }catch(e){}
+  if(!r) return;
+  root = fixRoot(r); root._ver = j.updatedAt; root._dirty = false;
+  lsSet(storeKey(), JSON.stringify(root)); renderAll(); if(note) setSync(note);
+}
+async function poll(){
+  if(!ONLINE()) return;
+  try{
+    const r = await fetch("/api/data?code=" + encodeURIComponent(CUR), {cache:"no-store"});
+    if(!r.ok) throw 0;
+    const j = await r.json();
+    if(!j.json){ save(); return; }
+    if(j.updatedAt === (root._ver || 0)){ if(root._dirty) save(); else setSync("Kaydedildi"); return; }
+    if(root._dirty && (root._ver || 0) > 0 && j.updatedAt > root._ver) { applyRemote(j, "Başka cihazdaki güncel hali yüklendi"); return; }
+    applyRemote(j, "Kaydedildi");
+  }catch(e){ setSync("Bağlantı yok, bu cihazda saklanıyor"); }
+}
+
+// ================= GİRİŞ =================
+function startApp(code, r){
+  CUR = code; lsSet("sd-code", code);
+  root = fixRoot(r);
+  $("vLogin").hidden = true; $("vApp").hidden = false; $("syncBox").hidden = false;
+  $("codeBtn").textContent = code === "LOCAL" ? "Kodsuz" : code;
+  setSync(ONLINE() ? "" : "Sadece bu cihazda");
+  renderAll();
+  if(ONLINE()){ poll(); setInterval(() => { if(!document.hidden) poll(); }, 30000); document.addEventListener("visibilitychange", () => { if(!document.hidden) poll(); }); }
+  else lsSet(storeKey(), JSON.stringify(root));
+}
+$("lgNew").onclick = async () => {
+  $("lgNew").disabled = true; $("lgMsg").textContent = "";
+  try{
+    const r = await fetch("/api/new", {method:"POST"}); const j = await r.json();
+    if(!r.ok) throw j.error || "Kod alınamadı";
+    startApp(j.code, null); save();
+    openSheet(`<h2>Hesabın hazır</h2><p class="muted">Kodun:</p><div class="bigcode">${esc(j.code)}</div><p class="small muted">Bunu bir yere not al. Başka telefondan ya da bilgisayardan girerken bu kodu yazacaksın.</p><button data-close style="width:100%">Tamam</button>`);
+  }catch(e){ $("lgMsg").textContent = typeof e === "string" ? e : "Sunucuya bağlanılamadı. Kodsuz deneyebilirsin."; }
+  $("lgNew").disabled = false;
+};
+$("lgForm").onsubmit = async e => {
+  e.preventDefault();
+  const code = $("lgCode").value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+  if(code.length < 4){ $("lgMsg").textContent = "Kod 4 karakter."; return; }
+  try{
+    const r = await fetch("/api/data?code=" + encodeURIComponent(code), {cache:"no-store"}); const j = await r.json();
+    if(!r.ok) throw j.error || "Bu kod bulunamadı.";
+    let data = null; try{ data = JSON.parse(j.json); }catch(err){}
+    startApp(code, data);
+    if(data){ root._ver = j.updatedAt; root._dirty = false; lsSet(storeKey(), JSON.stringify(root)); } else save();
+  }catch(err){ $("lgMsg").textContent = typeof err === "string" ? err : "Sunucuya bağlanılamadı."; }
+};
+$("lgLocal").onclick = () => { let r = null; try{ r = JSON.parse(lsGet("sd-root-LOCAL")); }catch(e){} startApp("LOCAL", r); };
+$("codeBtn").onclick = () => openSheet(`<h2>Hesap</h2>${ONLINE() ? `<p class="muted">Kodun:</p><div class="bigcode">${esc(CUR)}</div><p class="small muted">Başka cihazdan girmek için bu kodu kullan.</p>` : `<p class="muted">Kodsuz kullanıyorsun, verilerin sadece bu cihazda.</p>`}<div class="row"><button class="ghost" id="logout" style="flex:1">Çıkış yap</button><button data-close style="flex:1">Kapat</button></div>`);
+
+// ================= PENCERE / BİLDİRİM =================
+function openSheet(html){ $("sheet").innerHTML = html; $("modal").hidden = false; document.body.style.overflow = "hidden"; const f = $("sheet").querySelector("button,input,select,a"); if(f) f.focus(); }
+function closeSheet(){ $("modal").hidden = true; document.body.style.overflow = ""; }
+$("modal").addEventListener("click", e => { if(e.target === $("modal") || e.target.closest("[data-close]")) closeSheet(); });
+document.addEventListener("keydown", e => { if(e.key === "Escape" && !$("modal").hidden) closeSheet(); });
+let toastT = null;
+function toast(t){ $("toast").textContent = t; $("toast").hidden = false; clearTimeout(toastT); toastT = setTimeout(() => $("toast").hidden = true, 2200); }
+function ask(text, yes, onYes){
+  openSheet(`<h2>${esc(text)}</h2><div class="row" style="margin-top:14px"><button class="ghost" data-close style="flex:1">Vazgeç</button><button id="askYes" style="flex:1;background:var(--bad)">${esc(yes)}</button></div>`);
+  $("askYes").onclick = () => { closeSheet(); onYes(); };
+}
+
+// ================= SEKMELER =================
+function setTab(t){
+  tab = t;
+  for(const b of $("tabs").children) b.classList.toggle("on", b.dataset.t === t);
+  $("tToday").hidden = t !== "today"; $("tCards").hidden = t !== "cards"; $("tLib").hidden = t !== "lib"; $("tProg").hidden = t !== "prog";
+  renderAll(); window.scrollTo({top: 0});
+}
+$("tabs").onclick = e => { const b = e.target.closest("button[data-t]"); if(b) setTab(b.dataset.t); };
+function renderAll(){ if(!root) return; if(tab === "today") renderToday(); if(tab === "cards") renderCards(); if(tab === "lib") renderLib(); if(tab === "prog") renderProg(); }
+
+// ================= BUGÜN =================
+function ring(val, goal, col, label, u){
+  const r = 50, C = 2*Math.PI*r, pc = Math.min(val/(goal||1), 1);
+  return `<div class="ring"><div class="rw"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--line)" stroke-width="13"/><circle class="p" cx="60" cy="60" r="${r}" fill="none" stroke="${col}" stroke-width="13" stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C*(1-pc)).toFixed(1)}" transform="rotate(-90 60 60)"/></svg><div class="rv">${fmt(val)}<small>/ ${fmt(goal)} ${u}</small></div></div><b>${label}</b></div>`;
+}
+function renderToday(){
+  const d = day(cur), s = sum(d), g = root.goals;
+  $("dlabel").textContent = cur === today() ? "Bugün" : dayName(cur, {weekday:"long", day:"numeric", month:"long"});
+  $("next").disabled = cur >= today();
+  $("rings").innerHTML = ring(s.k, g.k, "var(--bad)", "Kalori", "kcal") + ring(s.p, g.p, "var(--good)", "Protein", "g") + ring(d.w, g.w, "var(--accent)", "Su", "bardak");
+  const bu = +d.bu || 0, net = bu ? s.k - bu : null;
+  $("bal").innerHTML = `<div>Kalan<strong>${fmt(Math.max(g.k - s.k, 0))}</strong></div><div>Yakılan<strong>${bu ? fmt(bu) : "—"}</strong></div><div>Açık<strong class="${net == null ? "" : net < 0 ? "neg" : "pos"}">${net == null ? "—" : (net > 0 ? "+" : "") + fmt(net)}</strong></div>`;
+  $("fl").innerHTML = d.f.map((x, i) => `<li><span class="n">${esc(x.n)}</span><span class="k">${fmt(x.k)} kcal · ${fmt(x.p)} g</span><button class="icon" data-del="${i}" aria-label="${esc(x.n)} sil">✕</button></li>`).join("");
+  $("fe").hidden = d.f.length > 0;
+  $("wv").textContent = (d.w * 0.25).toLocaleString("tr-TR", {minimumFractionDigits: 2}) + " L";
+  $("cups").innerHTML = Array.from({length: Math.max(g.w, d.w)}, (_, i) => `<span class="cup${i < d.w ? " f" : ""}"></span>`).join("");
+  const names = root.cards.map(c => c.name);
+  if(d.wo && !names.includes(d.wo)) names.push(d.wo);
+  $("wo").innerHTML = `<option value="">Dinlenme</option>` + names.map(n => `<option>${esc(n)}</option>`).join("");
+  for(const k of FIELDS){ const el = $(k); if(document.activeElement !== el) el.value = d[k] ?? ""; }
+  for(const [id, k] of [["gk","k"],["gp","p"],["gw","w"]]){ const el = $(id); if(document.activeElement !== el) el.value = g[k]; }
+}
+$("pre").innerHTML = PRESETS.map((p, i) => `<button type="button" data-p="${i}">+ ${esc(p[0])}</button>`).join("");
+$("prev").onclick = () => { cur = shift(cur, -1); renderToday(); };
+$("next").onclick = () => { if(cur < today()){ cur = shift(cur, 1); renderToday(); } };
+$("ff").onsubmit = e => {
+  e.preventDefault();
+  const n = $("fn").value.trim(), k = +$("fk").value;
+  if(!n || !(k >= 0)) return;
+  day(cur).f.push({n, k, p: +$("fp").value || 0});
+  $("fn").value = $("fk").value = $("fp").value = ""; $("fn").focus();
+  save(); renderToday();
+};
+$("pre").onclick = e => { const b = e.target.closest("button[data-p]"); if(!b) return; const p = PRESETS[+b.dataset.p]; day(cur).f.push({n:p[0], k:p[1], p:p[2]}); save(); renderToday(); toast("+ " + p[0]); };
+$("fl").onclick = e => { const b = e.target.closest("button[data-del]"); if(!b) return; day(cur).f.splice(+b.dataset.del, 1); save(); renderToday(); };
+$("wp").onclick = () => { day(cur).w++; save(); renderToday(); };
+$("wm").onclick = () => { const d = day(cur); if(d.w > 0){ d.w--; save(); renderToday(); } };
+for(const k of FIELDS) $(k).addEventListener(k === "wo" ? "change" : "input", e => { day(cur)[k] = e.target.value; save(); renderToday(); });
+for(const [id, k] of [["gk","k"],["gp","p"],["gw","w"]]) $(id).addEventListener("input", e => { const v = +e.target.value; if(v > 0){ root.goals[k] = v; save(); renderToday(); } });
+
+// ================= KARTLAR =================
+let openCard = null;
+const lastLift = id => { const a = root.lifts[id]; return a && a.length ? a[a.length - 1] : null; };
+const liftText = l => l ? l.s.map(x => x[0] ? `${num(x[0])}×${x[1]}` : `${x[1]}`).join(", ") : "";
+function renderCards(){
+  if(root.session) return renderSession();
+  const el = $("tCards");
+  el.innerHTML = root.cards.map((c, ci) => `
+    <details class="card wcard" data-card="${ci}" ${openCard === c.id ? "open" : ""}>
+      <summary><h2>${esc(c.name)}</h2><span class="pill">${c.ex.length} hareket</span></summary>
+      <div style="margin-top:12px">
+        ${c.ex.map((x, xi) => { const e = EXM[x.id]; if(!e) return ""; const l = lastLift(x.id);
+          return `<div class="exrow">
+            ${anim(e.id, e.tr)}
+            <div><div class="nm"><button data-info="${e.id}">${esc(e.tr)}</button></div>
+              <div class="sr"><input type="number" inputmode="numeric" min="1" value="${x.s}" data-set="${ci}:${xi}:s" aria-label="Set"> set ×
+              <input type="number" inputmode="numeric" min="1" value="${x.r}" data-set="${ci}:${xi}:r" aria-label="${unit(e)}"> ${unit(e)}</div>
+              ${l ? `<div class="small muted">Son: ${esc(liftText(l))}</div>` : ""}</div>
+            <div class="ops"><button class="icon" data-mv="${ci}:${xi}:-1" aria-label="Yukarı" ${xi ? "" : "disabled"}>↑</button><button class="icon" data-mv="${ci}:${xi}:1" aria-label="Aşağı" ${xi < c.ex.length - 1 ? "" : "disabled"}>↓</button><button class="icon" data-rm="${ci}:${xi}" aria-label="Çıkar">✕</button></div>
+          </div>`; }).join("")}
+        <div class="row" style="margin-top:12px">
+          <button data-start="${ci}" style="flex:1 1 180px">Antrenmanı başlat</button>
+          <button class="ghost" data-add="${ci}" style="flex:1 1 140px">+ Hareket ekle</button>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <button class="ghost" data-ren="${ci}" style="flex:1">Adını değiştir</button>
+          <button class="ghost" data-delc="${ci}" style="flex:1;color:var(--bad)">Kartı sil</button>
+        </div>
+      </div>
+    </details>`).join("") +
+    `<button id="newCard" style="width:100%">+ Yeni kart</button>
+     ${root.cards.length ? "" : `<p class="empty">Hiç kartın yok. Yeni bir kart oluştur, sonra Hareketler sekmesinden hareket ekle.</p>`}`;
+}
+$("tCards").addEventListener("toggle", e => { const d = e.target.closest("details[data-card]"); if(d && d.open) openCard = root.cards[+d.dataset.card]?.id; }, true);
+$("tCards").addEventListener("change", e => {
+  const t = e.target;
+  if(t.dataset.set){ const [ci, xi, k] = t.dataset.set.split(":"); const v = Math.max(1, Math.round(+t.value || 1)); root.cards[ci].ex[xi][k] = v; t.value = v; save(); }
+  if(t.dataset.kg || t.dataset.rp){ const [xi, si] = (t.dataset.kg || t.dataset.rp).split(":"); const st = root.session.ex[xi].sets[si]; if(t.dataset.kg) st.kg = t.value; else st.r = t.value; save(); }
+});
+$("tCards").addEventListener("click", e => {
+  const b = e.target.closest("button"); if(!b) return;
+  const d = b.dataset;
+  if(d.info) return showEx(d.info);
+  if(d.mv){ const [ci, xi, dir] = d.mv.split(":").map(Number); const a = root.cards[ci].ex; const j = xi + dir; if(j < 0 || j >= a.length) return; [a[xi], a[j]] = [a[j], a[xi]]; save(); renderCards(); return; }
+  if(d.rm){ const [ci, xi] = d.rm.split(":").map(Number); const x = root.cards[ci].ex.splice(xi, 1)[0]; save(); renderCards(); toast(`${EXM[x.id]?.tr || "Hareket"} çıkarıldı`); return; }
+  if(d.add){ openCard = root.cards[+d.add].id; addTarget = openCard; setTab("lib"); toast(`“${root.cards[+d.add].name}” kartına eklenecek hareketi seç`); return; }
+  if(d.ren){ const c = root.cards[+d.ren]; openSheet(`<h2>Kartın adı</h2><input id="renIn" value="${esc(c.name)}" maxlength="40"><div class="row" style="margin-top:12px"><button class="ghost" data-close style="flex:1">Vazgeç</button><button id="renOk" style="flex:1">Kaydet</button></div>`); $("renOk").onclick = () => { const v = $("renIn").value.trim(); if(v){ c.name = v; save(); renderCards(); } closeSheet(); }; return; }
+  if(d.delc){ const c = root.cards[+d.delc]; return ask(`“${c.name}” kartı silinsin mi?`, "Sil", () => { root.cards.splice(+d.delc, 1); save(); renderCards(); toast("Kart silindi"); }); }
+  if(d.start){ startSession(+d.start); return; }
+  if(b.id === "newCard"){ openSheet(`<h2>Yeni kart</h2><input id="ncIn" placeholder="Örn. Pazartesi – İtiş" maxlength="40"><div class="row" style="margin-top:12px"><button class="ghost" data-close style="flex:1">Vazgeç</button><button id="ncOk" style="flex:1">Oluştur</button></div>`); $("ncOk").onclick = () => { const v = $("ncIn").value.trim(); if(!v) return; const c = card(v, []); root.cards.push(c); openCard = c.id; save(); closeSheet(); renderCards(); }; return; }
+  // antrenman modu
+  if(d.ok){ const [xi, si] = d.ok.split(":").map(Number); const st = root.session.ex[xi].sets[si]; st.done = !st.done; save(); renderSession(); return; }
+  if(d.addset){ const x = root.session.ex[+d.addset]; const last = x.sets[x.sets.length - 1] || {kg:"", r:""}; x.sets.push({kg:last.kg, r:last.r, done:false}); save(); renderSession(); return; }
+  if(b.id === "sesEnd") return finishSession();
+  if(b.id === "sesCancel") return ask("Antrenman kaydedilmeden kapatılsın mı?", "Kapat", () => { root.session = null; save(); renderCards(); });
+});
+
+// ================= ANTRENMAN MODU + AĞIRLIK DEFTERİ =================
+function startSession(ci){
+  const c = root.cards[ci];
+  root.session = {card: c.name, date: today(), ex: c.ex.filter(x => EXM[x.id]).map(x => {
+    const l = lastLift(x.id), e = EXM[x.id];
+    return {id: x.id, sets: Array.from({length: x.s}, (_, i) => ({kg: e.u ? "" : (l && l.s[i] ? l.s[i][0] : (l ? l.s[l.s.length-1][0] : "")), r: x.r, done: false}))};
+  })};
+  save(); renderCards(); window.scrollTo({top: 0});
+}
+function renderSession(){
+  const S = root.session;
+  $("tCards").innerHTML = `<div class="card">
+    <div class="row" style="justify-content:space-between;align-items:center"><div><h2 style="margin:0">${esc(S.card)}</h2><div class="small muted">${dayName(S.date, {weekday:"long", day:"numeric", month:"long"})}</div></div><span class="pill">${S.ex.reduce((a, x) => a + x.sets.filter(s => s.done).length, 0)} / ${S.ex.reduce((a, x) => a + x.sets.length, 0)} set</span></div>
+    ${S.ex.map((x, xi) => { const e = EXM[x.id], l = lastLift(x.id); return `<div class="logex">
+      <div class="row" style="align-items:center;flex-wrap:nowrap"><div style="width:72px;flex:none">${anim(e.id, e.tr)}</div><div style="flex:1"><h3><button data-info="${e.id}" style="all:unset;cursor:pointer">${esc(e.tr)}</button></h3><div class="small muted">${l ? "Geçen sefer: " + esc(liftText(l)) : "İlk sefer, rahat bir kiloyla başla"}</div></div></div>
+      <div class="sets"><span class="h">Set</span><span class="h">${e.u ? "" : "kg"}</span><span class="h">${unit(e)}</span><span></span>
+      ${x.sets.map((s, si) => `<span class="i">${si + 1}</span>${e.u ? "<span></span>" : `<input type="number" inputmode="decimal" step="0.5" min="0" value="${esc(s.kg)}" data-kg="${xi}:${si}" aria-label="${si+1}. set kg">`}<input type="number" inputmode="numeric" min="0" value="${esc(s.r)}" data-rp="${xi}:${si}" aria-label="${si+1}. set ${unit(e)}"><button class="${s.done ? "done" : "ghost"}" data-ok="${xi}:${si}" aria-label="${si+1}. set tamam">✓</button>`).join("")}
+      </div><button class="ghost" data-addset="${xi}" style="margin-top:8px;min-height:36px">+ Set</button></div>`; }).join("")}
+    <div class="row" style="margin-top:14px"><button class="ghost" id="sesCancel" style="flex:1">Kaydetmeden kapat</button><button id="sesEnd" style="flex:2">Bitir ve kaydet</button></div>
+  </div>`;
+}
+function finishSession(){
+  const S = root.session; let n = 0;
+  for(const x of S.ex){
+    const sets = x.sets.filter(s => s.done || (+s.r > 0 && s.kg !== "")).filter(s => +s.r > 0).map(s => [+s.kg || 0, +s.r]);
+    if(!sets.length) continue;
+    const a = root.lifts[x.id] || (root.lifts[x.id] = []);
+    const i = a.findIndex(l => l.d === S.date);
+    if(i >= 0) a[i] = {d: S.date, s: sets}; else a.push({d: S.date, s: sets});
+    a.sort((p, q) => p.d < q.d ? -1 : 1); n++;
+  }
+  const d = day(S.date); d.wo = S.card;
+  const cardio = S.ex.find(x => EXM[x.id].u === "dk"); if(cardio && !d.ca){ const m = cardio.sets.filter(s => s.done).reduce((a, s) => a + (+s.r || 0), 0); if(m) d.ca = String(m); }
+  root.session = null; save(); renderCards(); toast(n ? `Kaydedildi: ${n} hareket ağırlık defterine yazıldı` : "Antrenman kaydedildi");
+}
+
+// ================= HAREKETLER =================
+let addTarget = null;
+function renderLib(){
+  const q = $("q").value.trim().toLocaleLowerCase("tr");
+  $("groups").innerHTML = GROUPS.map(g => `<button type="button" data-g="${esc(g)}" class="${g === grp ? "on" : ""}">${esc(g)}</button>`).join("");
+  const list = EX.filter(e => (grp === "Tümü" || e.g === grp) && (!q || (e.tr + " " + e.en + " " + e.g).toLocaleLowerCase("tr").includes(q)));
+  $("exgrid").innerHTML = list.map(e => `<button class="exc" data-ex="${e.id}">${anim(e.id, e.tr)}<span>${esc(e.tr)}</span><small>${esc(e.g)} · ${e.s}×${e.r} ${unit(e)}</small></button>`).join("") || `<p class="empty">Bu aramaya uyan hareket yok.</p>`;
+}
+$("q").oninput = renderLib;
+$("groups").onclick = e => { const b = e.target.closest("button[data-g]"); if(b){ grp = b.dataset.g; renderLib(); } };
+$("exgrid").onclick = e => { const b = e.target.closest("button[data-ex]"); if(b) showEx(b.dataset.ex); };
+function showEx(id){
+  const e = EXM[id]; if(!e) return;
+  const opts = root.cards.map(c => `<option value="${c.id}" ${c.id === (addTarget || openCard) ? "selected" : ""}>${esc(c.name)}</option>`).join("");
+  openSheet(`<div class="row" style="justify-content:space-between;align-items:center;flex-wrap:nowrap"><h2 style="margin:0">${esc(e.tr)}</h2><button class="icon" data-close aria-label="Kapat">✕</button></div>
+    <p class="small muted" style="margin:2px 0 10px">${esc(e.g)} · önerilen ${e.s} set × ${e.r} ${unit(e)}</p>
+    ${anim(e.id, e.tr)}
+    <ol>${e.how.map(h => `<li>${esc(h)}</li>`).join("")}</ol>
+    <div class="tip">${esc(e.tip)}</div>
+    <p style="margin:14px 0"><a class="yt" href="${yt(e)}" target="_blank" rel="noopener">▶ YouTube'da nasıl yapıldığını izle</a></p>
+    ${root.cards.length ? `<div class="row"><label class="f" style="flex:2 1 160px">Karta ekle<select id="addSel">${opts}</select></label><button id="addGo" style="flex:1 1 100px">Ekle</button></div>` : `<p class="small muted">Karta eklemek için önce Kartlar sekmesinden bir kart oluştur.</p>`}`);
+  const go = $("addGo");
+  if(go) go.onclick = () => {
+    const c = root.cards.find(x => x.id === $("addSel").value); if(!c) return;
+    if(root.session && root.session.card === c.name && tab === "cards"){ /* antrenman sırasında kartı değiştirmiyoruz */ }
+    c.ex.push({id: e.id, s: e.s, r: e.r}); openCard = c.id; addTarget = c.id; save(); closeSheet(); renderAll(); toast(`${e.tr} → ${c.name}`);
+  };
+}
+
+// ================= İLERLEME =================
+function lineChart(box, pts, fmtY){
+  box.innerHTML = "";
+  if(pts.length < 2){ box.style.height = "0"; return; }
+  box.style.height = "";
+  const svgNS = "http://www.w3.org/2000/svg", svg = document.createElementNS(svgNS, "svg"); box.appendChild(svg);
+  const draw = () => {
+    const W = svg.clientWidth, H = svg.clientHeight; if(!W) return;
+    const ys = pts.map(p => p.y), lo = Math.min(...ys), hi = Math.max(...ys), pad = (hi - lo) * .15 || 1, a = lo - pad, b = hi + pad;
+    const L = 44, R = 12, T = 12, B = 24;
+    const x = i => L + (W - L - R) * (pts.length === 1 ? .5 : i/(pts.length - 1)), y = v => T + (H - T - B) * (1 - (v - a)/(b - a));
+    const ticks = [lo, (lo + hi)/2, hi];
+    const step = Math.max(1, Math.ceil(pts.length / (W < 520 ? 3 : 6)));
+    svg.innerHTML =
+      ticks.map(t => `<line x1="${L}" x2="${W - R}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)"/><text x="${L - 6}" y="${y(t) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${fmtY(t)}</text>`).join("") +
+      `<polyline fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" points="${pts.map((p, i) => x(i) + "," + y(p.y)).join(" ")}"/>` +
+      pts.map((p, i) => `<circle cx="${x(i)}" cy="${y(p.y)}" r="3.5" fill="var(--accent)"/>` + (i % step === 0 || i === pts.length - 1 ? `<text x="${x(i)}" y="${H - 6}" text-anchor="${i === 0 ? "start" : i === pts.length - 1 ? "end" : "middle"}" font-size="11" fill="var(--muted)">${p.x}</text>` : "")).join("");
+  };
+  draw(); const ro = new ResizeObserver(draw); ro.observe(svg);
+}
+function renderProg(){
+  const rows = [];
+  for(let i = 6; i >= 0; i--){ const ds = shift(today(), -i), d = root.days[ds] || blankDay(), s = sum(d), b = +d.bu || 0; rows.push({ds, d, s, b, n: b && d.f.length ? s.k - b : null}); }
+  $("wk").innerHTML = rows.map(r => `<tr class="${r.ds === today() ? "cur" : ""}"><td>${dayName(r.ds, {weekday:"short", day:"numeric"})}</td><td>${r.d.f.length ? fmt(r.s.k) : "—"}</td><td>${r.b ? fmt(r.b) : "—"}</td><td class="${r.n == null ? "" : r.n < 0 ? "neg" : "pos"}">${r.n == null ? "—" : (r.n > 0 ? "+" : "") + fmt(r.n)}</td><td>${r.d.f.length ? fmt(r.s.p) + " g" : "—"}</td><td>${r.d.kg ? num(r.d.kg) : "—"}</td></tr>`).join("");
+  const eaten = rows.filter(r => r.d.f.length), nets = rows.filter(r => r.n != null), parts = [];
+  if(eaten.length) parts.push(`Ortalama ${fmt(eaten.reduce((a, r) => a + r.s.k, 0)/eaten.length)} kcal, ${fmt(eaten.reduce((a, r) => a + r.s.p, 0)/eaten.length)} g protein`);
+  if(nets.length){ const t = nets.reduce((a, r) => a + r.n, 0); parts.push(`toplam açık ${fmt(t)} kcal (≈ ${num(Math.abs(Math.min(t, 0))/7700)} kg yağ)`); }
+  $("avg").textContent = parts.length ? parts.join(" · ") + "." : "Birkaç gün doldurunca haftalık ortalaman burada çıkar.";
+
+  const kgs = Object.keys(root.days).sort().filter(k => +root.days[k].kg > 0).slice(-30).map(k => ({x: dayName(k, {day:"numeric", month:"short"}), y: +root.days[k].kg}));
+  lineChart($("kgFig"), kgs, v => num(v));
+  $("kgNote").textContent = kgs.length > 1 ? `Son kilo ${num(kgs[kgs.length-1].y)} kg · ilk kayda göre ${(kgs[kgs.length-1].y - kgs[0].y > 0 ? "+" : "") + num(kgs[kgs.length-1].y - kgs[0].y)} kg. Haftada 1–2 kez, sabah aç karnına tart.` : "Bugün sekmesinde sabah kilonu yaz; iki kayıttan sonra grafik çıkar.";
+
+  const ids = Object.keys(root.lifts).filter(id => EXM[id] && root.lifts[id].length);
+  const sel = $("liftSel"), keep = sel.value;
+  sel.hidden = !ids.length;
+  sel.innerHTML = ids.map(id => `<option value="${id}">${esc(EXM[id].tr)}</option>`).join("");
+  if(ids.includes(keep)) sel.value = keep;
+  drawLift();
+}
+function drawLift(){
+  const id = $("liftSel").value, a = (id && root.lifts[id]) || [];
+  $("liftEmpty").hidden = a.length > 0;
+  const max = l => Math.max(...l.s.map(x => x[0]));
+  $("liftTb").innerHTML = a.slice().reverse().map(l => `<tr><td>${dayName(l.d, {day:"numeric", month:"short"})}</td><td>${esc(liftText(l))}</td><td>${max(l) ? num(max(l)) + " kg" : "—"}</td></tr>`).join("");
+  lineChart($("liftFig"), a.filter(l => max(l) > 0).map(l => ({x: dayName(l.d, {day:"numeric", month:"short"}), y: max(l)})), v => num(v));
+}
+$("liftSel").onchange = drawLift;
+
+// ================= AÇILIŞ =================
+document.addEventListener("click", e => { if(e.target.id === "logout"){ closeSheet(); lsDel("sd-code"); location.reload(); } });
+const saved = lsGet("sd-code");
+if(saved){ let r = null; try{ r = JSON.parse(lsGet("sd-root-" + saved)); }catch(e){} startApp(saved, r); if(r && r._ver) root._ver = r._ver; }
+else $("vLogin").hidden = false;
+if("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("/sw.js").catch(() => {});
+}
+</script>
+</body>
+</html>
