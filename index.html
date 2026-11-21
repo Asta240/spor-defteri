@@ -618,6 +618,7 @@ function startApp(code, r){
   setSync(ONLINE() ? "" : "Sadece bu cihazda");
   setTab(tab);
   applyPendingYmk();
+  applyPendingVeri();
   if(ONLINE()){ poll(); setInterval(() => { if(!document.hidden) poll(); }, 30000); document.addEventListener("visibilitychange", () => { if(!document.hidden) poll(); }); }
   else lsSet(storeKey(), JSON.stringify(root));
 }
@@ -838,8 +839,50 @@ function importYmk(c){
   toast(`📷 ${items.length} yemek eklendi · ${fmt(items.reduce((a, x) => a + x.k, 0))} kcal`);
 }
 $("ymkForm").onsubmit = e => { e.preventDefault(); try{ importYmk($("ymkIn").value); $("ymkIn").value = ""; }catch(err){ toast(typeof err === "string" ? err : "Kod okunamadı."); } };
-if(location.hash.startsWith("#ymk=")){ lsSet("sd-pending-ymk", location.hash.slice(5)); try{ history.replaceState(null, "", location.pathname); }catch(e){} }
 function applyPendingYmk(){ const c = lsGet("sd-pending-ymk"); if(!c || !root) return; lsDel("sd-pending-ymk"); try{ importYmk(c); }catch(err){ toast(typeof err === "string" ? err : "Fotoğraf kodu okunamadı."); } }
+
+// Veri aktarma linki: #veri=VRI1.<base64url JSON {days:{tarih:{f,w,wo,ca,st,bu,kg}}}>
+// Var olan kayıt silinmez: aynı yemek (ad + kcal) tekrar eklenmez, boş alanlar doldurulur.
+function decodeB64Json(b){
+  b = b.replace(/-/g, "+").replace(/_/g, "/");
+  return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(b + "===".slice((b.length + 3) % 4)), ch => ch.charCodeAt(0))));
+}
+function mergeVeri(o){
+  let nd = 0, nf = 0;
+  for(const [ds, src] of Object.entries((o && o.days) || {})){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(ds) || !src) continue;
+    const d = day(ds); let touched = false;
+    for(const x of src.f || []){
+      if(!x || !x.n) continue;
+      if(d.f.some(y => y.n === x.n && +y.k === +x.k)) continue;
+      d.f.push({n: String(x.n).slice(0, 80), k: Math.round(+x.k || 0), p: Math.round(+x.p || 0)}); nf++; touched = true;
+    }
+    if(src.w && !d.w){ d.w = +src.w || 0; touched = true; }
+    for(const k of FIELDS) if(src[k] !== undefined && src[k] !== "" && (d[k] === "" || d[k] == null)){ d[k] = String(src[k]); touched = true; }
+    if(touched) nd++;
+  }
+  return {nd, nf};
+}
+function applyPendingVeri(){
+  const c = lsGet("sd-pending-veri"); if(!c || !root) return;
+  let o = null; try{ if(!c.startsWith("VRI1.")) throw 0; o = decodeB64Json(c.slice(5)); }catch(e){ lsDel("sd-pending-veri"); toast("Aktarma linki okunamadı."); return; }
+  const n = Object.keys(o.days || {}).length;
+  openSheet(`<h2>Veri aktarılsın mı?</h2><p class="muted">${n} günlük kayıt (${esc(Object.keys(o.days || {}).sort()[0] || "")} – ${esc(Object.keys(o.days || {}).sort().pop() || "")}) hesabına eklenecek. Var olan kayıtların silinmez, aynı yemekler ikinci kez eklenmez.</p>
+    <div class="row" style="margin-top:12px"><button class="ghost" id="veriNo" style="flex:1">Vazgeç</button><button id="veriYes" style="flex:2">Aktar</button></div>`);
+  $("veriNo").onclick = () => { lsDel("sd-pending-veri"); closeSheet(); };
+  $("veriYes").onclick = () => { lsDel("sd-pending-veri"); const r = mergeVeri(o); save(); closeSheet(); renderAll(); toast(`Aktarıldı: ${r.nd} gün, ${r.nf} yemek`); };
+}
+function readLinkHash(){
+  const h = location.hash;
+  if(h.startsWith("#veri=")) lsSet("sd-pending-veri", h.slice(6));
+  else if(h.startsWith("#ymk=")) lsSet("sd-pending-ymk", h.slice(5));
+  else return false;
+  try{ history.replaceState(null, "", location.pathname); }catch(e){}
+  return true;
+}
+readLinkHash();
+// Site zaten açıkken link açılırsa (sayfa yenilenmez) de çalışsın
+window.addEventListener("hashchange", () => { if(readLinkHash() && root){ applyPendingYmk(); applyPendingVeri(); } });
 
 // ================= KARTLAR =================
 let openCard = null;
