@@ -23,6 +23,7 @@
       --warn:#ffa94d; --warn-soft:#33281b; --bad:#ff6b6b; --bad-soft:#3a2020; color-scheme:dark }
   }
   *{box-sizing:border-box;min-width:0}
+  [hidden]{display:none!important}
   body{margin:0;font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45;overflow-x:clip}
   .wrap{max-width:760px;margin:0 auto;padding:22px 16px 60px}
   header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
@@ -131,6 +132,17 @@
   .toast[hidden]{display:none}
   .login{max-width:420px;margin:8vh auto 0;text-align:center}
   .login .card{text-align:left}
+  .stack{display:flex;flex-direction:column;gap:8px}
+  .err{color:var(--bad);margin:8px 0 0;min-height:0}
+  .err:empty{display:none}
+  button.linkish{background:none;color:var(--muted);padding:6px 0;min-height:36px;font-weight:500;font-size:14px}
+  button.linkish b{color:var(--accent)}
+  .or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;margin:4px 0 12px}
+  .or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+  .gbtn{display:flex;justify-content:center;min-height:44px}
+  .acc{display:flex;flex-direction:column;gap:10px;margin:12px 0}
+  .acc .it{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px}
+  .acc .it b{font-weight:700}
   .bigcode{font-size:40px;font-weight:800;letter-spacing:.18em;text-align:center;margin:10px 0}
   footer{margin-top:24px;text-align:center;font-size:12px;color:var(--muted)}
   footer a{color:inherit}
@@ -140,25 +152,47 @@
 <div class="wrap">
   <header>
     <div><h1>Spor <span>Defteri</span></h1><p class="sub">Kalori, su, antrenman kartları ve ağırlık defteri</p></div>
-    <div class="sync" id="syncBox" hidden><span id="sync"></span><button class="codechip" id="codeBtn" title="Hesap kodun"></button></div>
+    <div class="sync" id="syncBox" hidden><span id="sync"></span><button class="codechip" id="codeBtn" title="Hesap"></button></div>
   </header>
 
   <!-- GİRİŞ -->
   <section id="vLogin" class="login" hidden>
-    <div class="card">
-      <h2>Yeni hesap</h2>
-      <p class="muted small">4 haneli bir kod alırsın. Başka cihazdan girerken bu kod lazım, not al.</p>
-      <button id="lgNew" style="width:100%">Yeni hesap aç</button>
+    <div class="card" id="cIn">
+      <h2>Giriş yap</h2>
+      <form id="inForm" class="stack">
+        <input id="inUser" placeholder="Kullanıcı adı" autocomplete="username" autocapitalize="none" spellcheck="false" aria-label="Kullanıcı adı" required>
+        <input id="inPass" type="password" placeholder="Şifre" autocomplete="current-password" aria-label="Şifre" required>
+        <button>Giriş</button>
+      </form>
+      <p class="small err" id="inMsg"></p>
+      <button class="linkish" id="toReg">Hesabın yok mu? <b>Kayıt ol</b></button>
     </div>
-    <div class="card">
-      <h2>Kodum var</h2>
-      <form id="lgForm" class="row">
+    <div class="card" id="cReg" hidden>
+      <h2>Kayıt ol</h2>
+      <form id="regForm" class="stack">
+        <input id="regUser" placeholder="Kullanıcı adı (girişte bunu yazacaksın)" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="20" aria-label="Kullanıcı adı" required>
+        <input id="regEmail" type="email" placeholder="E-posta" autocomplete="email" aria-label="E-posta" required>
+        <input id="regPass" type="password" placeholder="Şifre (en az 6 karakter)" autocomplete="new-password" minlength="6" aria-label="Şifre" required>
+        <button>Kayıt ol</button>
+      </form>
+      <p class="small muted" style="margin:8px 0 0">Kullanıcı adı: 3–20 karakter, harf, rakam, nokta ya da alt çizgi.</p>
+      <p class="small err" id="regMsg"></p>
+      <button class="linkish" id="toIn">Zaten hesabın var mı? <b>Giriş yap</b></button>
+    </div>
+    <div id="gWrap" hidden>
+      <div class="or"><span>ya da</span></div>
+      <div id="gBtn" class="gbtn"></div>
+      <p class="small err" id="gMsg"></p>
+    </div>
+    <details class="card" style="margin-top:14px">
+      <summary class="small"><b>Eski kodla giriş</b></summary>
+      <form id="lgForm" class="row" style="margin-top:12px">
         <input id="lgCode" placeholder="Örn. 7KQ4" maxlength="6" autocomplete="off" autocapitalize="characters" aria-label="Hesap kodu" style="flex:1 1 140px;text-transform:uppercase;letter-spacing:.12em">
         <button>Giriş</button>
       </form>
-      <p class="small" id="lgMsg" style="color:var(--bad);margin:8px 0 0"></p>
-    </div>
-    <button class="ghost" id="lgLocal">Kodsuz dene (sadece bu cihazda)</button>
+      <p class="small err" id="lgMsg"></p>
+    </details>
+    <button class="ghost" id="lgLocal">Hesapsız dene (sadece bu cihazda)</button>
   </section>
 
   <!-- UYGULAMA -->
@@ -436,36 +470,94 @@ function startApp(code, r){
   CUR = code; lsSet("sd-code", code);
   root = fixRoot(r);
   $("vLogin").hidden = true; $("vApp").hidden = false; $("syncBox").hidden = false;
-  $("codeBtn").textContent = code === "LOCAL" ? "Kodsuz" : code;
+  $("codeBtn").textContent = label();
   setSync(ONLINE() ? "" : "Sadece bu cihazda");
   renderAll();
   if(ONLINE()){ poll(); setInterval(() => { if(!document.hidden) poll(); }, 30000); document.addEventListener("visibilitychange", () => { if(!document.hidden) poll(); }); }
   else lsSet(storeKey(), JSON.stringify(root));
 }
-$("lgNew").onclick = async () => {
-  $("lgNew").disabled = true; $("lgMsg").textContent = "";
-  try{
-    const r = await fetch("/api/new", {method:"POST"}); const j = await r.json();
-    if(!r.ok) throw j.error || "Kod alınamadı";
-    startApp(j.code, null); save();
-    openSheet(`<h2>Hesabın hazır</h2><p class="muted">Kodun:</p><div class="bigcode">${esc(j.code)}</div><p class="small muted">Bunu bir yere not al. Başka telefondan ya da bilgisayardan girerken bu kodu yazacaksın.</p><button data-close style="width:100%">Tamam</button>`);
-  }catch(e){ $("lgMsg").textContent = typeof e === "string" ? e : "Sunucuya bağlanılamadı. Kodsuz deneyebilirsin."; }
-  $("lgNew").disabled = false;
-};
-$("lgForm").onsubmit = async e => {
+// Giriş yolları: kullanıcı adı + şifre, Google, eski kod. Hepsi sonunda hesabın koduna çıkar.
+let GID = null;
+const label = () => lsGet("sd-user") || (CUR === "LOCAL" ? "Hesapsız" : CUR);
+const errMsg = e => typeof e === "string" ? e : "Sunucuya bağlanılamadı.";
+async function api(body){
+  const r = await fetch("/api/auth", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)});
+  const j = await r.json().catch(() => ({}));
+  if(!r.ok) throw j.error || "Bir sorun oldu, tekrar dene.";
+  return j;
+}
+async function enterCode(code, who){
+  const r = await fetch("/api/data?code=" + encodeURIComponent(code), {cache:"no-store"}); const j = await r.json();
+  if(!r.ok) throw j.error || "Bu kod bulunamadı.";
+  let data = null; try{ data = JSON.parse(j.json); }catch(e){}
+  if(who) lsSet("sd-user", who); else lsDel("sd-user");
+  startApp(code, data);
+  if(data){ root._ver = j.updatedAt; root._dirty = false; lsSet(storeKey(), JSON.stringify(root)); } else save();
+}
+async function busyBtn(form, fn){ const b = form.querySelector("button"); b.disabled = true; try{ await fn(); } finally{ b.disabled = false; } }
+$("toReg").onclick = () => { $("cIn").hidden = true; $("cReg").hidden = false; $("regUser").focus(); };
+$("toIn").onclick = () => { $("cReg").hidden = true; $("cIn").hidden = false; $("inUser").focus(); };
+$("inForm").onsubmit = e => { e.preventDefault(); $("inMsg").textContent = ""; busyBtn(e.target, async () => {
+  try{ const j = await api({action:"login", user: $("inUser").value, pass: $("inPass").value}); await enterCode(j.code, j.user); }
+  catch(err){ $("inMsg").textContent = errMsg(err); } }); };
+$("regForm").onsubmit = e => { e.preventDefault(); $("regMsg").textContent = ""; busyBtn(e.target, async () => {
+  try{ const j = await api({action:"register", user: $("regUser").value, email: $("regEmail").value, pass: $("regPass").value}); await enterCode(j.code, j.user); toast("Hoş geldin, " + j.user); }
+  catch(err){ $("regMsg").textContent = errMsg(err); } }); };
+$("lgForm").onsubmit = e => {
   e.preventDefault();
   const code = $("lgCode").value.toUpperCase().replace(/[^A-Z0-9]/g, "");
   if(code.length < 4){ $("lgMsg").textContent = "Kod 4 karakter."; return; }
-  try{
-    const r = await fetch("/api/data?code=" + encodeURIComponent(code), {cache:"no-store"}); const j = await r.json();
-    if(!r.ok) throw j.error || "Bu kod bulunamadı.";
-    let data = null; try{ data = JSON.parse(j.json); }catch(err){}
-    startApp(code, data);
-    if(data){ root._ver = j.updatedAt; root._dirty = false; lsSet(storeKey(), JSON.stringify(root)); } else save();
-  }catch(err){ $("lgMsg").textContent = typeof err === "string" ? err : "Sunucuya bağlanılamadı."; }
+  busyBtn(e.target, async () => { try{ await enterCode(code, ""); }catch(err){ $("lgMsg").textContent = errMsg(err); } });
 };
-$("lgLocal").onclick = () => { let r = null; try{ r = JSON.parse(lsGet("sd-root-LOCAL")); }catch(e){} startApp("LOCAL", r); };
-$("codeBtn").onclick = () => openSheet(`<h2>Hesap</h2>${ONLINE() ? `<p class="muted">Kodun:</p><div class="bigcode">${esc(CUR)}</div><p class="small muted">Başka cihazdan girmek için bu kodu kullan.</p>` : `<p class="muted">Kodsuz kullanıyorsun, verilerin sadece bu cihazda.</p>`}<div class="row"><button class="ghost" id="logout" style="flex:1">Çıkış yap</button><button data-close style="flex:1">Kapat</button></div>`);
+$("lgLocal").onclick = () => { let r = null; try{ r = JSON.parse(lsGet("sd-root-LOCAL")); }catch(e){} lsDel("sd-user"); startApp("LOCAL", r); };
+
+// Google ile giriş (GOOGLE_CLIENT_ID ayarlıysa görünür)
+let gLoad = null, gLink = false;
+const loadGsi = () => gLoad || (gLoad = new Promise((ok, no) => { const s = document.createElement("script"); s.src = "https://accounts.google.com/gsi/client"; s.async = true; s.onload = ok; s.onerror = no; document.head.appendChild(s); }));
+async function onGoogle(resp){
+  const m = gLink ? $("accMsg") : $("gMsg"); if(m) m.textContent = "";
+  try{
+    if(gLink){ await api({action:"google", credential: resp.credential, code: CUR}); closeSheet(); toast("Google hesabın bağlandı"); return; }
+    const j = await api({action:"google", credential: resp.credential});
+    await enterCode(j.code, j.email || "Google");
+  }catch(err){ if(m) m.textContent = errMsg(err); }
+}
+async function renderG(el, link){
+  if(!GID || !el) return;
+  try{
+    await loadGsi(); gLink = link;
+    google.accounts.id.initialize({client_id: GID, callback: onGoogle});
+    google.accounts.id.renderButton(el, {theme: matchMedia("(prefers-color-scheme: dark)").matches ? "filled_black" : "outline", size: "large", shape: "pill", text: link ? "signin_with" : "continue_with", locale: "tr", width: Math.min(el.clientWidth || 320, 380)});
+  }catch(e){ if(link){ if($("gLinkWrap")) $("gLinkWrap").hidden = true; } else $("gWrap").hidden = true; }
+}
+async function initGoogle(){
+  try{ const r = await fetch("/api/auth", {cache:"no-store"}); GID = (await r.json()).google || null; }catch(e){ GID = null; }
+  if(GID && !$("vLogin").hidden){ $("gWrap").hidden = false; renderG($("gBtn"), false); }
+}
+
+// Hesap penceresi: bağlı giriş yolları + yenilerini ekleme
+$("codeBtn").onclick = async () => {
+  const foot = `<p class="small err" id="accMsg"></p><div class="row"><button class="ghost" id="logout" style="flex:1">Çıkış yap</button><button data-close style="flex:1">Kapat</button></div>`;
+  if(!ONLINE()){ openSheet(`<h2>Hesap</h2><p class="muted">Hesapsız kullanıyorsun, verilerin sadece bu cihazda.</p>` + foot); return; }
+  openSheet(`<h2>Hesap</h2><div class="acc" id="acc"><p class="small muted">Yükleniyor…</p></div>` + foot);
+  let w = {user:"", google:""}; try{ w = await api({action:"whoami", code: CUR}); }catch(e){}
+  if($("modal").hidden || !$("acc")) return;
+  if(w.user){ lsSet("sd-user", w.user); $("codeBtn").textContent = label(); }
+  $("acc").innerHTML =
+    (w.user ? `<div class="it"><span>Kullanıcı adı</span><b>${esc(w.user)}</b></div>`
+      : `<form id="linkForm" class="stack"><b class="small">Kullanıcı adı ve şifre ekle</b>
+          <input id="lkUser" placeholder="Kullanıcı adı" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="20" aria-label="Kullanıcı adı" required>
+          <input id="lkEmail" type="email" placeholder="E-posta" autocomplete="email" aria-label="E-posta" required>
+          <input id="lkPass" type="password" placeholder="Şifre (en az 6 karakter)" autocomplete="new-password" minlength="6" aria-label="Şifre" required>
+          <button>Ekle</button></form>`) +
+    (w.google ? `<div class="it"><span>Google</span><b>${esc(w.google)}</b></div>` : GID ? `<div id="gLinkWrap"><div class="small muted" style="margin-bottom:6px">Google hesabını bağla:</div><div id="gLinkBtn" class="gbtn"></div></div>` : "") +
+    `<div class="it"><span>Yedek kod</span><b style="letter-spacing:.12em">${esc(CUR)}</b></div>`;
+  const lf = $("linkForm");
+  if(lf) lf.onsubmit = ev => { ev.preventDefault(); $("accMsg").textContent = ""; busyBtn(lf, async () => {
+    try{ const j = await api({action:"register", user: $("lkUser").value, email: $("lkEmail").value, pass: $("lkPass").value, code: CUR}); lsSet("sd-user", j.user); $("codeBtn").textContent = label(); closeSheet(); toast("Artık “" + j.user + "” ile giriş yapabilirsin"); }
+    catch(err){ $("accMsg").textContent = errMsg(err); } }); };
+  if($("gLinkBtn")) renderG($("gLinkBtn"), true);
+};
 
 // ================= PENCERE / BİLDİRİM =================
 function openSheet(html){ $("sheet").innerHTML = html; $("modal").hidden = false; document.body.style.overflow = "hidden"; const f = $("sheet").querySelector("button,input,select,a"); if(f) f.focus(); }
@@ -701,10 +793,11 @@ function drawLift(){
 $("liftSel").onchange = drawLift;
 
 // ================= AÇILIŞ =================
-document.addEventListener("click", e => { if(e.target.id === "logout"){ closeSheet(); lsDel("sd-code"); location.reload(); } });
+document.addEventListener("click", e => { if(e.target.id === "logout"){ closeSheet(); lsDel("sd-code"); lsDel("sd-user"); location.reload(); } });
 const saved = lsGet("sd-code");
 if(saved){ let r = null; try{ r = JSON.parse(lsGet("sd-root-" + saved)); }catch(e){} startApp(saved, r); if(r && r._ver) root._ver = r._ver; }
-else $("vLogin").hidden = false;
+else { $("vLogin").hidden = false; initGoogle(); }
+if(saved && saved !== "LOCAL") initGoogle();
 if("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("/sw.js").catch(() => {});
 }
 </script>

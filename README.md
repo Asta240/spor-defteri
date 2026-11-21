@@ -13,10 +13,13 @@ Not: vercel.app Türkiye'de VPN'siz açılmıyor.
 5. **Deployments** sekmesi → en üstteki → `⋯` → **Redeploy** (veritabanı bilgileri aktif olsun diye).
 6. Proje sayfasındaki link (ör. `spor-defteri.vercel.app`) senin siten. Telefonda açıp **Ana ekrana ekle** dersen uygulama gibi açılır.
 
+## Google ile giriş (isteğe bağlı)
+Vercel → proje → **Settings → Environment Variables** → `GOOGLE_CLIENT_ID` = Google Cloud'dan aldığın Client ID → **Redeploy**. Eklenmezse Google butonu görünmez, kullanıcı adı + şifre yine çalışır.
+
 ## Dosyalar
 - `index.html`: sitenin tamamı (tek dosya)
 - `img/<HareketAdı>/0.jpg, 1.jpg`: hareketin başlangıç ve bitiş fotoğrafı, sitede dönüşümlü oynar
-- `api/new.js` yeni kod, `api/data.js` veri okuma/kaydetme, `api/_lib.js` veritabanı bağlantısı
+- `api/auth.js` kayıt / giriş / Google, `api/new.js` yeni kod, `api/data.js` veri okuma/kaydetme, `api/_lib.js` veritabanı bağlantısı
 - `vercel.json`: fotoğrafların önbellek ayarı
 - `manifest.webmanifest`, `sw.js`, `icon-*.png`: telefona "uygulama gibi" ekleme
 
