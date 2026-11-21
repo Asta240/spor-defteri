@@ -25,7 +25,27 @@
   *{box-sizing:border-box;min-width:0}
   [hidden]{display:none!important}
   body{margin:0;font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45;overflow-x:clip}
-  .wrap{max-width:760px;margin:0 auto;padding:22px 16px 60px}
+  .wrap{max-width:1320px;margin:0 auto;padding:22px clamp(16px,3vw,40px) 60px}
+  /* Bilgisayarda tam genişlik: bölümler yan yana */
+  @media (min-width:1000px){
+    #vOzet{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,8fr);grid-template-rows:auto 1fr;gap:16px;align-items:start}
+    #vOzet>*{margin:0}
+    #vOzet>.card:first-child{grid-column:1;grid-row:1}
+    #ozWo{grid-column:2;grid-row:1 / span 2}
+    #vOzet>details{grid-column:1;grid-row:2}
+    #ozWo .hxl{grid-template-columns:repeat(2,minmax(0,1fr))}
+    #vYemek{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+    #vYemek>*{margin:0}
+    #vYemek>.card:first-child{grid-column:1 / -1}
+    #tCards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+    #tCards>*{margin:0}
+    #tCards>#newCard,#tCards>.empty,#tCards>.card:only-child{grid-column:1 / -1}
+    #tProg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+    #tProg>*{margin:0}
+    #tProg>.card:first-child{grid-column:1 / -1}
+    #vSu,#vHareket{max-width:760px}
+    .exgrid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+  }
   header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
   h1{font-size:28px;margin:0;letter-spacing:-.02em}
   h1 span{color:var(--accent)}
@@ -69,6 +89,24 @@
   .tile .d{font-size:13px;color:var(--muted)}
   .tile .row{margin-top:auto;padding-top:6px}
   .tile .row button{flex:1;min-height:40px;padding:6px 10px;font-size:14px}
+  .wohead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+  .wohead h2{margin:0;font-size:18px}
+  .wohead select{width:auto;min-height:38px;padding:4px 10px;font-size:14px}
+  .hxl{display:grid;grid-template-columns:minmax(0,1fr);column-gap:18px}
+  .hx{display:grid;grid-template-columns:64px minmax(0,1fr);gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+  .hx .anim{width:64px;border-radius:8px}
+  .hx .nm{font-weight:600;font-size:15px;line-height:1.25}
+  .hx .nm button{all:unset;cursor:pointer}
+  .hx .in{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .hx .ctl{display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap}
+  .kgs{display:flex;align-items:center;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--bg)}
+  .kgs button{background:transparent;color:var(--ink);min-height:38px;min-width:38px;padding:0;font-size:18px;border-radius:0}
+  .kgs input{width:64px;min-height:38px;border:0;border-radius:0;text-align:center;padding:0 2px;background:transparent}
+  .kgs span{font-size:12px;color:var(--muted);padding-right:8px}
+  .okb{min-height:38px;padding:0 12px;font-size:14px}
+  .hx.isdone .nm{text-decoration:line-through;text-decoration-color:var(--muted);color:var(--muted)}
+  .wofoot{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .wofoot button{flex:1 1 160px}
   .sumbar{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-weight:700}
   .sumbar span{color:var(--muted);font-weight:600;font-size:14px}
   .bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:8px}
@@ -244,11 +282,7 @@
     <!-- ÖZET (ana sayfa) -->
     <section id="vOzet">
       <div class="card"><div class="rings" id="rings"></div><div class="bal" id="bal"></div></div>
-      <div class="tiles">
-        <div class="tile"><span class="k">Yemek</span><span class="v" id="ozFoodV"></span><span class="d" id="ozFoodD"></span><div class="row"><button data-go="yemek">Yemek ekle</button></div></div>
-        <div class="tile"><span class="k">Su</span><span class="v" id="ozSuV"></span><span class="d" id="ozSuD"></span><div class="row"><button id="ozWp">+ 1 bardak</button><button class="ghost" data-go="su">Aç</button></div></div>
-        <div class="tile"><span class="k">Hareket ve kilo</span><span class="v" id="ozMoveV"></span><span class="d" id="ozMoveD"></span><div class="row"><button class="ghost" data-go="hareket">Düzenle</button></div></div>
-      </div>
+      <div class="card" id="ozWo"></div>
       <details class="card">
         <summary><b>Hedefler</b></summary>
         <div class="row" style="margin-top:12px">
@@ -724,12 +758,7 @@ function renderDay(){
   $("rings").innerHTML = ring(s.k, g.k, "var(--bad)", "Kalori", "kcal") + ring(s.p, g.p, "var(--good)", "Protein", "g") + ring(d.w, g.w, "var(--accent)", "Su", "bardak");
   const bu = +d.bu || 0, net = bu ? s.k - bu : null;
   $("bal").innerHTML = `<div>Kalan<strong>${fmt(Math.max(g.k - s.k, 0))}</strong></div><div>Yakılan<strong>${bu ? fmt(bu) : "—"}</strong></div><div>Açık<strong class="${net == null ? "" : net < 0 ? "neg" : "pos"}">${net == null ? "—" : (net > 0 ? "+" : "") + fmt(net)}</strong></div>`;
-  $("ozFoodV").textContent = fmt(s.k) + " kcal";
-  $("ozFoodD").textContent = d.f.length ? `${d.f.length} kayıt · ${fmt(s.p)} g protein` : "Henüz bir şey eklemedin";
-  $("ozSuV").textContent = liters(d.w);
-  $("ozSuD").textContent = `${d.w} / ${g.w} bardak`;
-  $("ozMoveV").textContent = d.wo || "Dinlenme";
-  $("ozMoveD").textContent = [d.st ? fmt(d.st) + " adım" : "", d.ca ? d.ca + " dk kardiyo" : "", d.kg ? num(d.kg) + " kg" : ""].filter(Boolean).join(" · ") || "Adım, kardiyo, kilo girilmedi";
+  renderHomeWo();
   // yemek
   $("ymSum").innerHTML = `${fmt(s.k)} / ${fmt(g.k)} kcal <span>· ${fmt(s.p)} / ${fmt(g.p)} g protein</span>`;
   $("ymLeft").textContent = s.k <= g.k ? `${fmt(g.k - s.k)} kcal kaldı` : `${fmt(s.k - g.k)} kcal fazla`;
@@ -761,7 +790,6 @@ $("ff").onsubmit = e => {
 $("fl").onclick = e => { const b = e.target.closest("button[data-del]"); if(!b) return; day(cur).f.splice(+b.dataset.del, 1); save(); renderDay(); };
 const addWater = () => { day(cur).w++; save(); renderDay(); };
 $("wp").onclick = addWater;
-$("ozWp").onclick = () => { addWater(); toast("+ 1 bardak su"); };
 $("wm").onclick = () => { const d = day(cur); if(d.w > 0){ d.w--; save(); renderDay(); } };
 for(const k of FIELDS) $(k).addEventListener(k === "wo" ? "change" : "input", e => { day(cur)[k] = e.target.value; save(); renderDay(); });
 for(const [id, k] of [["gk","k"],["gp","p"],["gw","w"]]) $(id).addEventListener("input", e => { const v = +e.target.value; if(v > 0){ root.goals[k] = v; save(); renderDay(); } });
@@ -871,14 +899,77 @@ $("tCards").addEventListener("click", e => {
 });
 
 // ================= ANTRENMAN MODU + AĞIRLIK DEFTERİ =================
-function startSession(ci){
-  const c = root.cards[ci];
-  root.session = {card: c.name, date: today(), ex: c.ex.filter(x => EXM[x.id]).map(x => {
+function makeSession(c){
+  return {card: c.name, cardId: c.id, date: today(), ex: c.ex.filter(x => EXM[x.id]).map(x => {
     const l = lastLift(x.id), e = EXM[x.id];
     return {id: x.id, sets: Array.from({length: x.s}, (_, i) => ({kg: e.u ? "" : (l && l.s[i] ? l.s[i][0] : (l ? l.s[l.s.length-1][0] : "")), r: x.r, done: false}))};
   })};
+}
+function startSession(ci){
+  root.session = makeSession(root.cards[ci]);
   save(); renderCards(); window.scrollTo({top: 0});
 }
+// Sıradaki kart: başlatılmış antrenman > bugün elle seçilen > son bitirilen kartın bir sonrakisi > ilk kart
+function nextCard(){
+  const C = root.cards; if(!C.length) return null;
+  if(root.pick && root.pick.d === today()){ const c = C.find(x => x.id === root.pick.id); if(c) return c; }
+  const li = C.findIndex(x => x.name === root.lastCard);
+  return li < 0 ? C[0] : C[(li + 1) % C.length];
+}
+function renderHomeWo(){
+  const el = $("ozWo");
+  if(cur !== today()){
+    const d = root.days[cur] || blankDay();
+    el.innerHTML = `<h2>Antrenman</h2><p class="muted" style="margin:0">${d.wo ? `Bu gün <b>${esc(d.wo)}</b> yapılmış.` : "Bu gün antrenman kaydı yok."}</p>`;
+    return;
+  }
+  if(!root.cards.length){ el.innerHTML = `<h2>Antrenman</h2><p class="muted">Hiç kartın yok.</p><button data-go="cards">Kart oluştur</button>`; return; }
+  const S = root.session, c = S ? (root.cards.find(x => x.id === S.cardId) || {name: S.card, id: ""}) : nextCard();
+  const rows = S ? S.ex : makeSession(c).ex;
+  const doneN = rows.filter(x => x.sets.length && x.sets.every(st => st.done)).length;
+  el.innerHTML = `<div class="wohead"><h2>${S ? "Antrenman sürüyor" : "Sıradaki antrenman"}</h2>
+      <select id="woPick" aria-label="Kart seç">${root.cards.map(x => `<option value="${x.id}" ${x.id === c.id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></div>
+    <p class="small muted" style="margin:0 0 6px">${doneN} / ${rows.length} hareket yapıldı${S && S.date !== today() ? ` · ${dayName(S.date, {day:"numeric", month:"long"})} başlatıldı` : ""}</p>
+    <div class="hxl">${rows.map((x, xi) => { const e = EXM[x.id], l = lastLift(x.id), st0 = x.sets[0] || {}, done = x.sets.length && x.sets.every(st => st.done);
+      return `<div class="hx ${done ? "isdone" : ""}">${anim(e.id, e.tr)}<div>
+        <div class="nm"><button data-info="${e.id}">${esc(e.tr)}</button></div>
+        <div class="in">${x.sets.length} × ${esc(st0.r)} ${unit(e)}${l ? " · Geçen: " + esc(liftText(l)) : ""}</div>
+        <div class="ctl">${e.u ? "" : `<div class="kgs"><button data-kgm="${xi}" aria-label="Kiloyu azalt">−</button><input type="number" inputmode="decimal" step="0.5" min="0" value="${esc(st0.kg)}" placeholder="kg" data-hkg="${xi}" aria-label="${esc(e.tr)} kilo"><span>kg</span><button data-kgp="${xi}" aria-label="Kiloyu artır">+</button></div>`}
+          <button class="okb ${done ? "done" : "ghost"}" data-hok="${xi}">${done ? "✓ Yaptım" : "Yapmadım"}</button></div>
+      </div></div>`; }).join("")}</div>
+    <div class="wofoot">${S ? `<button id="hoEnd">Bitir ve kaydet</button><button class="ghost" data-go="cards">Set set düzenle</button>` : `<button class="ghost" data-go="cards">Kartları düzenle</button>`}</div>`;
+}
+// Ana sayfadan dokunulunca antrenman kendiliğinden başlar
+function homeSession(){
+  if(root.session) return root.session;
+  const c = nextCard(); root.session = makeSession(c); return root.session;
+}
+$("ozWo").addEventListener("click", e => {
+  const b = e.target.closest("button"); if(!b) return;
+  const d = b.dataset;
+  if(d.info) return showEx(d.info);
+  if(d.kgm != null || d.kgp != null){
+    const S = homeSession(), x = S.ex[+(d.kgm ?? d.kgp)], v = Math.max(0, (+x.sets[0]?.kg || 0) + (d.kgp != null ? 2.5 : -2.5));
+    x.sets.forEach(st => st.kg = v); save(); renderHomeWo(); return;
+  }
+  if(d.hok != null){
+    const S = homeSession(), x = S.ex[+d.hok], on = !x.sets.every(st => st.done);
+    x.sets.forEach(st => st.done = on); save(); renderHomeWo(); return;
+  }
+  if(b.id === "hoEnd") return finishSession();
+});
+$("ozWo").addEventListener("change", e => {
+  const t = e.target;
+  if(t.dataset.hkg != null){ const S = homeSession(), x = S.ex[+t.dataset.hkg]; x.sets.forEach(st => st.kg = t.value); save(); renderHomeWo(); return; }
+  if(t.id === "woPick"){
+    const c = root.cards.find(x => x.id === t.value); if(!c) return;
+    const go = () => { root.session = null; root.pick = {d: today(), id: c.id}; save(); renderHomeWo(); };
+    const S = root.session;
+    if(S && S.ex.some(x => x.sets.some(st => st.done))) ask(`“${S.card}” antrenmanındaki işaretler silinsin ve “${c.name}” açılsın mı?`, "Değiştir", go);
+    else go();
+    renderHomeWo();
+  }
+});
 function renderSession(){
   const S = root.session;
   $("tCards").innerHTML = `<div class="card">
@@ -894,7 +985,7 @@ function renderSession(){
 function finishSession(){
   const S = root.session; let n = 0;
   for(const x of S.ex){
-    const sets = x.sets.filter(s => s.done || (+s.r > 0 && s.kg !== "")).filter(s => +s.r > 0).map(s => [+s.kg || 0, +s.r]);
+    const sets = x.sets.filter(s => s.done && +s.r > 0).map(s => [+s.kg || 0, +s.r]);
     if(!sets.length) continue;
     const a = root.lifts[x.id] || (root.lifts[x.id] = []);
     const i = a.findIndex(l => l.d === S.date);
@@ -903,7 +994,8 @@ function finishSession(){
   }
   const d = day(S.date); d.wo = S.card;
   const cardio = S.ex.find(x => EXM[x.id].u === "dk"); if(cardio && !d.ca){ const m = cardio.sets.filter(s => s.done).reduce((a, s) => a + (+s.r || 0), 0); if(m) d.ca = String(m); }
-  root.session = null; save(); renderCards(); toast(n ? `Kaydedildi: ${n} hareket ağırlık defterine yazıldı` : "Antrenman kaydedildi");
+  root.lastCard = S.card; root.pick = null;
+  root.session = null; save(); renderAll(); toast(n ? `Kaydedildi: ${n} hareket ağırlık defterine yazıldı` : "Antrenman kaydedildi");
 }
 
 // ================= HAREKETLER =================
