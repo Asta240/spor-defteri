@@ -47,6 +47,38 @@
   .pill{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap;background:var(--accent-soft);color:var(--accent)}
   .sync{font-size:12px;color:var(--muted);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
   .codechip{background:var(--card);border:1px solid var(--line);color:var(--ink);font-size:13px;padding:6px 10px;min-height:34px;letter-spacing:.08em}
+  /* menü (Sınav Asistanı'ndaki gibi) */
+  .menuBtn{background:var(--card);color:var(--ink);border:1px solid var(--line);font-size:20px;padding:0;width:44px;height:44px;flex:none;line-height:1}
+  .brand{display:flex;align-items:center;gap:12px}
+  .drawer-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}
+  .drawer{position:fixed;top:0;left:0;bottom:0;width:290px;max-width:85vw;background:var(--card);border-right:1px solid var(--line);transform:translateX(-102%);transition:transform .22s ease;z-index:41;display:flex;flex-direction:column;padding:14px;overflow-y:auto;overscroll-behavior:contain}
+  body.drawer-open .drawer{transform:none} body.drawer-open .drawer-bg{opacity:1;pointer-events:auto}
+  .drawer-h{display:flex;justify-content:space-between;align-items:center;margin:2px 0 12px}
+  .drawer-h b{font-size:17px}
+  .drawer nav{display:flex;flex-direction:column;gap:2px}
+  .drawer nav button,.drawer nav a{background:transparent;color:var(--ink);justify-content:flex-start;text-align:left;font-weight:600;border-radius:10px;padding:10px 12px;display:flex;gap:10px;align-items:center;text-decoration:none;font-size:15px;min-height:44px}
+  .drawer nav button.on{background:var(--accent-soft);color:var(--accent)}
+  .drawer nav button:hover,.drawer nav a:hover{background:var(--bg)}
+  .drawer .sep{height:1px;background:var(--line);margin:8px 4px}
+  @media (prefers-reduced-motion:reduce){.drawer,.drawer-bg{transition:none}}
+  .vt{font-size:22px;margin:0 0 12px;letter-spacing:-.02em}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:14px}
+  .tile{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:6px}
+  .tile .k{font-size:12px;font-weight:700;color:var(--muted)}
+  .tile .v{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.15}
+  .tile .d{font-size:13px;color:var(--muted)}
+  .tile .row{margin-top:auto;padding-top:6px}
+  .tile .row button{flex:1;min-height:40px;padding:6px 10px;font-size:14px}
+  .sumbar{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-weight:700}
+  .sumbar span{color:var(--muted);font-weight:600;font-size:14px}
+  .bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:8px}
+  .bar>i{display:block;height:100%;background:var(--bad);border-radius:99px;transition:width .3s}
+  .fres{list-style:none;margin:10px 0 0;padding:0}
+  .fres li button{width:100%;background:transparent;color:var(--ink);display:flex;justify-content:space-between;gap:10px;text-align:left;padding:9px 4px;border-radius:0;border-top:1px solid var(--line);font-weight:500;min-height:44px}
+  .fres li button b{font-weight:600}
+  .fres li button small{color:var(--muted);font-weight:500;text-align:right;max-width:58%}
+  .fres li button:hover{background:var(--bg)}
+  .camBtn{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--accent);color:#fff;text-decoration:none;font-weight:700;border-radius:10px;min-height:48px;padding:0 16px}
   /* sekmeler */
   .tabs{display:flex;gap:4px;padding:4px;margin:0 0 16px;background:var(--card);border:1px solid var(--line);border-radius:99px;position:sticky;top:8px;z-index:5}
   .tabs button{flex:1;background:transparent;color:var(--muted);border-radius:99px;padding:8px 6px;font-size:14px;font-weight:700;min-height:40px}
@@ -81,9 +113,14 @@
   /* hareket görseli: 2 kare dönüşümlü */
   .anim{position:relative;aspect-ratio:3/2;border-radius:10px;overflow:hidden;background:#222}
   .anim img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-  .anim img.b{animation:flip 2.4s infinite}
+  .anim img.b{opacity:0}
+  .anim.play img.b{animation:flip 2.4s infinite}
+  .anim::after{content:"▶";position:absolute;right:6px;bottom:6px;width:26px;height:26px;border-radius:99px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;display:grid;place-items:center;pointer-events:none}
+  .anim.play::after{content:"❚❚";font-size:9px}
+  .exc .anim::after{display:none}
+  .anim{cursor:pointer}
   @keyframes flip{0%,42%{opacity:0}50%,92%{opacity:1}100%{opacity:0}}
-  @media (prefers-reduced-motion:reduce){.anim img.b{animation:none;opacity:0}}
+  @media (prefers-reduced-motion:reduce){.anim.play img.b{animation:none;opacity:1}}
   /* kütüphane */
   .exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-top:12px}
   .exc{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:8px;text-align:left;color:var(--ink);display:flex;flex-direction:column;gap:6px;font-weight:600;min-height:0}
@@ -151,7 +188,7 @@
 <body>
 <div class="wrap">
   <header>
-    <div><h1>Spor <span>Defteri</span></h1><p class="sub">Kalori, su, antrenman kartları ve ağırlık defteri</p></div>
+    <div class="brand"><button class="menuBtn" id="menuBtn" aria-label="Menü" hidden>☰</button><div><h1>Spor <span>Defteri</span></h1><p class="sub">Kalori, su, antrenman kartları ve ağırlık defteri</p></div></div>
     <div class="sync" id="syncBox" hidden><span id="sync"></span><button class="codechip" id="codeBtn" title="Hesap"></button></div>
   </header>
 
@@ -197,52 +234,20 @@
 
   <!-- UYGULAMA -->
   <div id="vApp" hidden>
-    <nav class="tabs" id="tabs">
-      <button data-t="today" class="on">Bugün</button>
-      <button data-t="cards">Kartlar</button>
-      <button data-t="lib">Hareketler</button>
-      <button data-t="prog">İlerleme</button>
-    </nav>
+    <h2 class="vt" id="vTitle">Günün özeti</h2>
+    <div class="datebar" id="datebar">
+      <button class="ghost" id="prev" aria-label="Önceki gün">‹</button>
+      <strong id="dlabel">Bugün</strong>
+      <button class="ghost" id="next" aria-label="Sonraki gün">›</button>
+    </div>
 
-    <!-- BUGÜN -->
-    <section id="tToday">
-      <div class="datebar">
-        <button class="ghost" id="prev" aria-label="Önceki gün">‹</button>
-        <strong id="dlabel">Bugün</strong>
-        <button class="ghost" id="next" aria-label="Sonraki gün">›</button>
-      </div>
+    <!-- ÖZET (ana sayfa) -->
+    <section id="vOzet">
       <div class="card"><div class="rings" id="rings"></div><div class="bal" id="bal"></div></div>
-      <div class="card">
-        <h2>Yemek</h2>
-        <form id="ff" class="row">
-          <input id="fn" placeholder="Ne yedin?" required aria-label="Yemek adı" style="flex:1 1 160px">
-          <input id="fk" type="number" inputmode="numeric" min="0" placeholder="kcal" required aria-label="Kalori" style="flex:0 1 92px">
-          <input id="fp" type="number" inputmode="numeric" min="0" placeholder="Protein g" aria-label="Protein" style="flex:0 1 110px">
-          <button>Ekle</button>
-        </form>
-        <div class="chips" id="pre"></div>
-        <ul class="list" id="fl"></ul>
-        <p class="empty" id="fe">Bu gün için henüz bir şey eklemedin.</p>
-      </div>
-      <div class="card">
-        <h2>Su</h2>
-        <div class="water">
-          <button class="ghost" id="wm" aria-label="Bir bardak çıkar">−</button>
-          <strong id="wv">0 L</strong>
-          <button id="wp">+ 1 bardak (250 ml)</button>
-          <div class="cups" id="cups"></div>
-        </div>
-      </div>
-      <div class="card">
-        <h2>Hareket ve kilo</h2>
-        <div class="row">
-          <label class="f">Antrenman<select id="wo"></select></label>
-          <label class="f">Kardiyo (dk)<input id="ca" type="number" inputmode="numeric" min="0"></label>
-          <label class="f">Adım<input id="st" type="number" inputmode="numeric" min="0"></label>
-          <label class="f">Yakılan toplam kcal<input id="bu" type="number" inputmode="numeric" min="0"></label>
-          <label class="f">Kilo (sabah, kg)<input id="kg" type="number" inputmode="decimal" step="0.05" min="0"></label>
-        </div>
-        <p class="small muted" style="margin:10px 0 0">Yakılanı telefonundaki Fitness/Sağlık uygulamasının TOPLAM değerinden yaz. Telefon ağırlık antrenmanını ve cepte olmayan kardiyoyu saymaz, o günler ~150–300 ekle.</p>
+      <div class="tiles">
+        <div class="tile"><span class="k">Yemek</span><span class="v" id="ozFoodV"></span><span class="d" id="ozFoodD"></span><div class="row"><button data-go="yemek">Yemek ekle</button></div></div>
+        <div class="tile"><span class="k">Su</span><span class="v" id="ozSuV"></span><span class="d" id="ozSuD"></span><div class="row"><button id="ozWp">+ 1 bardak</button><button class="ghost" data-go="su">Aç</button></div></div>
+        <div class="tile"><span class="k">Hareket ve kilo</span><span class="v" id="ozMoveV"></span><span class="d" id="ozMoveD"></span><div class="row"><button class="ghost" data-go="hareket">Düzenle</button></div></div>
       </div>
       <details class="card">
         <summary><b>Hedefler</b></summary>
@@ -252,6 +257,67 @@
           <label class="f">Su (bardak)<input id="gw" type="number" inputmode="numeric" min="1"></label>
         </div>
       </details>
+    </section>
+
+    <!-- YEMEK -->
+    <section id="vYemek" hidden>
+      <div class="card">
+        <div class="sumbar"><div id="ymSum"></div><span id="ymLeft"></span></div>
+        <div class="bar"><i id="ymBar"></i></div>
+      </div>
+      <div class="card">
+        <h2>Fotoğraftan kalori</h2>
+        <a class="camBtn" id="camLink" target="_blank" rel="noopener">📷 Fotoğraf at, Claude hesaplasın</a>
+        <p class="small muted" style="margin:10px 0 6px">Sayfada “Bugünkü yemeklerime ekle”ye basınca yemekler buraya kendiliğinden eklenir. Açılmazsa oradaki kodu buraya yapıştır:</p>
+        <form id="ymkForm" class="row"><input id="ymkIn" placeholder="YMK1.…" autocomplete="off" aria-label="Yemek kodu" style="flex:1 1 180px"><button>Kod yapıştır</button></form>
+      </div>
+      <div class="card">
+        <h2>Hazır yemekler</h2>
+        <input id="fq" type="search" placeholder="Ara: mercimek, pilav, döner, yumurta…" aria-label="Yemek ara">
+        <ul class="fres" id="fres"></ul>
+        <p class="small muted" style="margin:8px 0 0">Değerler ortalama porsiyon için yaklaşıktır.</p>
+      </div>
+      <div class="card">
+        <h2>Elle ekle</h2>
+        <form id="ff" class="row">
+          <input id="fn" placeholder="Ne yedin?" required aria-label="Yemek adı" style="flex:1 1 160px">
+          <input id="fk" type="number" inputmode="numeric" min="0" placeholder="kcal" required aria-label="Kalori" style="flex:0 1 92px">
+          <input id="fp" type="number" inputmode="numeric" min="0" placeholder="Protein g" aria-label="Protein" style="flex:0 1 110px">
+          <button>Ekle</button>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Bu gün yediklerin</h2>
+        <ul class="list" id="fl"></ul>
+        <p class="empty" id="fe">Bu gün için henüz bir şey eklemedin.</p>
+      </div>
+    </section>
+
+    <!-- SU -->
+    <section id="vSu" hidden>
+      <div class="card">
+        <div class="water">
+          <button class="ghost" id="wm" aria-label="Bir bardak çıkar">−</button>
+          <strong id="wv">0 L</strong>
+          <button id="wp">+ 1 bardak (250 ml)</button>
+          <div class="cups" id="cups"></div>
+        </div>
+        <p class="small muted" id="suNote" style="margin:12px 0 0"></p>
+      </div>
+    </section>
+
+    <!-- HAREKET VE KİLO -->
+    <section id="vHareket" hidden>
+      <div class="card">
+        <div class="row">
+          <label class="f">Antrenman<select id="wo"></select></label>
+          <label class="f">Kardiyo (dk)<input id="ca" type="number" inputmode="numeric" min="0"></label>
+          <label class="f">Adım<input id="st" type="number" inputmode="numeric" min="0"></label>
+          <label class="f">Yakılan toplam kcal<input id="bu" type="number" inputmode="numeric" min="0"></label>
+          <label class="f">Kilo (sabah, kg)<input id="kg" type="number" inputmode="decimal" step="0.05" min="0"></label>
+        </div>
+        <p class="small muted" style="margin:10px 0 0">Yakılanı telefonundaki Fitness/Sağlık uygulamasının TOPLAM değerinden yaz. Telefon ağırlık antrenmanını ve cepte olmayan kardiyoyu saymaz, o günler ~150–300 ekle.</p>
+      </div>
     </section>
 
     <!-- KARTLAR -->
@@ -290,6 +356,24 @@
 
   <footer>CardiacAI · Hareket fotoğrafları: <a href="https://github.com/yuhonas/free-exercise-db">free-exercise-db</a> (kamu malı)</footer>
 </div>
+
+<div id="drawerBg" class="drawer-bg"></div>
+<aside id="drawer" class="drawer" aria-label="Menü" aria-hidden="true">
+  <div class="drawer-h"><b>Spor Defteri</b><button class="icon" id="drawerClose" aria-label="Menüyü kapat">✕</button></div>
+  <nav id="dnav">
+    <button data-v="ozet">🏠 Günün özeti</button>
+    <button data-v="yemek">🍽️ Yemek</button>
+    <button data-v="su">💧 Su</button>
+    <button data-v="hareket">🚶 Hareket ve kilo</button>
+    <div class="sep"></div>
+    <button data-v="cards">🗂️ Antrenman kartları</button>
+    <button data-v="lib">🏋️ Hareketler</button>
+    <button data-v="prog">📈 İlerleme</button>
+    <div class="sep"></div>
+    <a id="camLink2" target="_blank" rel="noopener">📷 Fotoğraftan kalori</a>
+    <button id="dAcc">👤 Hesap</button>
+  </nav>
+</aside>
 
 <div class="modal" id="modal" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
 <div class="toast" id="toast" hidden></div>
@@ -397,7 +481,33 @@ const defaultCards = () => [
   card("Bacak + Karın", [["Leg_Press"],["Barbell_Squat"],["Leg_Extensions"],["Lying_Leg_Curls"],["Thigh_Abductor"],["Thigh_Adductor"],["Seated_Calf_Raise"],["Crunches"],["Reverse_Crunch"],["Air_Bike"],["Plank"],["Walking_Treadmill"]]),
   card("Kol + Karın", [["EZ-Bar_Curl",3,12],["Incline_Dumbbell_Curl"],["Hammer_Curls"],["Triceps_Pushdown"],["Cable_Rope_Overhead_Triceps_Extension"],["Side_Lateral_Raise",3,15],["Crunches"],["Reverse_Crunch"],["Air_Bike"],["Plank"],["Walking_Treadmill"]]),
 ];
-const PRESETS = [["2 yumurta",150,12],["Tavuk göğsü 200 g",330,62],["1 kase yoğurt",130,8],["Ayran 200 ml",75,7],["Mercimek çorbası",220,12],["Yemekhane tepsisi",850,40],["1 dilim ekmek",130,4],["1 muz",100,1]];
+// Hazır yemekler: [ad, porsiyon, kcal, protein g] — ortalama porsiyon, yaklaşık değerler
+const FOTO_URL = "https://claude.ai/artifact/HVWojZ4iDYbMFdYLVAc9kw";
+const FOODS = [
+  ["Haşlanmış yumurta","1 adet",75,6],["Omlet","2 yumurta",200,13],["Menemen","1 porsiyon",250,13],["Sucuklu yumurta","1 porsiyon",400,22],
+  ["Beyaz peynir","1 dilim (30 g)",90,5],["Kaşar peyniri","1 dilim (20 g)",75,5],["Lor peyniri","100 g",100,12],["Zeytin","5 adet",50,0],
+  ["Bal","1 yemek kaşığı",65,0],["Tereyağı","1 tatlı kaşığı",35,0],["Fıstık ezmesi","1 yemek kaşığı",95,4],["Yulaf ezmesi","40 g",150,5],
+  ["Süt","1 bardak (200 ml)",120,6],["Simit","1 adet",300,9],["Poğaça","1 adet",280,6],["Açma","1 adet",320,6],
+  ["Ekmek","1 dilim (50 g)",130,4],["Tam buğday ekmeği","1 dilim (50 g)",120,5],["Lavaş","1 adet",250,8],["Tost (kaşarlı)","1 adet",350,15],
+  ["Mercimek çorbası","1 kase",200,11],["Ezogelin çorbası","1 kase",200,9],["Tavuk suyu çorba","1 kase",150,9],["Yayla çorbası","1 kase",160,6],["Domates çorbası","1 kase",150,4],
+  ["Tavuk göğsü (pişmiş)","200 g",330,62],["Tavuk sote","1 porsiyon",300,30],["Izgara köfte","6 adet (150 g)",400,30],["Et kavurma","150 g",400,40],
+  ["Izgara balık","200 g",350,45],["Ton balığı (süzülmüş)","1 kutu",180,38],["Kuru fasulye","1 porsiyon",300,15],["Nohut yemeği","1 porsiyon",300,13],
+  ["Karnıyarık","1 porsiyon",350,14],["Zeytinyağlı taze fasulye","1 porsiyon",180,4],["Mantı","1 porsiyon",600,25],
+  ["Pirinç pilavı","1 porsiyon (150 g)",280,5],["Bulgur pilavı","1 porsiyon",220,6],["Makarna","1 tabak (100 g kuru)",380,13],["Tavuklu pilav (sokak)","1 porsiyon",600,27],
+  ["Tavuk döner dürüm","1 adet",600,35],["Et döner dürüm","1 adet",700,38],["İskender","1 porsiyon",900,45],["Lahmacun","1 adet",300,14],
+  ["Kıymalı pide","1 adet",800,38],["Çiğ köfte dürüm","1 adet",450,10],["Çiğ köfte","1 parça",50,1],["Mercimek köftesi","1 adet",45,2],
+  ["Yaprak sarma","1 adet",45,1],["Börek","1 parça",300,8],["Hamburger","1 adet",550,28],["Pizza","1 dilim",280,12],["Patates kızartması","orta porsiyon",350,4],
+  ["Yemekhane tepsisi","çorba + ana yemek + pilav",850,40],
+  ["Çoban salata","1 kase (az yağlı)",80,2],["Mevsim salata","1 kase (zeytinyağlı)",120,2],["Cacık","1 kase",80,4],
+  ["Yoğurt","1 kase (200 g)",130,8],["Süzme yoğurt","150 g",150,15],["Ayran","200 ml",70,4],["Kefir","200 ml",120,7],
+  ["Muz","1 adet",100,1],["Elma","1 adet",80,0],["Portakal","1 adet",70,1],["Mandalina","1 adet",40,1],["Üzüm","1 kase",100,1],["Hurma","3 adet",70,0],
+  ["Ceviz","5 adet",130,3],["Badem","15 adet",105,4],["Fındık","1 avuç (30 g)",190,4],["Cips","küçük paket (40 g)",210,3],
+  ["Çikolata","30 g",160,2],["Gofret","1 adet",160,2],["Protein bar","1 adet",200,20],["Protein tozu","1 ölçek",120,24],
+  ["Kola","1 kutu (330 ml)",140,0],["Meyve suyu","200 ml",90,0],["Çay (1 şekerli)","1 bardak",20,0],["Türk kahvesi (şekersiz)","1 fincan",10,0],["Latte","1 orta boy",200,10],
+  ["Sütlaç","1 kase",250,7],["Baklava","1 dilim",165,2],["Puding","1 kase",200,5],["Dondurma","1 top",130,2],
+];
+const POPULAR = ["Haşlanmış yumurta","Tavuk göğsü (pişmiş)","Yoğurt","Ayran","Mercimek çorbası","Pirinç pilavı","Ekmek","Yemekhane tepsisi"];
+const norm = t => String(t).toLocaleLowerCase("tr").replace(/[çğıöşü]/g, c => ({"ç":"c","ğ":"g","ı":"i","ö":"o","ş":"s","ü":"u"}[c]));
 
 // ================= VERİ =================
 const iso = d => d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
@@ -407,7 +517,7 @@ const dayName = (s, o) => new Date(s+"T12:00").toLocaleDateString("tr-TR", o);
 const blankDay = () => ({f:[], w:0, wo:"", ca:"", st:"", bu:"", kg:""});
 const freshRoot = () => ({v:1, goals:{k:2100, p:130, w:12}, days:{}, cards:defaultCards(), lifts:{}, session:null, _ver:0, _dirty:true});
 const FIELDS = ["wo","ca","st","bu","kg"];
-let CUR = "", root = null, cur = today(), tab = "today", grp = "Tümü";
+let CUR = "", root = null, cur = today(), tab = "ozet", grp = "Tümü";
 
 function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
 function lsSet(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
@@ -469,10 +579,11 @@ async function poll(){
 function startApp(code, r){
   CUR = code; lsSet("sd-code", code);
   root = fixRoot(r);
-  $("vLogin").hidden = true; $("vApp").hidden = false; $("syncBox").hidden = false;
+  $("vLogin").hidden = true; $("vApp").hidden = false; $("syncBox").hidden = false; $("menuBtn").hidden = false;
   $("codeBtn").textContent = label();
   setSync(ONLINE() ? "" : "Sadece bu cihazda");
-  renderAll();
+  setTab(tab);
+  applyPendingYmk();
   if(ONLINE()){ poll(); setInterval(() => { if(!document.hidden) poll(); }, 30000); document.addEventListener("visibilitychange", () => { if(!document.hidden) poll(); }); }
   else lsSet(storeKey(), JSON.stringify(root));
 }
@@ -571,55 +682,136 @@ function ask(text, yes, onYes){
   $("askYes").onclick = () => { closeSheet(); onYes(); };
 }
 
-// ================= SEKMELER =================
+// ================= MENÜ / SAYFALAR =================
+const VIEWS = {ozet:["vOzet","Günün özeti"], yemek:["vYemek","Yemek"], su:["vSu","Su"], hareket:["vHareket","Hareket ve kilo"], cards:["tCards","Antrenman kartları"], lib:["tLib","Hareketler"], prog:["tProg","İlerleme"]};
+const DATED = ["ozet","yemek","su","hareket"];
 function setTab(t){
+  if(!VIEWS[t]) t = "ozet";
   tab = t;
-  for(const b of $("tabs").children) b.classList.toggle("on", b.dataset.t === t);
-  $("tToday").hidden = t !== "today"; $("tCards").hidden = t !== "cards"; $("tLib").hidden = t !== "lib"; $("tProg").hidden = t !== "prog";
-  renderAll(); window.scrollTo({top: 0});
+  for(const [k, [id]] of Object.entries(VIEWS)) $(id).hidden = k !== t;
+  for(const b of $("dnav").querySelectorAll("button[data-v]")) b.classList.toggle("on", b.dataset.v === t);
+  $("vTitle").textContent = VIEWS[t][1];
+  $("datebar").hidden = !DATED.includes(t);
+  closeDrawer(); renderAll(); window.scrollTo({top: 0});
 }
-$("tabs").onclick = e => { const b = e.target.closest("button[data-t]"); if(b) setTab(b.dataset.t); };
-function renderAll(){ if(!root) return; if(tab === "today") renderToday(); if(tab === "cards") renderCards(); if(tab === "lib") renderLib(); if(tab === "prog") renderProg(); }
+function openDrawer(){ document.body.classList.add("drawer-open"); $("drawer").setAttribute("aria-hidden", "false"); $("drawerClose").focus(); }
+function closeDrawer(){ document.body.classList.remove("drawer-open"); $("drawer").setAttribute("aria-hidden", "true"); }
+$("menuBtn").onclick = openDrawer;
+$("drawerClose").onclick = closeDrawer;
+$("drawerBg").onclick = closeDrawer;
+document.addEventListener("keydown", e => { if(e.key === "Escape") closeDrawer(); });
+$("dnav").onclick = e => { const b = e.target.closest("button[data-v]"); if(b) setTab(b.dataset.v); };
+$("dAcc").onclick = () => { closeDrawer(); $("codeBtn").click(); };
+$("camLink").href = $("camLink2").href = FOTO_URL;
+$("camLink2").addEventListener("click", closeDrawer);
+document.addEventListener("click", e => { const g = e.target.closest("[data-go]"); if(g) setTab(g.dataset.go); });
+function renderAll(){ if(!root) return; if(DATED.includes(tab)) renderDay(); if(tab === "cards") renderCards(); if(tab === "lib") renderLib(); if(tab === "prog") renderProg(); }
 
-// ================= BUGÜN =================
+// Hareket görselleri: tıklayınca oynar, tekrar tıklayınca durur (kütüphane kartında tıklama detayı açar)
+document.addEventListener("click", e => { const a = e.target.closest(".anim"); if(a && !a.closest(".exc")){ e.preventDefault(); a.classList.toggle("play"); } }, true);
+
+// ================= GÜNLÜK SAYFALAR (özet, yemek, su, hareket) =================
 function ring(val, goal, col, label, u){
   const r = 50, C = 2*Math.PI*r, pc = Math.min(val/(goal||1), 1);
   return `<div class="ring"><div class="rw"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--line)" stroke-width="13"/><circle class="p" cx="60" cy="60" r="${r}" fill="none" stroke="${col}" stroke-width="13" stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C*(1-pc)).toFixed(1)}" transform="rotate(-90 60 60)"/></svg><div class="rv">${fmt(val)}<small>/ ${fmt(goal)} ${u}</small></div></div><b>${label}</b></div>`;
 }
-function renderToday(){
+const liters = w => (w * 0.25).toLocaleString("tr-TR", {minimumFractionDigits: 2}) + " L";
+function renderDay(){
   const d = day(cur), s = sum(d), g = root.goals;
   $("dlabel").textContent = cur === today() ? "Bugün" : dayName(cur, {weekday:"long", day:"numeric", month:"long"});
   $("next").disabled = cur >= today();
+  // özet
   $("rings").innerHTML = ring(s.k, g.k, "var(--bad)", "Kalori", "kcal") + ring(s.p, g.p, "var(--good)", "Protein", "g") + ring(d.w, g.w, "var(--accent)", "Su", "bardak");
   const bu = +d.bu || 0, net = bu ? s.k - bu : null;
   $("bal").innerHTML = `<div>Kalan<strong>${fmt(Math.max(g.k - s.k, 0))}</strong></div><div>Yakılan<strong>${bu ? fmt(bu) : "—"}</strong></div><div>Açık<strong class="${net == null ? "" : net < 0 ? "neg" : "pos"}">${net == null ? "—" : (net > 0 ? "+" : "") + fmt(net)}</strong></div>`;
+  $("ozFoodV").textContent = fmt(s.k) + " kcal";
+  $("ozFoodD").textContent = d.f.length ? `${d.f.length} kayıt · ${fmt(s.p)} g protein` : "Henüz bir şey eklemedin";
+  $("ozSuV").textContent = liters(d.w);
+  $("ozSuD").textContent = `${d.w} / ${g.w} bardak`;
+  $("ozMoveV").textContent = d.wo || "Dinlenme";
+  $("ozMoveD").textContent = [d.st ? fmt(d.st) + " adım" : "", d.ca ? d.ca + " dk kardiyo" : "", d.kg ? num(d.kg) + " kg" : ""].filter(Boolean).join(" · ") || "Adım, kardiyo, kilo girilmedi";
+  // yemek
+  $("ymSum").innerHTML = `${fmt(s.k)} / ${fmt(g.k)} kcal <span>· ${fmt(s.p)} / ${fmt(g.p)} g protein</span>`;
+  $("ymLeft").textContent = s.k <= g.k ? `${fmt(g.k - s.k)} kcal kaldı` : `${fmt(s.k - g.k)} kcal fazla`;
+  $("ymBar").style.width = Math.min(100, s.k / (g.k || 1) * 100) + "%";
   $("fl").innerHTML = d.f.map((x, i) => `<li><span class="n">${esc(x.n)}</span><span class="k">${fmt(x.k)} kcal · ${fmt(x.p)} g</span><button class="icon" data-del="${i}" aria-label="${esc(x.n)} sil">✕</button></li>`).join("");
   $("fe").hidden = d.f.length > 0;
-  $("wv").textContent = (d.w * 0.25).toLocaleString("tr-TR", {minimumFractionDigits: 2}) + " L";
+  // su
+  $("wv").textContent = liters(d.w);
   $("cups").innerHTML = Array.from({length: Math.max(g.w, d.w)}, (_, i) => `<span class="cup${i < d.w ? " f" : ""}"></span>`).join("");
+  $("suNote").textContent = d.w >= g.w ? "Günlük hedefini tamamladın." : `Hedefe ${g.w - d.w} bardak (${liters(g.w - d.w)}) kaldı.`;
+  // hareket
   const names = root.cards.map(c => c.name);
   if(d.wo && !names.includes(d.wo)) names.push(d.wo);
   $("wo").innerHTML = `<option value="">Dinlenme</option>` + names.map(n => `<option>${esc(n)}</option>`).join("");
   for(const k of FIELDS){ const el = $(k); if(document.activeElement !== el) el.value = d[k] ?? ""; }
   for(const [id, k] of [["gk","k"],["gp","p"],["gw","w"]]){ const el = $(id); if(document.activeElement !== el) el.value = g[k]; }
 }
-$("pre").innerHTML = PRESETS.map((p, i) => `<button type="button" data-p="${i}">+ ${esc(p[0])}</button>`).join("");
-$("prev").onclick = () => { cur = shift(cur, -1); renderToday(); };
-$("next").onclick = () => { if(cur < today()){ cur = shift(cur, 1); renderToday(); } };
+const renderToday = renderDay;
+$("prev").onclick = () => { cur = shift(cur, -1); renderDay(); };
+$("next").onclick = () => { if(cur < today()){ cur = shift(cur, 1); renderDay(); } };
 $("ff").onsubmit = e => {
   e.preventDefault();
   const n = $("fn").value.trim(), k = +$("fk").value;
   if(!n || !(k >= 0)) return;
   day(cur).f.push({n, k, p: +$("fp").value || 0});
   $("fn").value = $("fk").value = $("fp").value = ""; $("fn").focus();
-  save(); renderToday();
+  save(); renderDay(); toast("+ " + n);
 };
-$("pre").onclick = e => { const b = e.target.closest("button[data-p]"); if(!b) return; const p = PRESETS[+b.dataset.p]; day(cur).f.push({n:p[0], k:p[1], p:p[2]}); save(); renderToday(); toast("+ " + p[0]); };
-$("fl").onclick = e => { const b = e.target.closest("button[data-del]"); if(!b) return; day(cur).f.splice(+b.dataset.del, 1); save(); renderToday(); };
-$("wp").onclick = () => { day(cur).w++; save(); renderToday(); };
-$("wm").onclick = () => { const d = day(cur); if(d.w > 0){ d.w--; save(); renderToday(); } };
-for(const k of FIELDS) $(k).addEventListener(k === "wo" ? "change" : "input", e => { day(cur)[k] = e.target.value; save(); renderToday(); });
-for(const [id, k] of [["gk","k"],["gp","p"],["gw","w"]]) $(id).addEventListener("input", e => { const v = +e.target.value; if(v > 0){ root.goals[k] = v; save(); renderToday(); } });
+$("fl").onclick = e => { const b = e.target.closest("button[data-del]"); if(!b) return; day(cur).f.splice(+b.dataset.del, 1); save(); renderDay(); };
+const addWater = () => { day(cur).w++; save(); renderDay(); };
+$("wp").onclick = addWater;
+$("ozWp").onclick = () => { addWater(); toast("+ 1 bardak su"); };
+$("wm").onclick = () => { const d = day(cur); if(d.w > 0){ d.w--; save(); renderDay(); } };
+for(const k of FIELDS) $(k).addEventListener(k === "wo" ? "change" : "input", e => { day(cur)[k] = e.target.value; save(); renderDay(); });
+for(const [id, k] of [["gk","k"],["gp","p"],["gw","w"]]) $(id).addEventListener("input", e => { const v = +e.target.value; if(v > 0){ root.goals[k] = v; save(); renderDay(); } });
+
+// Hazır yemek arama
+function renderFoods(){
+  const q = norm($("fq").value.trim());
+  const list = q ? FOODS.filter(f => norm(f[0]).includes(q)).slice(0, 30) : FOODS.filter(f => POPULAR.includes(f[0]));
+  $("fres").innerHTML = list.length ? list.map(f => `<li><button type="button" data-food="${esc(f[0])}"><b>${esc(f[0])}</b><small>${esc(f[1])} · ${f[2]} kcal · ${f[3]} g</small></button></li>`).join("")
+    : `<li class="empty">Bulunamadı. Aşağıdan elle ekleyebilirsin.</li>`;
+}
+$("fq").oninput = renderFoods;
+$("fres").onclick = e => {
+  const b = e.target.closest("button[data-food]"); if(!b) return;
+  const f = FOODS.find(x => x[0] === b.dataset.food); if(!f) return;
+  const M = [[0.5,"½"],[1,"1"],[1.5,"1½"],[2,"2"],[3,"3"]];
+  openSheet(`<h2>${esc(f[0])}</h2><p class="small muted" style="margin:0 0 12px">1 porsiyon = ${esc(f[1])} · ${f[2]} kcal · ${f[3]} g protein</p>
+    <div class="small muted" style="margin-bottom:6px">Kaç porsiyon?</div>
+    <div class="chips" id="mul">${M.map(([m, t]) => `<button type="button" data-m="${m}" class="${m === 1 ? "on" : ""}">${t}</button>`).join("")}</div>
+    <p style="font-weight:700;margin:14px 0" id="mulTot"></p>
+    <div class="row"><button class="ghost" data-close style="flex:1">Vazgeç</button><button id="mulAdd" style="flex:2">Ekle</button></div>`);
+  let m = 1;
+  const upd = () => { $("mulTot").textContent = `${fmt(f[2]*m)} kcal · ${fmt(f[3]*m)} g protein`; for(const c of $("mul").children) c.classList.toggle("on", +c.dataset.m === m); };
+  $("mul").onclick = ev => { const c = ev.target.closest("button[data-m]"); if(c){ m = +c.dataset.m; upd(); } };
+  $("mulAdd").onclick = () => { const lbl = m === 1 ? f[1] : `${M.find(x => x[0] === m)[1]} × ${f[1]}`; day(cur).f.push({n: `${f[0]} (${lbl})`, k: Math.round(f[2]*m), p: Math.round(f[3]*m)}); save(); closeSheet(); renderDay(); toast("+ " + f[0]); };
+  upd();
+};
+renderFoods();
+
+// Fotoğraftan kalori kodu: YMK1.<base64url JSON [[ad,kcal,protein],...]>
+function decodeYmk(c){
+  c = String(c || "").trim().replace(/^#?ymk=/, "");
+  if(!c.startsWith("YMK1.")) throw "Kod YMK1. ile başlamalı.";
+  const b = c.slice(5).replace(/-/g, "+").replace(/_/g, "/");
+  const bytes = Uint8Array.from(atob(b + "===".slice((b.length + 3) % 4)), ch => ch.charCodeAt(0));
+  const a = JSON.parse(new TextDecoder().decode(bytes));
+  if(!Array.isArray(a)) throw "Kod okunamadı.";
+  return a.filter(x => Array.isArray(x) && x[0]).map(x => ({n: String(x[0]).slice(0, 80), k: Math.max(0, Math.round(+x[1] || 0)), p: Math.max(0, Math.round(+x[2] || 0))}));
+}
+function importYmk(c){
+  const items = decodeYmk(c);
+  if(!items.length) throw "Kodda yemek yok.";
+  cur = today();
+  day(cur).f.push(...items.map(x => ({...x, n: "📷 " + x.n})));
+  save(); setTab("yemek");
+  toast(`📷 ${items.length} yemek eklendi · ${fmt(items.reduce((a, x) => a + x.k, 0))} kcal`);
+}
+$("ymkForm").onsubmit = e => { e.preventDefault(); try{ importYmk($("ymkIn").value); $("ymkIn").value = ""; }catch(err){ toast(typeof err === "string" ? err : "Kod okunamadı."); } };
+if(location.hash.startsWith("#ymk=")){ lsSet("sd-pending-ymk", location.hash.slice(5)); try{ history.replaceState(null, "", location.pathname); }catch(e){} }
+function applyPendingYmk(){ const c = lsGet("sd-pending-ymk"); if(!c || !root) return; lsDel("sd-pending-ymk"); try{ importYmk(c); }catch(err){ toast(typeof err === "string" ? err : "Fotoğraf kodu okunamadı."); } }
 
 // ================= KARTLAR =================
 let openCard = null;

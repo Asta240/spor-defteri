@@ -9,7 +9,10 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - **Sınav Asistanı (ayrı repo) bu kurala dahil değil:** orada sadece `onizleme` dalına at, Yasin açıkça "Sınav Asistanı'nı yayınla" demeden main'e asla push etme.
 
 ## Yapı
-- `index.html` tek dosya. Sekmeler: Bugün (`renderToday`), Kartlar (`renderCards`, antrenman modu `renderSession`), Hareketler (`renderLib`, detay `showEx`), İlerleme (`renderProg`, `drawLift`).
+- `index.html` tek dosya. Sol üstte ☰ menü (`#drawer`, `openDrawer/closeDrawer`), sayfalar `VIEWS` + `setTab(key)`: ozet (Günün özeti, ana sayfa: halkalar + Yemek/Su/Hareket kutuları + Hedefler), yemek, su, hareket (bu dördü tarihli, ortak `#datebar`, hepsini `renderDay()` çizer), cards (`renderCards`, antrenman modu `renderSession`), lib (`renderLib`, detay `showEx`), prog (`renderProg`, `drawLift`).
+- Yemek sayfası: hazır yemek listesi `FOODS` ([ad, porsiyon, kcal, protein], `POPULAR` boş aramada görünür, porsiyon çarpanı ½–3), elle ekleme, fotoğraf kodu.
+- Fotoğraftan kalori: claude.ai sayfası `FOTO_URL` = https://claude.ai/artifact/HVWojZ4iDYbMFdYLVAc9kw (kaynağı `extras/foto-kalori/index.html`, `sample` + görsel izni). Sonuç kodu `YMK1.<base64url JSON [[ad,kcal,protein],...]>`; `SPOR_URL/#ymk=KOD` linkiyle gelir (giriş yapılmamışsa localStorage `sd-pending-ymk`'de bekler) ya da Yemek → Kod yapıştır. `importYmk()` bugünün yemeklerine 📷 ile ekler.
+- Hareket görselleri durgun; `.anim`'e tıklayınca `.play` sınıfıyla oynar, tekrar tıklayınca durur (kütüphane ızgarasında tıklama detayı açar).
 - Veri: `root = {goals:{k,p,w}, days:{"YYYY-MM-DD":{f:[{n,k,p}], w, wo, ca, st, bu, kg}}, cards:[{id,name,ex:[{id,s,r}]}], lifts:{exId:[{d, s:[[kg,tekrar],...]}]}, session}`.
 - Kayıt: `save()` → localStorage `sd-root-KOD` + 1,2 sn sonra `PUT /api/data` (base sürüm; 409 → sunucudaki hali yüklenir). 30 sn'de bir ve sekmeye dönünce `poll()`.
 - Kod `LOCAL` = kodsuz, sadece cihazda.

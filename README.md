@@ -31,5 +31,8 @@ Vercel → proje → **Settings → Environment Variables** → `GOOGLE_CLIENT_I
 ```
 Fotoğraflar için `img/Klasör_Adı/0.jpg` ve `1.jpg` koy. Hazır 870+ hareketlik fotoğraf arşivi: https://github.com/yuhonas/free-exercise-db (kamu malı, `exercises/` klasörü).
 
+## Fotoğraftan kalori
+`extras/foto-kalori/index.html` claude.ai'de yayınlı (https://claude.ai/artifact/HVWojZ4iDYbMFdYLVAc9kw). Kullanıcının kendi Claude hesabıyla fotoğrafı okur, sonucu Spor Defteri'ne `#ymk=` linkiyle ya da kodla gönderir. Siteye dahil değildir (Vercel'e yüklenmez).
+
 ## Hareket fotoğrafları
 free-exercise-db (Unlicense, kamu malı). İstediğin gibi kullanılabilir.

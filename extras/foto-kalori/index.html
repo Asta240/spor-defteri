@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fotoğraftan Kalori · Spor Defteri</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* PDF Ayırıcı ile aynı görünüm */
+  :root{--bg:#f6f5f1;--card:#fff;--ink:#1d1f24;--muted:#6b6f78;--line:#e6e3dc;--accent:#3b5bdb;--accent-soft:#e8edff;--good:#2f9e44;--bad:#e03131;--r:14px;color-scheme:light}
+  @media (prefers-color-scheme: dark){:root{--bg:#141518;--card:#1d1f24;--ink:#eceef2;--muted:#9a9fab;--line:#2c2f36;--accent:#748ffc;--accent-soft:#232a45;--good:#51cf66;--bad:#ff6b6b;color-scheme:dark}}
+  :root[data-theme=light]{--bg:#f6f5f1;--card:#fff;--ink:#1d1f24;--muted:#6b6f78;--line:#e6e3dc;--accent:#3b5bdb;--accent-soft:#e8edff;--good:#2f9e44;--bad:#e03131;color-scheme:light}
+  :root[data-theme=dark]{--bg:#141518;--card:#1d1f24;--ink:#eceef2;--muted:#9a9fab;--line:#2c2f36;--accent:#748ffc;--accent-soft:#232a45;--good:#51cf66;--bad:#ff6b6b;color-scheme:dark}
+  *{box-sizing:border-box;min-width:0} [hidden]{display:none!important}
+  body{margin:0;font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45;overflow-x:clip}
+  .wrap{max-width:640px;margin:0 auto;padding:24px 16px 60px}
+  h1{font-size:28px;margin:0;letter-spacing:-.02em} h1 span{color:var(--accent)} h2{font-size:17px;margin:0 0 8px}
+  .sub{color:var(--muted);margin:6px 0 18px;font-size:15px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:14px}
+  .muted{color:var(--muted);font-size:13.5px}
+  .steps{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+  .steps span{font-size:13px;font-weight:600;padding:6px 12px;border-radius:99px;background:var(--card);border:1px solid var(--line);color:var(--muted)}
+  .steps span.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:150px;padding:20px;border-radius:12px;border:2px dashed var(--accent);background:var(--accent-soft);cursor:pointer;font-weight:700;color:var(--accent);text-align:center}
+  .drop small{font-weight:500;color:var(--muted)}
+  .drop.over{outline:2px solid var(--accent)} .drop input{display:none}
+  .thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .thumbs div{position:relative}
+  .thumbs img{height:84px;border-radius:8px;border:1px solid var(--line);display:block}
+  .thumbs button{position:absolute;top:-6px;right:-6px;min-height:26px;min-width:26px;padding:0;border-radius:99px;font-size:13px;background:var(--ink);color:var(--bg)}
+  textarea,input{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 11px;width:100%}
+  textarea{min-height:56px;resize:vertical;margin-top:10px}
+  input:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+  button,.btn{font:inherit;font-weight:600;border:0;border-radius:10px;padding:10px 16px;cursor:pointer;background:var(--accent);color:#fff;min-height:44px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+  button.ghost,.btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)} button:disabled{opacity:.5;cursor:default}
+  button:focus-visible,.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .big{font-size:16px;padding:12px 20px;width:100%}
+  .items{margin-top:10px}
+  .it{display:grid;grid-template-columns:minmax(0,1fr) 78px 70px 36px;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+  .it.h{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--line)}
+  .it input{padding:7px 8px;min-height:40px}
+  .it input[type=number]{text-align:right}
+  .it button{background:none;color:var(--muted);min-height:36px;padding:0}
+  .tot{display:flex;justify-content:space-between;gap:10px;margin-top:12px;font-weight:700;font-size:17px}
+  .tot span{color:var(--muted);font-weight:600;font-size:14px}
+  .code{font:12px/1.35 ui-monospace,monospace;min-height:58px;word-break:break-all}
+  .ok{color:var(--good);font-weight:600}
+  .warn{background:#fff3e0;color:#9a5b00;border-radius:10px;padding:12px 14px;font-size:14px;margin-bottom:14px}
+  @media (prefers-color-scheme: dark){.warn{background:#33281b;color:#ffc078}}
+  .note{background:var(--accent-soft);border-radius:10px;padding:10px 12px;font-size:14px;margin-top:10px}
+  .spin{display:inline-block;width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .8s linear infinite}
+  @keyframes sp{to{transform:rotate(1turn)}}
+  @media (prefers-reduced-motion:reduce){.spin{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>📷 Fotoğraftan <span>Kalori</span></h1>
+  <p class="sub">Yemeğinin fotoğrafını at, Claude tabaktakileri tanıyıp kalorisini ve proteinini tahmin etsin. Sonucu düzelt, tek dokunuşla Spor Defteri'ne ekle.</p>
+  <div class="steps"><span id="s1" class="on">1 · Fotoğraf</span><span id="s2">2 · Kontrol et</span><span id="s3">3 · Ekle</span></div>
+
+  <div class="warn" id="noClaude" hidden>Bu sayfa senin Claude hesabınla çalışır (fotoğrafı Claude okur). claude.ai'ye giriş yapıp sayfayı yenile.</div>
+
+  <section class="card" id="up">
+    <h2>Fotoğraf yükle</h2>
+    <label class="drop" id="drop"><input type="file" id="fileIn" accept="image/*" multiple>⬆️ Fotoğraf çek ya da seç<small>En fazla 4 fotoğraf · tabağın tamamı görünsün</small></label>
+    <div class="thumbs" id="thumbs"></div>
+    <textarea id="note" placeholder="(İsteğe bağlı) Not: ör. “yarısını yedim”, “az yağlı”, “yemekhane porsiyonu”"></textarea>
+    <div class="row" style="margin-top:10px"><button id="readBtn" class="big" disabled>Claude ile hesapla ✦</button></div>
+    <p class="muted" id="st" style="margin:8px 0 0"></p>
+  </section>
+
+  <section class="card" id="chk" hidden>
+    <h2>Kontrol et</h2>
+    <p class="muted" style="margin:0">Tahmindir. Porsiyon farklıysa kaloriyi düzelt, yanlış olanı sil.</p>
+    <div class="note" id="aiNote" hidden></div>
+    <div class="items" id="items"></div>
+    <button class="ghost" id="addRow" style="margin-top:8px;min-height:38px">+ Satır ekle</button>
+    <div class="tot"><div>Toplam</div><div id="tot"></div></div>
+  </section>
+
+  <section class="card" id="out" hidden>
+    <h2>Spor Defteri'ne ekle</h2>
+    <a class="btn big" id="goBtn" target="_blank" rel="noopener">➕ Bugünkü yemeklerime ekle</a>
+    <p class="muted" style="margin:10px 0 6px">Açılmazsa kodu kopyala, Spor Defteri → Yemek → <b>Kod yapıştır</b>'a yapıştır:</p>
+    <textarea class="code" id="code" readonly></textarea>
+    <div class="row" style="margin-top:8px"><button class="ghost" id="copyBtn">📋 Kodu kopyala</button><button class="ghost" id="again">🔄 Yeni fotoğraf</button><span id="copySt"></span></div>
+  </section>
+</div>
+<script>
+{
+const SPOR_URL = "https://spor-defteri-v1.vercel.app";
+const $ = id => document.getElementById(id);
+const esc = t => String(t ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const step = n => ["s1","s2","s3"].forEach((id, i) => $(id).classList.toggle("on", i === n - 1));
+let sample = null, canImg = false, files = [], items = [];
+
+// Fotoğrafları küçült (hızlı ve limit içinde kalsın)
+async function shrink(file){
+  const bmp = await createImageBitmap(file).catch(() => null);
+  if(!bmp) return file;
+  const k = Math.min(1, 1280 / Math.max(bmp.width, bmp.height));
+  const c = document.createElement("canvas"); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+  c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+  return await new Promise(r => c.toBlob(b => r(b || file), "image/jpeg", 0.85));
+}
+function setFiles(list){
+  files = [...files, ...[...list].filter(f => f.type.startsWith("image/"))].slice(0, 4);
+  $("thumbs").innerHTML = files.map((f, i) => `<div><img src="${URL.createObjectURL(f)}" alt="Fotoğraf ${i+1}"><button data-rm="${i}" aria-label="Kaldır">✕</button></div>`).join("");
+  $("readBtn").disabled = !files.length || !sample || !canImg;
+}
+$("fileIn").onchange = e => { setFiles(e.target.files); e.target.value = ""; };
+$("thumbs").onclick = e => { const b = e.target.closest("button[data-rm]"); if(!b) return; files.splice(+b.dataset.rm, 1); const f = files; files = []; setFiles(f); };
+const drop = $("drop");
+drop.ondragover = e => { e.preventDefault(); drop.classList.add("over"); };
+drop.ondragleave = () => drop.classList.remove("over");
+drop.ondrop = e => { e.preventDefault(); drop.classList.remove("over"); setFiles(e.dataTransfer.files); };
+
+const PROMPT = note => `Sen bir diyetisyen asistanısın. Fotoğraf(lar)daki yemekleri tanı ve her biri için porsiyonu tahmin edip kalori ve proteinini hesapla.
+Türkiye'de yaygın yemekleri (pilav, kuru fasulye, mercimek çorbası, döner, lahmacun, börek, yemekhane tabakları vb.) Türkçe adıyla yaz.
+Kurallar:
+- Tabakta ayrı görünen her yiyecek ayrı satır olsun (pilav, et, salata, ekmek, içecek...).
+- Ad kısa olsun ve sonunda parantez içinde tahmini miktar olsun, ör. "Pirinç pilavı (≈200 g)" ya da "Ayran (1 kutu)".
+- k = kcal (tam sayı), p = protein gram (tam sayı). Yağ ve sosları hesaba kat.
+- Emin olmadığın durumda makul ortalama porsiyonu kullan.
+- Fotoğrafta yemek yoksa items boş olsun ve not'ta söyle.
+${note ? `Kullanıcının notu (buna göre ayarla): "${note}"` : ""}
+Sadece şu JSON'u döndür: {"items":[{"n":"Ad (≈miktar)","k":0,"p":0}],"not":"tek cümlelik kısa yorum ya da boş"}`;
+
+$("readBtn").onclick = async () => {
+  if(!files.length || !sample) return;
+  const btn = $("readBtn"); btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Claude bakıyor…'; $("st").textContent = "";
+  try{
+    const imgs = await Promise.all(files.map(shrink));
+    const r = await sample.json(PROMPT($("note").value.trim()), {images: imgs, modelTier: "default"});
+    const list = Array.isArray(r && r.items) ? r.items : [];
+    items = list.map(x => ({n: String(x.n || "Yemek").slice(0, 80), k: Math.max(0, Math.round(+x.k || 0)), p: Math.max(0, Math.round(+x.p || 0))}));
+    $("aiNote").hidden = !(r && r.not); $("aiNote").textContent = (r && r.not) || "";
+    if(!items.length){ $("st").textContent = (r && r.not) || "Fotoğrafta yemek bulunamadı. Başka bir fotoğraf dene."; }
+    else { $("chk").hidden = false; $("out").hidden = false; step(2); draw(); $("chk").scrollIntoView({behavior: "smooth", block: "start"}); }
+  }catch(e){
+    const c = e && e.code;
+    $("st").textContent = c === "rate_limited" ? "Çok sık istek gitti, biraz bekleyip tekrar dene." : c === "not_granted" ? "Claude'a erişim izni verilmedi." : "Okunamadı, tekrar dene." ;
+  }
+  btn.innerHTML = "Claude ile hesapla ✦"; btn.disabled = !files.length;
+};
+
+function code(){
+  const json = JSON.stringify(items.filter(x => x.n.trim()).map(x => [x.n.trim(), x.k, x.p]));
+  const b = btoa(String.fromCharCode(...new TextEncoder().encode(json))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return "YMK1." + b;
+}
+function draw(){
+  $("items").innerHTML = `<div class="it h"><span>Yemek</span><span style="text-align:right">kcal</span><span style="text-align:right">Protein g</span><span></span></div>` +
+    items.map((x, i) => `<div class="it"><input value="${esc(x.n)}" data-i="${i}" data-f="n" aria-label="Yemek adı"><input type="number" inputmode="numeric" min="0" value="${x.k}" data-i="${i}" data-f="k" aria-label="Kalori"><input type="number" inputmode="numeric" min="0" value="${x.p}" data-i="${i}" data-f="p" aria-label="Protein"><button data-del="${i}" aria-label="Sil">✕</button></div>`).join("");
+  upd();
+}
+function upd(){
+  const k = items.reduce((a, x) => a + (+x.k || 0), 0), p = items.reduce((a, x) => a + (+x.p || 0), 0);
+  $("tot").innerHTML = `${k.toLocaleString("tr-TR")} kcal <span>· ${p} g protein</span>`;
+  const c = code(); $("code").value = c; $("goBtn").href = SPOR_URL + "/#ymk=" + c;
+  $("goBtn").classList.toggle("ghost", !items.length);
+}
+$("items").oninput = e => { const t = e.target; if(t.dataset.i == null) return; const x = items[+t.dataset.i]; x[t.dataset.f] = t.dataset.f === "n" ? t.value : Math.max(0, Math.round(+t.value || 0)); upd(); };
+$("items").onclick = e => { const b = e.target.closest("button[data-del]"); if(b){ items.splice(+b.dataset.del, 1); draw(); } };
+$("addRow").onclick = () => { items.push({n: "", k: 0, p: 0}); draw(); const ins = $("items").querySelectorAll("input[data-f=n]"); ins[ins.length - 1].focus(); };
+$("goBtn").onclick = () => step(3);
+$("copyBtn").onclick = async () => { try{ await navigator.clipboard.writeText($("code").value); $("copySt").innerHTML = '<span class="ok">Kopyalandı ✓</span>'; }catch(e){ $("code").select(); $("copySt").textContent = "Seçildi, kopyala"; } step(3); };
+$("again").onclick = () => { files = []; items = []; setFiles([]); $("note").value = ""; $("chk").hidden = $("out").hidden = true; $("st").textContent = ""; step(1); window.scrollTo({top: 0, behavior: "smooth"}); };
+
+(async () => {
+  try{ sample = window.claude && await window.claude.use("sample"); }catch(e){ sample = null; }
+  if(sample){ try{ const l = await sample.limits(); canImg = !!(l && l.images); }catch(e){} }
+  if(!sample || !canImg){ $("noClaude").hidden = false; }
+  $("readBtn").disabled = !files.length || !sample || !canImg;
+})();
+}
+</script>
+</body>
+</html>
