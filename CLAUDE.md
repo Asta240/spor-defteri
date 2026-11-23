@@ -47,7 +47,7 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Hedefler: `goals.kgT` hedef kilo (Kilo sayfasında kalan + hız), `root.waterRem` su hatırlatması saat (site açıkken bildirim / ana sayfada uyarı, `waterDue`).
 - Antrenman bitirince `finishSession` pencere açar: ağırlık süresi (gerçek süre ya da set×3 dk) + kardiyo türü/dk → `workoutKcal` (MET−1)×kg×saat → `d.wk` (yakılana eklenir), `commitSession`. Rekor `bestOf`, toast.
 - İlerleme: Haftalık rapor (`renderReport`, bu hafta vs geçen), Hareketlerde gelişim (ilk→son), Rekorlar.
-- Yemekler öğünlü (`m`: k/o/a/s, `MEALS`, `mealSeg`); boş aramada öneri yok. Ölçüler `root.meas[gün]={bel,kol,gogus,kalca}`, ayda bir ana sayfa uyarısı (`measSnooze` 7 gün).
+- Yemekler öğünlü (`m`: k/o/a/s, `MEALS`, `mealSeg`); boş aramada öneri yok. Ölçüler `root.meas[gün]={solkol,sagkol,omuz,gogus,bel}`, ayda bir ana sayfa uyarısı (`measSnooze` 7 gün).
 - Kas haritası: kendi SVG'miz `bodySvg` (`MUS` free-exercise-db kasları); kart/kütüphane küçük görseli kas haritası, detayda fotoğraflı yapılış + kaslar. Bugünkü antrenman seçimi/kardiyo Kartlar sayfasının üstünde (`woT`, `caT`); `hareket` sayfası = Kilo ve ölçüler.
 - Makrolar: `FOODS` = [ad, porsiyon, kcal, protein, fastfood(0/1), yağ, karb]; yemek kaydı {n,k,p,y,c,m}. Hedef yağ `goals.y` / karb `goals.c` boşsa otomatik (`goalY` %28 kalori, `goalC` kalan). Kalori alımında P/K/Y çubukları + `foodTip` önerisi. Foto kodu YMK1 artık [ad,kcal,p,yağ,karb] (artifact güncel).
 - Takviyeler sayfası `supp` (tarihli): `root.supp=[{id,name,dose}]`, gün `sp:{id:true}`, seri `suppStreak`, 7 gün noktaları, hazır liste `SUPP_PRE`.
@@ -58,3 +58,5 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Seriler + rozetler: `streak(ok)` (bugün tutmadıysa dünden sayar), `okWo` (antrenman ya da boş gün) / `okWater` / `okProt`; ana sayfa `#ozStreak` (`renderStreaks`), İlerleme `#bdGrid` (`renderBadges`), 17 rozet `badgeList()`, kazanılan tarih `root.badges`, yeni rozette toast (`checkBadges`).
 - Tema: koyu + turuncu vurgu (`--accent:#ff9f1c`), su mavisi #4dabf7. Emoji YOK: çizgi ikonlar `ICONS` + `I(ad)`; statik HTML’de `<i data-i="ad">` → `fillIcons()`. Toast/bildirim metinleri ikonsuz düz yazı.
 - Alışkanlıklar sayfası `hab` (tarihli): `root.habits=[{id,name}]`, gün `hb:{id:true}`, `HAB_PRE` hazır liste, seri `habStreak`. Ana sayfa `#ozTrack` (`renderTrack`): alışkanlık + takviye çipleri, dokununca işaretler; listeler boşsa gizli. Rozet `hb7`.
+- Salon takvimi + haftalık çubuklar İlerleme’de (`renderGym`, `calM`); günler `d.wo`’dan. Ana sayfa seçili kartta hareket kutucukları (`.xtiles`, x/y set), Seriler kutusunda bu hafta/bu ay salon günü.
+- Tarih çubuğu: tarihe basınca takvim (`dpick`), bugünden farklıysa "Bugün" tuşu (`toToday`). Kilo ve ölçüler: ölçüler sol kol/sağ kol/omuz/göğüs/bel; Vücut analizi `renderBody` (BMI, sağlıklı aralık, tahmini yağ %, bel/boy, omuz/bel, kol farkı + öneriler).
