@@ -51,3 +51,7 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Kas haritası: kendi SVG'miz `bodySvg` (`MUS` free-exercise-db kasları); kart/kütüphane küçük görseli kas haritası, detayda fotoğraflı yapılış + kaslar. Bugünkü antrenman seçimi/kardiyo Kartlar sayfasının üstünde (`woT`, `caT`); `hareket` sayfası = Kilo ve ölçüler.
 - Makrolar: `FOODS` = [ad, porsiyon, kcal, protein, fastfood(0/1), yağ, karb]; yemek kaydı {n,k,p,y,c,m}. Hedef yağ `goals.y` / karb `goals.c` boşsa otomatik (`goalY` %28 kalori, `goalC` kalan). Kalori alımında P/K/Y çubukları + `foodTip` önerisi. Foto kodu YMK1 artık [ad,kcal,p,yağ,karb] (artifact güncel).
 - Takviyeler sayfası `supp` (tarihli): `root.supp=[{id,name,dose}]`, gün `sp:{id:true}`, seri `suppStreak`, 7 gün noktaları, hazır liste `SUPP_PRE`.
+- Kartlar sayfası: üstte "Hazır kartlardan ekle / + Yeni kart", sonra Bugün kartı, kompakt kart listesi (`.ccard`, aktifse "Aktif · %"). Karta basınca ayrı kart sayfası (`cardPage`, "‹ Kartlar" geri). Menüden Kartlar'a gelince liste.
+- Hareket detayı: `FEEL[id]` = [nerede hissetmeli, nasıl hissettirmeli, yaygın hata] + `GEN_TIP[grup]` nefes/tempo.
+- Su sayfası: bardak görseli (`wFill`), son 7 gün çubukları, su hatırlatması burada (`gwr`).
+- Menü üstünde profil (`dProf`: baş harf, ad, boy·kilo) → Hesap. Hesap sayfası PC'de iki sütun.
