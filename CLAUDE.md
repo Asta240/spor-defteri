@@ -49,3 +49,5 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - İlerleme: Haftalık rapor (`renderReport`, bu hafta vs geçen), Hareketlerde gelişim (ilk→son), Rekorlar.
 - Yemekler öğünlü (`m`: k/o/a/s, `MEALS`, `mealSeg`); boş aramada öneri yok. Ölçüler `root.meas[gün]={bel,kol,gogus,kalca}`, ayda bir ana sayfa uyarısı (`measSnooze` 7 gün).
 - Kas haritası: kendi SVG'miz `bodySvg` (`MUS` free-exercise-db kasları); kart/kütüphane küçük görseli kas haritası, detayda fotoğraflı yapılış + kaslar. Bugünkü antrenman seçimi/kardiyo Kartlar sayfasının üstünde (`woT`, `caT`); `hareket` sayfası = Kilo ve ölçüler.
+- Makrolar: `FOODS` = [ad, porsiyon, kcal, protein, fastfood(0/1), yağ, karb]; yemek kaydı {n,k,p,y,c,m}. Hedef yağ `goals.y` / karb `goals.c` boşsa otomatik (`goalY` %28 kalori, `goalC` kalan). Kalori alımında P/K/Y çubukları + `foodTip` önerisi. Foto kodu YMK1 artık [ad,kcal,p,yağ,karb] (artifact güncel).
+- Takviyeler sayfası `supp` (tarihli): `root.supp=[{id,name,dose}]`, gün `sp:{id:true}`, seri `suppStreak`, 7 gün noktaları, hazır liste `SUPP_PRE`.

@@ -122,13 +122,13 @@ Türkiye'de yaygın yemekleri (pilav, kuru fasulye, mercimek çorbası, döner, 
 Kurallar:
 - Tabakta ayrı görünen her yiyecek ayrı satır olsun (pilav, et, salata, ekmek, içecek...).
 - Ad kısa olsun ve sonunda parantez içinde tahmini miktar olsun, ör. "Pirinç pilavı (≈200 g)" ya da "Ayran (1 kutu)".
-- k = kcal (tam sayı), p = protein gram (tam sayı). Yağ ve sosları hesaba kat.
+- k = kcal, p = protein g, y = yağ g, c = karbonhidrat g (hepsi tam sayı). Yağ ve sosları hesaba kat.
 - Emin olmadığın durumda makul ortalama porsiyonu kullan; kaloriyi düşük tahmin etme (yağ, tereyağı, kızartma yağı, mayonez, sos, şekerli içecek gizli kaloridir).
 - Fast food ve zincir ürünlerinde (Popeyes, Burger King, McDonald's, KFC, Domino's vb.; ambalaj/kutu/logo görünüyorsa) zincirin Türkiye'deki resmi değerlerini kullan. Referans: Popeyes Popchicken ≈692 kcal, Popeyes XL Sandviç ≈750, Big Mac ≈525, Whopper ≈660, Double Whopper ≈940, Chicken Royale ≈600, orta patates kızartması ≈330, 330 ml kola ≈140, 400 ml kola ≈170.
 - Menü ise burger/sandviç, patates ve içeceği ayrı satır yaz; görünen sos paketlerini (ketçap ≈20, mayonez ≈90 kcal) de ekle.
 - Fotoğrafta yemek yoksa items boş olsun ve not'ta söyle.
 ${note ? `Kullanıcının notu (buna göre ayarla): "${note}"` : ""}
-Sadece şu JSON'u döndür: {"items":[{"n":"Ad (≈miktar)","k":0,"p":0}],"not":"tek cümlelik kısa yorum ya da boş"}`;
+Sadece şu JSON'u döndür: {"items":[{"n":"Ad (≈miktar)","k":0,"p":0,"y":0,"c":0}],"not":"tek cümlelik kısa yorum ya da boş"}`;
 
 $("readBtn").onclick = async () => {
   if(!files.length || !sample) return;
@@ -137,7 +137,7 @@ $("readBtn").onclick = async () => {
     const imgs = await Promise.all(files.map(shrink));
     const r = await sample.json(PROMPT($("note").value.trim()), {images: imgs, modelTier: "default"});
     const list = Array.isArray(r && r.items) ? r.items : [];
-    items = list.map(x => ({n: String(x.n || "Yemek").slice(0, 80), k: Math.max(0, Math.round(+x.k || 0)), p: Math.max(0, Math.round(+x.p || 0))}));
+    items = list.map(x => ({n: String(x.n || "Yemek").slice(0, 80), k: Math.max(0, Math.round(+x.k || 0)), p: Math.max(0, Math.round(+x.p || 0)), y: Math.max(0, Math.round(+x.y || 0)), c: Math.max(0, Math.round(+x.c || 0))}));
     $("aiNote").hidden = !(r && r.not); $("aiNote").textContent = (r && r.not) || "";
     if(!items.length){ $("st").textContent = (r && r.not) || "Fotoğrafta yemek bulunamadı. Başka bir fotoğraf dene."; }
     else { $("chk").hidden = false; $("out").hidden = false; step(2); draw(); $("chk").scrollIntoView({behavior: "smooth", block: "start"}); }
@@ -149,7 +149,7 @@ $("readBtn").onclick = async () => {
 };
 
 function code(){
-  const json = JSON.stringify(items.filter(x => x.n.trim()).map(x => [x.n.trim(), x.k, x.p]));
+  const json = JSON.stringify(items.filter(x => x.n.trim()).map(x => [x.n.trim(), x.k, x.p, x.y || 0, x.c || 0]));
   const b = btoa(String.fromCharCode(...new TextEncoder().encode(json))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
   return "YMK1." + b;
 }
