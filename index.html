@@ -498,6 +498,30 @@
   .tk.on small{color:var(--good)}
   .tkb{display:block;height:5px;border-radius:99px;background:var(--card);overflow:hidden} .tkb i{display:block;height:100%;background:var(--accent);border-radius:99px}
   .tk.on .tkb i{background:var(--good)}
+  .atabs{display:flex;width:max-content;max-width:100%;margin-bottom:12px}
+  .mform{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+  .meals{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+  .meal{background:var(--card-2);border-radius:14px;padding:10px}
+  .meal .mh{display:flex;align-items:center;gap:10px}
+  .meal .mh b{font-size:14px} .meal .mk{flex:1;font-size:12px;color:var(--muted);text-align:right}
+  .meal .mh .small-btn{min-height:28px;padding:3px 10px;font-size:12px}
+  .meal.empty .mh{opacity:.75}
+  .fi{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:10px;padding:6px 4px 6px 12px;margin-top:6px}
+  .fi .n{flex:1;font-size:14px;font-weight:600} .fi .k{font-size:12px;color:var(--muted);white-space:nowrap}
+  .kbig{grid-column:1 / -1}
+  .ktiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .ktiles .rp b{font-size:22px}
+  .kstack{display:flex;height:12px;border-radius:99px;overflow:hidden;margin-top:14px;background:var(--card-2);gap:2px}
+  .kstack i{display:block;height:100%}
+  .klegend{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font-size:12px;color:var(--muted)}
+  .klegend i{display:inline-block;width:9px;height:9px;border-radius:99px;margin-right:5px;vertical-align:0}
+  .kv{font-size:18px;font-weight:800;white-space:nowrap;color:var(--accent)}
+  .kmini{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+  .kmini .it{display:flex;justify-content:space-between;background:var(--card-2);border-radius:10px;padding:8px 12px;font-size:14px}
+  @media (min-width:1000px){
+    #vKalori{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch} #vKalori>*{margin:0} #vKalori>.kseg{grid-column:1 / -1}
+    #vYemek{align-items:start} #addCard{grid-column:1} #eatCard{grid-column:2}
+  }
   .pastc{display:flex;flex-direction:column;gap:6px}
   .pci{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card-2);border-radius:12px;padding:8px 8px 8px 14px;flex-wrap:wrap}
   .pci b{font-size:14px}
@@ -715,30 +739,35 @@
         <div class="macros" id="ymMac"></div>
         <div class="tip" id="ymTip" style="margin-top:12px"></div>
       </div>
-      <div class="card">
-        <h2>Yemek ekle</h2>
-        <div class="chips" id="mealSeg" style="margin-bottom:10px"></div>
-        <div class="fqrow"><input id="fq" type="search" placeholder="Ara: mercimek, whopper, kola…" aria-label="Yemek ara"><a class="camBtn" id="camLink" target="_blank" rel="noopener" title="Fotoğraftan kalori"><i data-i="camera"></i> Fotoğraf</a></div>
-        <ul class="fres" id="fres"></ul>
-        <p class="small muted" style="margin:8px 0 0">Değerler ortalama porsiyon için yaklaşıktır. <i data-i="camera"></i> Fotoğraf: Claude yemeği hesaplar, “Bugünkü yemeklerime ekle”ye basınca buraya gelir.</p>
-        <details class="ymkd"><summary class="small">Fotoğraf kodu yapıştır</summary>
-          <form id="ymkForm" class="row" style="margin-top:8px"><input id="ymkIn" placeholder="YMK1.…" autocomplete="off" aria-label="Yemek kodu" style="flex:1 1 180px"><button>Kod yapıştır</button></form></details>
+      <div class="card" id="addCard">
+        <div class="hhead"><span class="hico"><i data-i="utensils"></i></span><div style="flex:1"><h2 style="margin:0">Yemek ekle</h2><div class="small muted">Hangi öğün?</div></div></div>
+        <div class="chips" id="mealSeg" style="margin:12px 0"></div>
+        <div class="seg atabs"><button data-at="ara" class="on">Listeden</button><button data-at="elle">Elle</button><button data-at="foto">Fotoğraf</button></div>
+        <div class="apane" data-ap="ara">
+          <input id="fq" type="search" placeholder="Ara: mercimek, whopper, kola…" aria-label="Yemek ara">
+          <ul class="fres" id="fres"></ul>
+          <p class="small muted" style="margin:8px 0 0">Değerler ortalama porsiyon için yaklaşıktır.</p>
+        </div>
+        <div class="apane" data-ap="elle" hidden>
+          <form id="ff" class="mform">
+            <input id="fn" placeholder="Ne yedin?" required aria-label="Yemek adı" style="grid-column:1 / -1">
+            <input id="fk" type="number" inputmode="numeric" min="0" placeholder="kcal" required aria-label="Kalori">
+            <input id="fp" type="number" inputmode="numeric" min="0" placeholder="Protein g" aria-label="Protein">
+            <input id="fcb" type="number" inputmode="numeric" min="0" placeholder="Karb g" aria-label="Karbonhidrat">
+            <input id="fy" type="number" inputmode="numeric" min="0" placeholder="Yağ g" aria-label="Yağ">
+            <button class="small-btn" style="grid-column:1 / -1;justify-self:start">Ekle</button>
+          </form>
+        </div>
+        <div class="apane" data-ap="foto" hidden>
+          <p class="small muted" style="margin:0 0 10px">Fotoğrafı Claude'a gönder, kaloriyi o hesaplasın. “Bugünkü yemeklerime ekle”ye basınca yemekler buraya kendiliğinden gelir.</p>
+          <a class="camBtn" id="camLink" target="_blank" rel="noopener" style="display:inline-flex"><i data-i="camera"></i> Fotoğraftan kalori aç</a>
+          <form id="ymkForm" class="row" style="margin-top:12px"><input id="ymkIn" placeholder="Açılmazsa kodu yapıştır: YMK1.…" autocomplete="off" aria-label="Yemek kodu" style="flex:1 1 180px"><button class="small-btn">Yapıştır</button></form>
+        </div>
       </div>
-      <div class="card">
-        <h2>Elle ekle</h2>
-        <form id="ff" class="row">
-          <input id="fn" placeholder="Ne yedin?" required aria-label="Yemek adı" style="flex:1 1 160px">
-          <input id="fk" type="number" inputmode="numeric" min="0" placeholder="kcal" required aria-label="Kalori" style="flex:0 1 92px">
-          <input id="fp" type="number" inputmode="numeric" min="0" placeholder="Protein g" aria-label="Protein" style="flex:0 1 100px">
-          <input id="fcb" type="number" inputmode="numeric" min="0" placeholder="Karb g" aria-label="Karbonhidrat" style="flex:0 1 90px">
-          <input id="fy" type="number" inputmode="numeric" min="0" placeholder="Yağ g" aria-label="Yağ" style="flex:0 1 90px">
-          <button>Ekle</button>
-        </form>
-      </div>
-      <div class="card">
-        <h2>Bu gün yediklerin</h2>
-        <ul class="list" id="fl"></ul>
-        <p class="empty" id="fe">Bu gün için henüz bir şey eklemedin.</p>
+      <div class="card" id="eatCard">
+        <div class="hhead"><span class="hico"><i data-i="list"></i></span><div style="flex:1"><h2 style="margin:0">Bu gün yediklerin</h2><div class="small muted" id="eatSub"></div></div></div>
+        <div class="meals" id="fl"></div>
+        <p class="empty" id="fe" hidden></p>
         <button class="ghost small-btn" id="fReset" style="margin-top:12px;color:var(--bad)">Günün yemeklerini sıfırla</button>
       </div>
     </section>
@@ -807,13 +836,14 @@
     <!-- KALORİ HESABI -->
     <section id="vKalori" hidden>
       <div class="seg kseg" role="group" aria-label="Kalori"><button data-v="yemek"><i data-i="utensils"></i> Kalori alımı</button><button data-v="kalori" class="on"><i data-i="flame"></i> Kalori yakımı</button></div>
-      <div class="card">
-        <div class="prof">
-          <label class="f">Adım<input id="cSt" type="number" inputmode="numeric" min="0"></label>
-          <label class="f">Ekstra yakılan (kcal)<input id="cXb" type="number" inputmode="numeric" min="0" placeholder="Örn. maç, yüzme"></label>
-        </div>
-        <div class="acc" id="calcBox"></div>
-      </div>
+      <div class="card kbig" id="kSum"></div>
+      <div class="card ksg"><div class="hhead"><span class="hico"><i data-i="heart"></i></span><div style="flex:1"><h2 style="margin:0">Bazal metabolizma</h2><div class="small muted">Vücudunun dinlenirken harcadığı</div></div><b class="kv" id="kBmr"></b></div><p class="small muted" id="kBmrF" style="margin:10px 0 0"></p></div>
+      <div class="card ksg"><div class="hhead"><span class="hico"><i data-i="shoe"></i></span><div style="flex:1"><h2 style="margin:0">Adım</h2><div class="small muted" id="kStF"></div></div><b class="kv" id="kSt"></b></div>
+        <label class="f" style="margin-top:12px">Bugünkü adım<input id="cSt" type="number" inputmode="numeric" min="0" placeholder="8000"></label></div>
+      <div class="card ksg"><div class="hhead"><span class="hico"><i data-i="dumbbell"></i></span><div style="flex:1"><h2 style="margin:0">Antrenman ve kardiyo</h2><div class="small muted">Antrenmanı bitirince ve ana sayfadaki Kardiyo'dan</div></div><b class="kv" id="kWo"></b></div>
+        <div class="kmini" id="kWoD"></div></div>
+      <div class="card ksg"><div class="hhead"><span class="hico"><i data-i="zap"></i></span><div style="flex:1"><h2 style="margin:0">Ekstra</h2><div class="small muted">Maç, yüzme, yürüyüş… elle</div></div><b class="kv" id="kXb"></b></div>
+        <label class="f" style="margin-top:12px">Ekstra yakılan (kcal)<input id="cXb" type="number" inputmode="numeric" min="0" placeholder="Örn. 300"></label></div>
     </section>
 
     <!-- ALIŞKANLIKLAR -->
@@ -1161,7 +1191,7 @@ const yt = e => "https://www.youtube.com/results?search_query=" + encodeURICompo
 // Çalışan kas haritası (kendi çizimimiz). Kas listesi free-exercise-db'den: [ana, yardımcı]
 const MUS = {"Leverage_Incline_Chest_Press":[["ch"],["sh","tri"]],"Leverage_Chest_Press":[["ch"],["sh","tri"]],"Barbell_Bench_Press_-_Medium_Grip":[["ch"],["sh","tri"]],"Dumbbell_Flyes":[["ch"],[]],"Cable_Crossover":[["ch"],["sh"]],"Leverage_Shoulder_Press":[["sh"],["tri"]],"Dumbbell_Shoulder_Press":[["sh"],["tri"]],"Side_Lateral_Raise":[["sh"],[]],"Face_Pull":[["sh"],["mb"]],"Cable_Rope_Overhead_Triceps_Extension":[["tri"],[]],"Triceps_Pushdown":[["tri"],[]],"Dips_-_Triceps_Version":[["tri"],["ch","sh"]],"Wide-Grip_Lat_Pulldown":[["la"],["bi","mb","sh"]],"Leverage_Iso_Row":[["la"],["bi","mb"]],"Seated_Cable_Rows":[["mb"],["bi","la","sh"]],"Rope_Straight-Arm_Pulldown":[["la"],[]],"Hyperextensions_Back_Extensions":[["lb"],["gl","ha"]],"Bent_Over_Barbell_Row":[["mb"],["bi","la","sh"]],"Pullups":[["la"],["bi","mb"]],"EZ-Bar_Curl":[["bi"],[]],"Hammer_Curls":[["bi"],[]],"Incline_Dumbbell_Curl":[["bi"],[]],"Barbell_Squat":[["qu"],["ca","gl","ha","lb"]],"Leg_Press":[["qu"],["ca","gl","ha"]],"Leg_Extensions":[["qu"],[]],"Lying_Leg_Curls":[["ha"],[]],"Romanian_Deadlift":[["ha"],["ca","gl","lb"]],"Thigh_Abductor":[["abd"],["gl"]],"Thigh_Adductor":[["add"],["gl","ha"]],"Seated_Calf_Raise":[["ca"],[]],"Crunches":[["ab"],[]],"Weighted_Crunches":[["ab"],[]],"Reverse_Crunch":[["ab"],[]],"Air_Bike":[["ab"],[]],"Cable_Crunch":[["ab"],[]],"Flat_Bench_Lying_Leg_Raise":[["ab"],[]],"Hanging_Leg_Raise":[["ab"],[]],"Plank":[["ab"],[]],"Barbell_Deadlift":[["lb"],["ca","fa","gl","ha","la","mb","qu","tr"]],"Incline_Dumbbell_Press":[["ch"],["sh","tri"]],"Dumbbell_Bench_Press":[["ch"],["sh","tri"]],"Pushups":[["ch"],["sh","tri"]],"Close-Grip_Barbell_Bench_Press":[["tri"],["ch","sh"]],"Butterfly":[["ch"],[]],"Barbell_Curl":[["bi"],["fa"]],"Preacher_Curl":[["bi"],[]],"Concentration_Curls":[["bi"],["fa"]],"Standing_Dumbbell_Triceps_Extension":[["tri"],[]],"Bench_Dips":[["tri"],["ch","sh"]],"Arnold_Dumbbell_Press":[["sh"],["tri"]],"Barbell_Shoulder_Press":[["sh"],["ch","tri"]],"Front_Dumbbell_Raise":[["sh"],[]],"Reverse_Flyes":[["sh"],[]],"Dumbbell_Shrug":[["tr"],[]],"Upright_Barbell_Row":[["sh"],["tr"]],"One-Arm_Dumbbell_Row":[["mb"],["bi","la","sh"]],"T-Bar_Row_with_Handle":[["mb"],["bi","la"]],"Chin-Up":[["la"],["bi","fa","mb"]],"Close-Grip_Front_Lat_Pulldown":[["la"],["bi","mb","sh"]],"Dumbbell_Lunges":[["qu"],["ca","gl","ha"]],"Goblet_Squat":[["qu"],["ca","gl","ha","sh"]],"Hack_Squat":[["qu"],["ca","gl","ha"]],"Smith_Machine_Squat":[["qu"],["ca","gl","ha","lb"]],"Barbell_Hip_Thrust":[["gl"],["ca","ha"]],"Standing_Calf_Raises":[["ca"],[]],"Seated_Leg_Curl":[["ha"],[]],"Dumbbell_Step_Ups":[["qu"],["ca","gl","ha"]],"Glute_Kickback":[["gl"],["ha"]],"Russian_Twist":[["ab"],["lb"]],"Ab_Roller":[["ab"],["sh"]],"Mountain_Climbers":[["qu"],["ch","ha","sh"]],"Side_Bridge":[["ab"],["sh"]],"Rowing_Stationary":[["qu"],["bi","ca","gl","ha","lb","mb"]],"Bicycling_Stationary":[["qu"],["ca","gl","ha"]],"Elliptical_Trainer":[["qu"],["ca","gl","ha"]],"Stairmaster":[["qu"],["ca","gl","ha"]],"Walking_Treadmill":[["qu"],["ca","gl","ha"]]};
 // Çizgi ikonlar (emoji yerine)
-const ICONS = {"home":"<path d=\"M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z\"/>","target":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><circle cx=\"12\" cy=\"12\" r=\"5\"/><circle cx=\"12\" cy=\"12\" r=\"1\"/>","utensils":"<path d=\"M7 3v8a2 2 0 0 0 2 2v8M5 3v6M9 3v6M17 3c-2 2-2.5 6 0 8v10\"/>","flame":"<path d=\"M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-3 2-4 2-7 1 1 2 2 2 3 0-2 0-4 1-6z\"/>","droplet":"<path d=\"M12 3l5.5 7a7 7 0 1 1-11 0z\"/>","shoe":"<path d=\"M3 16h18v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1zM3 16V8l5 1 2 3 6 1a4 4 0 0 1 4 3\"/>","pill":"<path d=\"M10.5 4.5a4.95 4.95 0 0 1 7 7l-6 6a4.95 4.95 0 0 1-7-7zM7.5 7.5l9 9\" transform=\"rotate(0)\"/>","scale":"<path d=\"M12 3v18M5 7h14M5 7l-3 7a3 3 0 0 0 6 0zM19 7l-3 7a3 3 0 0 0 6 0zM8 21h8\"/>","layers":"<path d=\"M12 3l9 5-9 5-9-5zM3 13l9 5 9-5\"/>","dumbbell":"<path d=\"M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12\"/>","trend":"<path d=\"M3 17l6-6 4 4 8-8M15 7h6v6\"/>","trenddown":"<path d=\"M3 7l6 6 4-4 8 8M15 17h6v-6\"/>","user":"<circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21a8 8 0 0 1 16 0\"/>","heart":"<path d=\"M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z\"/><path d=\"M8 12h2l1-2 2 4 1-2h2\"/>","ruler":"<path d=\"M3 17L17 3l4 4L7 21zM7 13l2 2M10 10l2 2M13 7l2 2\"/>","bell":"<path d=\"M6 9a6 6 0 0 1 12 0c0 6 3 7 3 7H3s3-1 3-7M10 20a2 2 0 0 0 4 0\"/>","camera":"<path d=\"M4 8h3l2-3h6l2 3h3v11H4z\"/><circle cx=\"12\" cy=\"13\" r=\"3.5\"/>","bulb":"<path d=\"M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z\"/>","trophy":"<path d=\"M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 21h8M10 17h4v4h-4z\"/>","medal":"<circle cx=\"12\" cy=\"15\" r=\"5\"/><path d=\"M8 3l4 7 4-7M12 13v4\"/>","calendar":"<rect x=\"4\" y=\"5\" width=\"16\" height=\"16\" rx=\"2\"/><path d=\"M4 10h16M9 3v4M15 3v4\"/>","egg":"<path d=\"M12 3c3.5 0 6 6 6 10a6 6 0 0 1-12 0c0-4 2.5-10 6-10z\"/>","zap":"<path d=\"M13 2L4 14h7l-1 8 9-12h-7z\"/>","run":"<path d=\"M3 12h4l3-8 4 16 3-8h4\"/>","moon":"<path d=\"M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z\"/>","chartbar":"<path d=\"M4 20V10M10 20V4M16 20v-7M2 20h20\"/>","pin":"<path d=\"M12 21s-6-6.5-6-11a6 6 0 0 1 12 0c0 4.5-6 11-6 11z\"/><circle cx=\"12\" cy=\"10\" r=\"2\"/>","msg":"<path d=\"M21 12a8 8 0 0 1-12 7l-5 1 1-4a8 8 0 1 1 16-4z\"/>","wind":"<path d=\"M3 8h10a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7\"/>","clock":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 2\"/>","alert":"<path d=\"M12 3l9 16H3zM12 10v4M12 17v.5\"/>","edit":"<path d=\"M4 20h4L19 9l-4-4L4 16zM14 6l4 4\"/>","check":"<path d=\"M4 12l5 5L20 6\"/>","menu":"<path d=\"M4 6h16M4 12h16M4 18h16\"/>"};
+const ICONS = {"home":"<path d=\"M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z\"/>","target":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><circle cx=\"12\" cy=\"12\" r=\"5\"/><circle cx=\"12\" cy=\"12\" r=\"1\"/>","utensils":"<path d=\"M7 3v8a2 2 0 0 0 2 2v8M5 3v6M9 3v6M17 3c-2 2-2.5 6 0 8v10\"/>","flame":"<path d=\"M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-3 2-4 2-7 1 1 2 2 2 3 0-2 0-4 1-6z\"/>","droplet":"<path d=\"M12 3l5.5 7a7 7 0 1 1-11 0z\"/>","shoe":"<path d=\"M3 16h18v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1zM3 16V8l5 1 2 3 6 1a4 4 0 0 1 4 3\"/>","pill":"<path d=\"M10.5 4.5a4.95 4.95 0 0 1 7 7l-6 6a4.95 4.95 0 0 1-7-7zM7.5 7.5l9 9\" transform=\"rotate(0)\"/>","scale":"<path d=\"M12 3v18M5 7h14M5 7l-3 7a3 3 0 0 0 6 0zM19 7l-3 7a3 3 0 0 0 6 0zM8 21h8\"/>","layers":"<path d=\"M12 3l9 5-9 5-9-5zM3 13l9 5 9-5\"/>","dumbbell":"<path d=\"M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12\"/>","trend":"<path d=\"M3 17l6-6 4 4 8-8M15 7h6v6\"/>","trenddown":"<path d=\"M3 7l6 6 4-4 8 8M15 17h6v-6\"/>","user":"<circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21a8 8 0 0 1 16 0\"/>","heart":"<path d=\"M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z\"/><path d=\"M8 12h2l1-2 2 4 1-2h2\"/>","ruler":"<path d=\"M3 17L17 3l4 4L7 21zM7 13l2 2M10 10l2 2M13 7l2 2\"/>","bell":"<path d=\"M6 9a6 6 0 0 1 12 0c0 6 3 7 3 7H3s3-1 3-7M10 20a2 2 0 0 0 4 0\"/>","camera":"<path d=\"M4 8h3l2-3h6l2 3h3v11H4z\"/><circle cx=\"12\" cy=\"13\" r=\"3.5\"/>","bulb":"<path d=\"M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z\"/>","trophy":"<path d=\"M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 21h8M10 17h4v4h-4z\"/>","medal":"<circle cx=\"12\" cy=\"15\" r=\"5\"/><path d=\"M8 3l4 7 4-7M12 13v4\"/>","calendar":"<rect x=\"4\" y=\"5\" width=\"16\" height=\"16\" rx=\"2\"/><path d=\"M4 10h16M9 3v4M15 3v4\"/>","egg":"<path d=\"M12 3c3.5 0 6 6 6 10a6 6 0 0 1-12 0c0-4 2.5-10 6-10z\"/>","zap":"<path d=\"M13 2L4 14h7l-1 8 9-12h-7z\"/>","run":"<path d=\"M3 12h4l3-8 4 16 3-8h4\"/>","moon":"<path d=\"M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z\"/>","chartbar":"<path d=\"M4 20V10M10 20V4M16 20v-7M2 20h20\"/>","pin":"<path d=\"M12 21s-6-6.5-6-11a6 6 0 0 1 12 0c0 4.5-6 11-6 11z\"/><circle cx=\"12\" cy=\"10\" r=\"2\"/>","msg":"<path d=\"M21 12a8 8 0 0 1-12 7l-5 1 1-4a8 8 0 1 1 16-4z\"/>","wind":"<path d=\"M3 8h10a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7\"/>","clock":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 2\"/>","alert":"<path d=\"M12 3l9 16H3zM12 10v4M12 17v.5\"/>","edit":"<path d=\"M4 20h4L19 9l-4-4L4 16zM14 6l4 4\"/>","check":"<path d=\"M4 12l5 5L20 6\"/>","list":"<path d=\"M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01\"/>","menu":"<path d=\"M4 6h16M4 12h16M4 18h16\"/>"};
 const I = (n, c) => ICONS[n] ? `<svg class="i ${c || ""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>` : "";
 const fillIcons = root => { for(const el of (root || document).querySelectorAll("i[data-i]")) el.outerHTML = I(el.dataset.i); };
 fillIcons();
@@ -1486,18 +1516,18 @@ function renderCalc(){
   const ds = cur, P = root.profile || {}, d = root.days[ds] || blankDay(), s = sum(d), b = bmrOn(ds), sk = stepKcal(ds), B = burnedOf(ds), w = weightOn(ds);
   const setv = (id, v) => { if(document.activeElement !== $(id)) $(id).value = v ?? ""; };
   setv("cSt", d.st); setv("cXb", d.xb);
-  const row = (k, v, sub) => `<div class="it"><span>${k}${sub ? `<small class="muted" style="display:block;font-size:12px">${sub}</small>` : ""}</span><b>${v}</b></div>`;
-  if(!b){ $("calcBox").innerHTML = `<p class="muted small" style="margin:0 0 8px">Hesap için vücut bilgilerin lazım (boy, kilo, doğum yılı, cinsiyet).</p><button class="small-btn" data-acc>Vücut bilgilerini gir</button>`; return; }
-  const wt = String(w).replace(".", ","), age = new Date(ds + "T12:00").getFullYear() - +P.by;
-  $("calcBox").innerHTML = `
-    ${row("BMR (bazal metabolizma)", fmt(b) + " kcal", `10×${wt} + 6,25×${P.h} − 5×${age} ${P.sex === "k" ? "− 161" : "+ 5"}`)}
-    ${row("Adım", fmt(sk) + " kcal", `${fmt(+d.st || 0)} adım × ${wt} kg × 0,0005`)}
-    ${row("Antrenman", fmt(+d.wk || 0) + " kcal", +d.wk > 0 ? "Antrenmanı bitirince hesaplandı" : "Antrenmanı bitirince hesaplanır")}
-    ${row("Kardiyo", fmt(+d.ck || 0) + " kcal", +d.ck > 0 ? `${fmt(+d.ca || 0)} dk, ana sayfadan` : "Ana sayfadaki Kardiyo kutusundan")}
-    ${row("Ekstra", fmt(+d.xb || 0) + " kcal", "Elle girdiğin")}
-    ${row("Toplam yakılan", fmt(B.v) + " kcal", +d.bu > 0 ? "Eski Fitness kaydı" : "BMR + adım + antrenman + kardiyo + ekstra")}
-    ${row("Yenen", fmt(s.k) + " kcal")}
-    ${row("Açık (yenen − yakılan)", (s.k - B.v > 0 ? "+" : "") + fmt(s.k - B.v) + " kcal", "Eksi = kalori açığı")}`;
+  const wk = +d.wk || 0, ck = +d.ck || 0, xb = +d.xb || 0, net = s.k - B.v, wt = String(w || "").replace(".", ",");
+  const parts = [["BMR", b, "#ff9f1c"], ["Adım", sk, "#ffd43b"], ["Antrenman", wk, "#ff6b6b"], ["Kardiyo", ck, "#ae3ec9"], ["Ekstra", xb, "#4dabf7"]].filter(x => x[1] > 0), tot = parts.reduce((a, x) => a + x[1], 0) || 1;
+  $("kSum").innerHTML = !b ? `<p class="muted small" style="margin:0 0 8px">Hesap için vücut bilgilerin lazım (boy, kilo, doğum yılı, cinsiyet).</p><button class="small-btn" data-acc>Vücut bilgilerini gir</button>`
+    : `<div class="ktiles"><div class="rp"><span>Toplam yakılan</span><b>${fmt(B.v)} kcal</b>${+d.bu > 0 ? `<small class="muted">eski Fitness kaydı</small>` : ""}</div><div class="rp"><span>Yenen</span><b>${fmt(s.k)} kcal</b></div><div class="rp"><span>Açık</span><b class="${net < 0 ? "gd" : "bd"}">${net > 0 ? "+" : ""}${fmt(net)} kcal</b><small class="muted">${net < 0 ? "kalori açığındasın" : "fazladasın"}</small></div></div>
+      <div class="kstack">${parts.map(([t, v, c]) => `<i style="width:${v / tot * 100}%;background:${c}" title="${t}"></i>`).join("")}</div>
+      <div class="klegend">${parts.map(([t, v, c]) => `<span><i style="background:${c}"></i>${t} ${fmt(v)}</span>`).join("")}</div>`;
+  $("kBmr").textContent = b ? fmt(b) + " kcal" : "—";
+  $("kBmrF").textContent = b ? `Mifflin-St Jeor: 10×${wt} + 6,25×${P.h} − 5×${new Date(ds + "T12:00").getFullYear() - +P.by} ${P.sex === "k" ? "− 161" : "+ 5"}` : "Vücut bilgilerini girince hesaplanır.";
+  $("kSt").textContent = fmt(sk) + " kcal"; $("kStF").textContent = `${fmt(+d.st || 0)} adım × ${wt || "?"} kg × 0,0005`;
+  $("kWo").textContent = fmt(wk + ck) + " kcal";
+  $("kWoD").innerHTML = `<div class="it"><span>Antrenman${d.wo ? ` · ${esc(d.wo)}` : ""}</span><b>${fmt(wk)} kcal</b></div><div class="it"><span>Kardiyo${+d.ca > 0 ? ` · ${fmt(+d.ca)} dk` : ""}</span><b>${fmt(ck)} kcal</b></div>`;
+  $("kXb").textContent = fmt(xb) + " kcal";
 }
 function calcIn(){
   const d = day(cur);
@@ -1812,9 +1842,11 @@ function renderDay(){
     $("ymTip").innerHTML = foodTip(s, g, gy, gc); }
   $("ymLeft").textContent = s.k <= g.k ? `${fmt(g.k - s.k)} kcal kaldı` : `${fmt(s.k - g.k)} kcal fazla`;
   $("ymBar").style.width = Math.min(100, s.k / (g.k || 1) * 100) + "%";
-  { const row = (x, i) => `<li><span class="n">${x.ph ? I("camera", "sm") + " " : ""}${esc(x.n)}</span><span class="k">${fmt(x.k)} kcal · P ${fmt(x.p)}${x.c != null ? ` · K ${fmt(x.c)}` : ""}${x.y != null ? ` · Y ${fmt(x.y)}` : ""}</span><button class="icon" data-del="${i}" aria-label="${esc(x.n)} sil">✕</button></li>`;
-    const idx = d.f.map((x, i) => i), groups = [...MEALS, ["", "Diğer"]].map(([k, t]) => [t, idx.filter(i => (MEALS.some(M => M[0] === d.f[i].m) ? d.f[i].m : "") === k)]).filter(g => g[1].length);
-    $("fl").innerHTML = groups.map(([t, is]) => `<li class="mealh"><b>${t}</b><span>${fmt(is.reduce((a, i) => a + (+d.f[i].k || 0), 0))} kcal · ${fmt(is.reduce((a, i) => a + (+d.f[i].p || 0), 0))} g</span></li>` + is.map(i => row(d.f[i], i)).join("")).join(""); }
+  { const row = (x, i) => `<div class="fi"><span class="n">${x.ph ? I("camera", "sm") + " " : ""}${esc(x.n)}</span><span class="k">${fmt(x.k)} kcal · P ${fmt(x.p)}${x.c != null ? ` · K ${fmt(x.c)}` : ""}${x.y != null ? ` · Y ${fmt(x.y)}` : ""}</span><button class="icon" data-del="${i}" aria-label="${esc(x.n)} sil">✕</button></div>`;
+    const idx = d.f.map((x, i) => i), MI = {k: "egg", o: "utensils", a: "moon", s: "zap"};
+    const groups = [...MEALS, ["", "Diğer"]].map(([k, t]) => [k, t, idx.filter(i => (MEALS.some(M => M[0] === d.f[i].m) ? d.f[i].m : "") === k)]).filter(g => g[0] || g[2].length);
+    $("eatSub").textContent = d.f.length ? `${d.f.length} yemek · ${fmt(s.k)} kcal` : "Henüz bir şey eklemedin";
+    $("fl").innerHTML = groups.map(([k, t, is]) => `<div class="meal ${is.length ? "" : "empty"}"><div class="mh"><span class="hico sm">${I(MI[k] || "list")}</span><b>${t}</b><span class="mk">${is.length ? `${fmt(is.reduce((a, i) => a + (+d.f[i].k || 0), 0))} kcal · P ${fmt(is.reduce((a, i) => a + (+d.f[i].p || 0), 0))}` : ""}</span>${k ? `<button class="ghost small-btn" data-addmeal="${k}">+ Ekle</button>` : ""}</div>${is.map(i => row(d.f[i], i)).join("")}</div>`).join(""); }
   $("fe").hidden = d.f.length > 0;
   $("fReset").hidden = !d.f.length;
   // su
@@ -1982,6 +2014,8 @@ const MEALS = [["k","Kahvaltı"],["o","Öğle"],["a","Akşam"],["s","Ara öğün
 const mealNow = () => { const h = new Date().getHours(); return h >= 5 && h < 11 ? "k" : h >= 11 && h < 16 ? "o" : h >= 18 && h < 23 ? "a" : "s"; };
 let meal = mealNow();
 const renderMealSeg = () => { $("mealSeg").innerHTML = MEALS.map(([k, t]) => `<button type="button" data-meal="${k}" class="${k === meal ? "on" : ""}">${t}</button>`).join(""); };
+document.addEventListener("click", e => { const t = e.target.closest("[data-at]"); if(t){ for(const b of document.querySelectorAll("[data-at]")) b.classList.toggle("on", b === t); for(const pn of document.querySelectorAll("[data-ap]")) pn.hidden = pn.dataset.ap !== t.dataset.at; }
+  const am = e.target.closest("[data-addmeal]"); if(am){ meal = am.dataset.addmeal; renderMealSeg(); document.querySelector("[data-at=ara]").click(); $("addCard").scrollIntoView({behavior: "smooth", block: "start"}); setTimeout(() => $("fq").focus(), 300); } });
 $("mealSeg").onclick = e => { const b = e.target.closest("button[data-meal]"); if(b){ meal = b.dataset.meal; renderMealSeg(); } };
 renderMealSeg();
 const addWater = () => { day(cur).w++; root.wAt = Date.now(); save(); renderDay(); };

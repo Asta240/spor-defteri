@@ -64,3 +64,4 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Geçmiş güne antrenman (ana sayfa, bugün değilse `#ozWo`): kart → "Direkt ekle" (`data-pastadd`, set×3 dk kcal) ya da "Detaylı gir" (`data-pastdet`: set set kg/tekrar + süre → lifts + d.wo + d.wk), "Boş gün", "Kaldır".
 - Kardiyo kutusu `#ozCardio` (`renderCardio`): tür/süre/hız/eğim → `cardioKcal` (bant/dışarı ACSM net, diğerleri MET) → `d.cardio[]`, `d.ck` (yakılana eklenir), `d.ca` toplam dk (`syncCardio`).
 - Tamamlanan işaretler yeşil değil turuncu (Yasin istedi).
+- Kalori alımı: "Yemek ekle" kartında öğün + sekme (Listeden / Elle / Fotoğraf, `data-at`/`data-ap`); "Bu gün yediklerin" öğün kutuları (`.meal`, boş öğünde "+ Ekle" `data-addmeal`). Kalori yakımı: özet (toplam/yenen/açık + dağılım çubuğu) + Bazal, Adım, Antrenman ve kardiyo, Ekstra kutuları.
