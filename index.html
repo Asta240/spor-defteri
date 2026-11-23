@@ -22,7 +22,7 @@
       --accent:#748ffc; --accent-soft:#232a45; --good:#51cf66; --good-soft:#1b2e20;
       --warn:#ffa94d; --warn-soft:#33281b; --bad:#ff6b6b; --bad-soft:#3a2020; color-scheme:dark }
   }
-  *{box-sizing:border-box;min-width:0}
+  *{box-sizing:border-box;min-width:0;touch-action:manipulation} /* çift dokunmada yakınlaştırma yok */
   [hidden]{display:none!important}
   body{margin:0;font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45;overflow-x:clip}
   .wrap{max-width:1320px;margin:0 auto;padding:22px clamp(16px,3vw,40px) 60px}
@@ -40,7 +40,7 @@
     #vYemek>.card:first-child{grid-column:1 / -1}
     #tCards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
     #tCards>*{margin:0}
-    #tCards>#newCard,#tCards>.empty,#tCards>.card:only-child,#tCards>.resume{grid-column:1 / -1}
+    #tCards>#newCard,#tCards>.empty,#tCards>.card:only-child,#tCards>.resume,#tCards>.cardbtns,#tCards>.emptycards{grid-column:1 / -1}
     #tProg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
     #tProg>*{margin:0}
     #tProg>.card:first-child{grid-column:1 / -1}
@@ -97,6 +97,11 @@
   .cardchips button{flex:none;min-height:38px;border-radius:99px;padding:0 14px;font-size:14px;background:var(--bg);color:var(--ink);border:1px solid var(--line)}
   .cardchips button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
   .wohead select{width:auto;max-width:60%;min-height:38px;padding:4px 10px;font-size:14px}
+  .tpl{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+  .tplh{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:6px}
+  .tplh button{min-height:36px;padding:0 12px;font-size:13px;flex:none}
+  .tplc{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+  .tplc button{min-height:36px;padding:0 14px;font-size:13px;flex:none}
   .resume{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:var(--accent-soft);border-color:var(--accent)}
   .resume button{min-height:40px}
   .choose{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
@@ -562,12 +567,46 @@ const unit = e => e.u || "tekrar";
 
 // Hazır kartlar (yeni hesaba gelir; silinebilir, değiştirilebilir)
 const card = (name, list) => ({id: Math.random().toString(36).slice(2, 9), name, ex: list.map(([id, s, r]) => ({id, s: s ?? EXM[id].s, r: r ?? EXM[id].r}))});
-const defaultCards = () => [
-  card("İtiş", [["Leverage_Incline_Chest_Press"],["Dumbbell_Flyes"],["Cable_Crossover"],["Leverage_Shoulder_Press"],["Side_Lateral_Raise"],["Face_Pull"],["Cable_Rope_Overhead_Triceps_Extension"],["Triceps_Pushdown"],["Walking_Treadmill"]]),
-  card("Çekiş", [["Wide-Grip_Lat_Pulldown"],["Leverage_Iso_Row"],["Seated_Cable_Rows"],["Rope_Straight-Arm_Pulldown"],["Hyperextensions_Back_Extensions"],["EZ-Bar_Curl"],["Hammer_Curls"],["Walking_Treadmill"]]),
-  card("Bacak + Karın", [["Leg_Press"],["Barbell_Squat"],["Leg_Extensions"],["Lying_Leg_Curls"],["Thigh_Abductor"],["Thigh_Adductor"],["Seated_Calf_Raise"],["Crunches"],["Reverse_Crunch"],["Air_Bike"],["Plank"],["Walking_Treadmill"]]),
-  card("Kol + Karın", [["EZ-Bar_Curl",3,12],["Incline_Dumbbell_Curl"],["Hammer_Curls"],["Triceps_Pushdown"],["Cable_Rope_Overhead_Triceps_Extension"],["Side_Lateral_Raise",3,15],["Crunches"],["Reverse_Crunch"],["Air_Bike"],["Plank"],["Walking_Treadmill"]]),
+// Hazır kartlar (Claude'un hazırladığı şablonlar). Yeni hesaba kart yüklenmez; kullanıcı buradan ekler ya da kendi kartını kurar.
+const TEMPLATES = [
+  {name:"Yeni başlayan · Tam vücut", desc:"Haftada 2–3 gün, A ve B dönüşümlü. Salona yeni başlayan için.", cards:[
+    ["Tam vücut A", [["Leg_Press",3,10],["Leverage_Chest_Press",3,10],["Wide-Grip_Lat_Pulldown",3,10],["Leverage_Shoulder_Press",3,10],["Lying_Leg_Curls",3,12],["Plank",3,30],["Walking_Treadmill",1,20]]],
+    ["Tam vücut B", [["Barbell_Squat",3,8],["Dumbbell_Flyes",3,12],["Seated_Cable_Rows",3,10],["Side_Lateral_Raise",3,12],["EZ-Bar_Curl",2,12],["Triceps_Pushdown",2,12],["Crunches",3,20],["Walking_Treadmill",1,20]]]]},
+  {name:"İtiş · Çekiş · Bacak", desc:"Haftada 3–4 gün. Klasik salon programı, istersen Kol + Karın gününü de ekle.", cards:[
+    ["İtiş", [["Leverage_Incline_Chest_Press"],["Dumbbell_Flyes"],["Cable_Crossover"],["Leverage_Shoulder_Press"],["Side_Lateral_Raise"],["Face_Pull"],["Cable_Rope_Overhead_Triceps_Extension"],["Triceps_Pushdown"],["Walking_Treadmill"]]],
+    ["Çekiş", [["Wide-Grip_Lat_Pulldown"],["Leverage_Iso_Row"],["Seated_Cable_Rows"],["Rope_Straight-Arm_Pulldown"],["Hyperextensions_Back_Extensions"],["EZ-Bar_Curl"],["Hammer_Curls"],["Walking_Treadmill"]]],
+    ["Bacak + Karın", [["Leg_Press"],["Barbell_Squat"],["Leg_Extensions"],["Lying_Leg_Curls"],["Thigh_Abductor"],["Thigh_Adductor"],["Seated_Calf_Raise"],["Crunches"],["Reverse_Crunch"],["Air_Bike"],["Plank"],["Walking_Treadmill"]]],
+    ["Kol + Karın", [["EZ-Bar_Curl",3,12],["Incline_Dumbbell_Curl"],["Hammer_Curls"],["Triceps_Pushdown"],["Cable_Rope_Overhead_Triceps_Extension"],["Side_Lateral_Raise",3,15],["Crunches"],["Reverse_Crunch"],["Air_Bike"],["Plank"],["Walking_Treadmill"]]]]},
+  {name:"Üst / Alt vücut", desc:"Haftada 4 gün: Üst, Alt, Üst, Alt.", cards:[
+    ["Üst vücut", [["Barbell_Bench_Press_-_Medium_Grip",4,8],["Wide-Grip_Lat_Pulldown",4,10],["Dumbbell_Shoulder_Press",3,10],["Seated_Cable_Rows",3,10],["Side_Lateral_Raise",3,12],["EZ-Bar_Curl",3,12],["Triceps_Pushdown",3,12]]],
+    ["Alt vücut", [["Barbell_Squat",4,8],["Romanian_Deadlift",3,10],["Leg_Press",3,12],["Lying_Leg_Curls",3,12],["Seated_Calf_Raise",3,15],["Hanging_Leg_Raise",3,10],["Plank",3,45]]]]},
+  {name:"Kol ve omuz odaklı", desc:"Haftada 1–2 gün ek gün olarak. Biceps, triceps ve omuz.", cards:[
+    ["Kol + Omuz", [["EZ-Bar_Curl",4,10],["Incline_Dumbbell_Curl",3,12],["Hammer_Curls",3,12],["Cable_Rope_Overhead_Triceps_Extension",3,12],["Triceps_Pushdown",3,12],["Dips_-_Triceps_Version",3,10],["Dumbbell_Shoulder_Press",3,10],["Side_Lateral_Raise",4,15],["Face_Pull",3,15]]]]},
+  {name:"Karın odaklı", desc:"Antrenman sonuna ya da tek başına, haftada 2–3 kez.", cards:[
+    ["Karın", [["Weighted_Crunches",3,15],["Reverse_Crunch",3,15],["Air_Bike",3,20],["Cable_Crunch",3,12],["Hanging_Leg_Raise",3,10],["Plank",3,45]]]]},
+  {name:"Vücut ağırlığıyla", desc:"Alet gerektirmeyen ya da sadece bar isteyen hareketler.", cards:[
+    ["Vücut ağırlığı", [["Pullups",3,6],["Dips_-_Triceps_Version",3,10],["Crunches",3,20],["Reverse_Crunch",3,15],["Air_Bike",3,20],["Plank",3,45]]]]},
+  {name:"Kardiyo + karın", desc:"Hafif gün: yürüyüş ve karın.", cards:[
+    ["Kardiyo + Karın", [["Walking_Treadmill",1,30],["Crunches",3,20],["Reverse_Crunch",3,15],["Air_Bike",3,20],["Plank",3,30]]]]},
 ];
+const defaultCards = () => [];
+function addTemplateCard(name, list){
+  let n = name, i = 2;
+  while(root.cards.some(c => c.name === n)) n = `${name} (${i++})`;
+  const c = card(n, list.filter(([id]) => EXM[id]));
+  root.cards.push(c); return c;
+}
+function showTemplates(){
+  openSheet(`<div class="row" style="justify-content:space-between;align-items:center;flex-wrap:nowrap"><h2 style="margin:0">Hazır kartlar ✦</h2><button class="icon" data-close aria-label="Kapat">✕</button></div>
+    <p class="small muted" style="margin:4px 0 12px">Claude'un hazırladığı programlar. Eklediğin kartı sonra istediğin gibi değiştirebilirsin.</p>
+    ${TEMPLATES.map((t, ti) => `<div class="tpl"><div class="tplh"><div><b>${esc(t.name)}</b><div class="small muted">${esc(t.desc)}</div></div>${t.cards.length > 1 ? `<button class="ghost" data-tall="${ti}">Hepsini ekle</button>` : ""}</div>
+      ${t.cards.map(([cn, list], ci) => `<div class="tplc"><div><b>${esc(cn)}</b><div class="small muted">${list.map(([id]) => esc(EXM[id]?.tr || "")).filter(Boolean).join(", ")}</div></div><button data-tadd="${ti}:${ci}">Ekle</button></div>`).join("")}</div>`).join("")}`);
+  $("sheet").onclick = e => {
+    const b = e.target.closest("button"); if(!b) return;
+    if(b.dataset.tadd){ const [ti, ci] = b.dataset.tadd.split(":").map(Number); const [cn, list] = TEMPLATES[ti].cards[ci]; const c = addTemplateCard(cn, list); openCard = c.id; save(); b.textContent = "Eklendi ✓"; b.disabled = true; toast(`“${c.name}” eklendi`); renderAll(); }
+    if(b.dataset.tall){ const t = TEMPLATES[+b.dataset.tall]; for(const [cn, list] of t.cards) addTemplateCard(cn, list); save(); b.textContent = "Eklendi ✓"; b.disabled = true; toast(`${t.cards.length} kart eklendi`); renderAll(); }
+  };
+}
 // Hazır yemekler: [ad, porsiyon, kcal, protein g] — ortalama porsiyon, yaklaşık değerler
 const FOTO_URL = "https://claude.ai/artifact/HVWojZ4iDYbMFdYLVAc9kw";
 const FOODS = [
@@ -1012,8 +1051,8 @@ function renderCards(){
         </div>
       </div>
     </details>`).join("") +
-    `<button id="newCard" style="width:100%">+ Yeni kart</button>
-     ${root.cards.length ? "" : `<p class="empty">Hiç kartın yok. Yeni bir kart oluştur, sonra Hareketler sekmesinden hareket ekle.</p>`}`;
+    `${root.cards.length ? "" : `<div class="card emptycards"><h2>Henüz kartın yok</h2><p class="muted" style="margin:0 0 12px">Hazır kartlardan birini seç ya da kendi kartını oluştur, sonra Hareketler sayfasından hareket ekle.</p></div>`}
+     <div class="row cardbtns"><button id="tplBtn" style="flex:1 1 180px">✦ Hazır kartlardan ekle</button><button class="ghost" id="newCard" style="flex:1 1 140px">+ Yeni kart</button></div>`;
 }
 $("tCards").addEventListener("toggle", e => { const d = e.target.closest("details[data-card]"); if(d && d.open) openCard = root.cards[+d.dataset.card]?.id; }, true);
 $("tCards").addEventListener("change", e => {
@@ -1031,6 +1070,7 @@ $("tCards").addEventListener("click", e => {
   if(d.ren){ const c = root.cards[+d.ren]; openSheet(`<h2>Kartın adı</h2><input id="renIn" value="${esc(c.name)}" maxlength="40"><div class="row" style="margin-top:12px"><button class="ghost" data-close style="flex:1">Vazgeç</button><button id="renOk" style="flex:1">Kaydet</button></div>`); $("renOk").onclick = () => { const v = $("renIn").value.trim(); if(v){ c.name = v; save(); renderCards(); } closeSheet(); }; return; }
   if(d.delc){ const c = root.cards[+d.delc]; return ask(`“${c.name}” kartı silinsin mi?`, "Sil", () => { root.cards.splice(+d.delc, 1); save(); renderCards(); toast("Kart silindi"); }); }
   if(d.start){ startSession(+d.start); return; }
+  if(b.id === "tplBtn") return showTemplates();
   if(b.id === "resumeBtn"){ listOverride = false; renderCards(); window.scrollTo({top: 0}); return; }
   if(b.id === "newCard"){ openSheet(`<h2>Yeni kart</h2><input id="ncIn" placeholder="Örn. Pazartesi – İtiş" maxlength="40"><div class="row" style="margin-top:12px"><button class="ghost" data-close style="flex:1">Vazgeç</button><button id="ncOk" style="flex:1">Oluştur</button></div>`); $("ncOk").onclick = () => { const v = $("ncIn").value.trim(); if(!v) return; const c = card(v, []); root.cards.push(c); openCard = c.id; save(); closeSheet(); renderCards(); }; return; }
   // antrenman modu
@@ -1085,7 +1125,7 @@ function renderHomeWo(){
     el.innerHTML = `<h2>Antrenman</h2><p class="muted" style="margin:0">${d.wo ? `Bu gün <b>${esc(d.wo)}</b> yapılmış.` : d.rest ? "Bu gün boş gün." : "Bu gün antrenman kaydı yok."}</p>`;
     return;
   }
-  if(!root.cards.length){ el.innerHTML = `<h2>Antrenman</h2><p class="muted">Hiç kartın yok.</p><button data-go="cards">Kart oluştur</button>`; return; }
+  if(!root.cards.length){ el.innerHTML = `<h2>Antrenman</h2><p class="muted" style="margin:4px 0 12px">Henüz antrenman kartın yok.</p><div class="row"><button id="hoTpl" style="flex:1 1 180px">✦ Hazır kartlardan ekle</button><button class="ghost" data-go="cards" style="flex:1 1 140px">Kendim oluşturayım</button></div>`; return; }
   const d = day(today()), S = root.session, c = todayCard();
   // 1) Seçim yok: sor
   if(!c && !d.rest){
@@ -1127,6 +1167,7 @@ function markDone(name){ const d = day(today()); d.rest = false; root.prevLast =
 $("ozWo").addEventListener("click", e => {
   const b = e.target.closest("button"); if(!b) return;
   const d = b.dataset, td = day(today());
+  if(b.id === "hoTpl") return showTemplates();
   if(d.choose){ td.rest = false; root.pick = {d: today(), id: d.choose}; save(); renderDay(); return; }
   if(d.rest){ td.rest = true; root.pick = null; save(); renderDay(); return; }
   if(b.id === "woChange"){
