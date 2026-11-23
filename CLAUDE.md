@@ -30,6 +30,7 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Telefonda çift dokunma yakınlaştırmaz: `*{touch-action:manipulation}`; inputlar 16px (odakta yakınlaştırma da yok).
 
 ## Vücut bilgileri + BMR
-- `root.profile = {h, w, by, sex}` (kayıtta istenir; Hesap penceresi → Vücut bilgileri `profForm/bindProf`).
-- Yakılan girilmemiş günlerde `burnedOf(ds)` BMR + adım kcal (`stepKcal`: adım × kilo × 0,0005) yazar (Mifflin-St Jeor, kilo = o güne kadarki son `d.kg`, yoksa profil). "tahmini" etiketi / "~". Girilen Fitness değeri her zaman önce gelir.
-- Ana sayfada dün kayıt var ama yakılan yoksa "Dünün yakılan kalorisini girmedin" kutusu (`#ozYest`).
+- `root.profile = {h, w, by, sex, wd}` (kayıtta istenir; Hesap → Vücut bilgileri `profForm/bindProf`; `wd` = kilonun girildiği gün).
+- Yakılan girilmemiş günlerde `burnedOf(ds)` BMR + adım kcal (`stepKcal`: adım × kilo × 0,0005) yazar. "tahmini"/"~" yok (Yasin istemedi). Yakılanın altında her zaman "BMR X + adım Y" (`.bmrl`).
+- Hedefler: `goals.st` (adım, 8000) ve `goals.bu` (yakılan, 2500); ana sayfada Adım + Yakılan halkaları (haftada ortalama).
+- Ana sayfa uyarıları: dünün adımı yoksa `#ozYest` (adımı düne yazar); son tartı (`lastWeighDay`) ≥3 gün önceyse `#ozKg` (bugünün kg + profil kilosu).
