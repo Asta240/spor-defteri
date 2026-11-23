@@ -649,6 +649,17 @@
   .stk i{color:var(--accent)!important}
   .tall.ok{color:var(--accent)!important;background:var(--accent-soft)!important}
   .spdots i.on{background:var(--accent)!important}
+
+  /* Bugünkü takip: sıkışık */
+  #ozTrack .tcols{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  @media (min-width:1000px){ #ozTrack .tcols{grid-template-columns:minmax(0,2fr) minmax(0,1fr)} #ozTrack .tcols>.tcol:only-child{grid-column:1 / -1} }
+  #ozTrack .tcol{padding:10px}
+  #ozTrack .tch{margin-bottom:6px} #ozTrack .tbar{height:4px}
+  #ozTrack .trows{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px;margin-top:8px}
+  #ozTrack .trow{min-height:36px;padding:4px 10px 4px 6px;font-size:13px;gap:8px}
+  #ozTrack .trow .tck{width:22px;height:22px;border-radius:7px}
+  #ozTrack .trow .tn small{font-size:10px}
+  #ozTrack>.row{margin-bottom:10px!important}
 </style>
 </head>
 <body>
