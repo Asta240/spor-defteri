@@ -739,6 +739,12 @@
   @media (max-width:800px){ .wrv{grid-template-columns:1fr} }
   .wrc{background:var(--card-2);border-radius:14px;padding:12px;font-size:13px}
   .wrc .tipl+.tipl{margin-top:6px} .wrc svg.i{color:var(--accent)}
+
+  .cd.rest{background:transparent!important;border:1px dashed var(--line)!important;color:var(--muted)!important}
+  .calleg{grid-column:1 / -1;display:flex;gap:14px;justify-content:flex-start;font-size:12px;color:var(--muted);margin-top:6px}
+  .calleg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+  .calleg .lw{background:var(--accent)} .calleg .lr{border:1px dashed var(--muted)}
+  .skheat.wk{grid-template-columns:repeat(12,1fr)}
 </style>
 </head>
 <body>
@@ -1713,12 +1719,16 @@ document.addEventListener("keydown", e => { const g = e.target.closest && e.targ
 // Seri: bugün tuttuysa bugünden, tutmadıysa dünden geriye sayılır (bugün henüz bozulmuş sayılmaz)
 function streak(ok){ let n = 0, ds = today(); if(!ok(ds)) ds = shift(ds, -1); while(n < 3650 && ok(ds)){ n++; ds = shift(ds, -1); } return n; }
 function bestStreak(ok){ const ks = Object.keys(root.days).sort(); let best = 0, run = 0, prev = ""; for(const k of ks){ if(ok(k)){ run = prev && shift(prev, 1) === k ? run + 1 : 1; prev = k; best = Math.max(best, run); } else { run = 0; prev = ""; } } return best; }
-const okWo = ds => { const d = root.days[ds]; return !!(d && (d.wo || d.rest)); };
+const okWo = ds => { const d = root.days[ds]; return !!(d && d.wo); }; // sadece gerçek antrenman (boş gün sayılmaz)
+// Antrenman serisi haftalık: haftalık antrenman hedefini (goals.woW) üst üste tutturduğun hafta sayısı
+const woWeekOk = mon => Array.from({length: 7}, (_, i) => shift(mon, i)).filter(ds => (root.days[ds] || {}).wo).length >= (+root.goals.woW || 3);
+function woWeekStreak(){ let m = monOf(today()), n = 0; if(!woWeekOk(m)) m = shift(m, -7); while(n < 520 && woWeekOk(m)){ n++; m = shift(m, -7); } return n; }
+function woWeekBest(){ const ms = [...new Set(Object.keys(root.days).map(monOf))].sort(); let best = 0, run = 0, prev = ""; for(const m of ms){ if(woWeekOk(m)){ run = prev && shift(prev, 7) === m ? run + 1 : 1; prev = m; best = Math.max(best, run); } else { run = 0; prev = ""; } } return best; }
 const okWater = ds => { const d = root.days[ds]; return !!(d && d.w >= root.goals.w); };
 const okProt = ds => { const d = root.days[ds]; return !!(d && d.f.length && sum(d).p >= root.goals.p); };
 function badgeList(){
   const days = Object.values(root.days), woN = days.filter(d => d.wo).length, maxSt = Math.max(0, ...days.map(d => +d.st || 0));
-  const bw = bestStreak(okWater), bp = bestStreak(okProt), bo = bestStreak(okWo);
+  const bw = bestStreak(okWater), bp = bestStreak(okProt), bo = woWeekBest();
   const kgs = Object.keys(root.days).sort().filter(k => +root.days[k].kg > 0).map(k => +root.days[k].kg), lost = kgs.length > 1 ? kgs[0] - Math.min(...kgs) : 0;
   const T = +root.goals.kgT || 0, lastKg = kgs[kgs.length - 1] || 0;
   const cre = (root.supp || []).find(x => /kreatin/i.test(x.name)), creS = cre ? bestStreak(ds => !!((root.days[ds] || {}).sp || {})[cre.id]) : 0;
@@ -1735,7 +1745,7 @@ function badgeList(){
     ["wo1","dumbbell","İlk antrenman","1 antrenman bitir", woN >= 1],
     ["wo10","dumbbell","10 antrenman","Toplam 10 antrenman", woN >= 10],
     ["wo50","dumbbell","50 antrenman","Toplam 50 antrenman", woN >= 50],
-    ["wos7","calendar","7 gün düzen","7 gün üst üste antrenman ya da planlı boş gün", bo >= 7],
+    ["wos7","calendar","2 hafta düzen","2 hafta üst üste haftalık antrenman hedefi", bo >= 2],
     ["w3","droplet","Su 3 gün","3 gün üst üste su hedefi", bw >= 3],
     ["w7","droplet","Su 7 gün","7 gün üst üste su hedefi", bw >= 7],
     ["w30","droplet","Su 30 gün","30 gün üst üste su hedefi", bw >= 30],
@@ -1750,7 +1760,7 @@ function badgeList(){
     ["goal","medal","Hedef kilo","Hedef kilona ulaş", !!(T && lastKg && Math.abs(lastKg - T) < .3)],
     ["hb7","check","Düzenli 7 gün","Bir alışkanlığı 7 gün üst üste yap", (root.habits || []).some(x => bestStreak(ds => !!((root.days[ds] || {}).hb || {})[x.id]) >= 7)],
     ["wo100","trophy","100 antrenman","Toplam 100 antrenman", woN >= 100],
-    ["wos30","calendar","30 gün düzen","30 gün üst üste antrenman ya da boş gün", bo >= 30],
+    ["wos30","calendar","8 hafta düzen","8 hafta üst üste haftalık antrenman hedefi", bo >= 8],
     ["wk3","dumbbell","3'lü hafta","Bir haftada 3 antrenman", wkMax >= 3],
     ["wk5","flame","Canavar hafta","Bir haftada 5 antrenman", wkMax >= 5],
     ["wkrow4","medal","4 hafta istikrar","4 hafta üst üste 3+ antrenman", wkRow >= 4],
@@ -1779,7 +1789,7 @@ function dailyTasks(ds){
     ["egg", `Protein ${g.p} g`, d.f.length > 0 && sm.p >= g.p, `${Math.round(sm.p)}/${g.p}`],
     ["utensils", "Kalori hedefinde kal (±%10)", sm.k >= g.k * .9 && sm.k <= g.k * 1.1, `${fmt(sm.k)}`],
     ["shoe", `${fmt(g.st)} adım`, +d.st >= g.st, `${fmt(+d.st || 0)}`],
-    ["dumbbell", "Antrenman ya da boş gün", !!(d.wo || d.rest), d.wo ? "✓" : d.rest ? "boş" : ""],
+    ["dumbbell", d.rest ? "Dinlenme günü (planlı)" : "Antrenman yap ya da boş gün seç", !!(d.wo || d.rest), d.wo ? "yapıldı" : d.rest ? "dinlenme" : ""],
   ];
   if(H.length) t.push(["check", "Bütün alışkanlıklar", H.every(x => hb[x.id]), `${H.filter(x => hb[x.id]).length}/${H.length}`]);
   return t;
@@ -1826,10 +1836,10 @@ function checkBadges(){
   if(fresh.length){ save(); setTimeout(() => toast("Yeni rozet: " + fresh.join(", ")), 400); }
 }
 function renderStreaks(){
-  const W = streak(okWo), A = streak(okWater), P = streak(okProt), B = badgeList(), got = B.filter(b => b[4]);
+  const W = woWeekStreak(), A = streak(okWater), P = streak(okProt), B = badgeList(), got = B.filter(b => b[4]);
   const chip = (ic, n, t, ok) => `<div class="stk ${n ? "on" : ""}"><span class="ic">${I(ic)}</span><b>${n}</b><small>${t}</small>${ok ? `<i title="Bugün tamam">✓</i>` : ""}</div>`;
   $("ozStreak").innerHTML = `<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:12px"><h2 style="margin:0">${I("flame")} Seriler</h2><button class="linkish small" id="bdGo">${got.length}/${B.length} rozet →</button></div>
-    <div class="stks">${chip("dumbbell", W, "gün antrenman", okWo(today()))}${chip("droplet", A, "gün su", okWater(today()))}${chip("egg", P, "gün protein", okProt(today()))}</div>
+    <div class="stks">${chip("dumbbell", W, "hafta antrenman", woWeekOk(monOf(today())))}${chip("droplet", A, "gün su", okWater(today()))}${chip("egg", P, "gün protein", okProt(today()))}</div>
     <div class="small muted" style="margin-top:10px">Bu hafta <b style="color:var(--ink)">${Array.from({length: 7}, (_, i) => shift(monOf(today()), i)).filter(woDay).length} gün</b> salon · bu ay <b style="color:var(--ink)">${Object.keys(root.days).filter(k => k.startsWith(today().slice(0, 7)) && woDay(k)).length} gün</b></div>
     <div class="bdrow">${got.slice(-6).map(b => `<span class="bd on" title="${esc(b[2])}">${I(b[1])}</span>`).join("") || `<span class="small muted">İlk rozet için bugün su ya da protein hedefini tuttur.</span>`}</div>`;
   $("bdGo").onclick = () => setTab("prog");
@@ -1880,7 +1890,11 @@ function renderProgTabs(){
   const hOk = id => ds => !!((root.days[ds] || {}).hb || {})[id], sOk = id => ds => !!((root.days[ds] || {}).sp || {})[id];
   const okSt = ds => +((root.days[ds] || {}).st) >= root.goals.st, okLog = ds => (root.days[ds] || {}).f?.length > 0, okPerf = ds => perfectDay(ds);
   const nut = [skItem("droplet", "Su hedefi", okWater, `${root.goals.w} bardak`), skItem("egg", "Protein hedefi", okProt, `${root.goals.p} g`), skItem("utensils", "Yemek kaydı", okLog, "her gün kayıt")];
-  const wo = [skItem("dumbbell", "Antrenman / planlı boş gün", okWo), skItem("shoe", "Adım hedefi", okSt, `${fmt(root.goals.st)} adım`)];
+  const wkMons = Array.from({length: 12}, (_, i) => shift(monOf(today()), -7 * (11 - i)));
+  const woCard = `<div class="ski"><div class="skh"><span class="hico sm">${I("dumbbell")}</span><div style="flex:1;min-width:0"><b>Antrenman</b><small>haftada ${+root.goals.woW || 3} gün hedefi</small></div><div class="skn"><b>${woWeekStreak()}</b><small>hafta seri</small></div></div>
+    <div class="skheat wk">${wkMons.map(m => `<i class="${woWeekOk(m) ? "on" : ""} ${m === monOf(today()) ? "t" : ""}" title="${dayName(m, {day:"numeric", month:"short"})} haftası"></i>`).join("")}</div>
+    <div class="skf"><span>En uzun <b>${woWeekBest()} hafta</b></span><span>Son 12 hafta <b>${wkMons.filter(woWeekOk).length}/12</b></span></div></div>`;
+  const wo = [woCard, skItem("shoe", "Adım hedefi", okSt, `${fmt(root.goals.st)} adım`)];
   const hb = H.map(x => skItem(HSEG.find(z => z[0] === habSeg(x))?.[2] || "check", x.name, hOk(x.id), HSEG.find(z => z[0] === habSeg(x))?.[1]));
   const sp = S.map(x => skItem("pill", x.name, sOk(x.id), x.dose));
   $("pgNut").innerHTML = nut.join(""); $("pgWo").innerHTML = wo.join("");
@@ -1905,7 +1919,7 @@ function renderGym(){
   let cnt = 0;
   for(let i = 1; i <= nDays; i++){ const ds = `${calM}-${String(i).padStart(2, "0")}`, d = root.days[ds], w = woDay(ds); if(w) cnt++;
     h += `<button class="cd ${w ? "wo" : d && d.rest ? "rest" : ""} ${ds === today() ? "tod" : ""}" data-calday="${ds}" ${ds > today() ? "disabled" : ""} title="${w ? esc(d.wo) : ""}">${i}</button>`; }
-  $("calGrid").innerHTML = h;
+  $("calGrid").innerHTML = h + `<div class="calleg"><span><i class="lw"></i>Antrenman</span><span><i class="lr"></i>Boş gün</span></div>`;
   const tw = monOf(today()), thisW = Array.from({length: 7}, (_, i) => shift(tw, i)).filter(woDay).length;
   const weeks = Array.from({length: 8}, (_, k) => { const mo = shift(tw, -7 * (7 - k)); return {mo, n: Array.from({length: 7}, (_, i) => shift(mo, i)).filter(woDay).length}; });
   const last4 = weeks.slice(4), avg4 = last4.reduce((a, w) => a + w.n, 0) / 4;
