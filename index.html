@@ -480,10 +480,6 @@
     <section id="vKalori" hidden>
       <div class="card">
         <div class="prof">
-          <label class="f">Boy (cm)<input id="cH" type="number" inputmode="numeric" min="100" max="250"></label>
-          <label class="f">Kilo (kg)<input id="cW" type="number" inputmode="decimal" step="0.1" min="30" max="300"></label>
-          <label class="f">Doğum yılı<input id="cBy" type="number" inputmode="numeric" min="1930" max="2020"></label>
-          <label class="f">Cinsiyet<select id="cSex"><option value="">Seç</option><option value="e">Erkek</option><option value="k">Kadın</option></select></label>
           <label class="f">Adım<input id="cSt" type="number" inputmode="numeric" min="0"></label>
           <label class="f">Antrenman / ekstra yakılan (kcal)<input id="cXb" type="number" inputmode="numeric" min="0" placeholder="Örn. 250"></label>
           <label class="f" style="grid-column:1 / -1">Fitness'tan toplam yakılan (kcal)<input id="cBu" type="number" inputmode="numeric" min="0" placeholder="Girersen hesap yerine bu kullanılır"></label>
@@ -919,9 +915,9 @@ $("codeBtn").onclick = async () => {
 function renderCalc(){
   const ds = cur, P = root.profile || {}, d = root.days[ds] || blankDay(), s = sum(d), b = bmrOn(ds), sk = stepKcal(ds), B = burnedOf(ds), w = weightOn(ds);
   const setv = (id, v) => { if(document.activeElement !== $(id)) $(id).value = v ?? ""; };
-  setv("cH", P.h); setv("cW", w || ""); setv("cBy", P.by); setv("cSex", P.sex || ""); setv("cSt", d.st); setv("cXb", d.xb); setv("cBu", d.bu);
+  setv("cSt", d.st); setv("cXb", d.xb); setv("cBu", d.bu);
   const row = (k, v, sub) => `<div class="it"><span>${k}${sub ? `<small class="muted" style="display:block;font-size:12px">${sub}</small>` : ""}</span><b>${v}</b></div>`;
-  if(!b){ $("calcBox").innerHTML = `<p class="muted small" style="margin:0">Boy, kilo, doğum yılı ve cinsiyeti doldurunca hesap çıkar.</p>`; return; }
+  if(!b){ $("calcBox").innerHTML = `<p class="muted small" style="margin:0 0 8px">Hesap için vücut bilgilerin lazım (boy, kilo, doğum yılı, cinsiyet).</p><button class="small-btn" data-acc>Vücut bilgilerini gir</button>`; return; }
   const wt = String(w).replace(".", ","), age = new Date(ds + "T12:00").getFullYear() - +P.by;
   $("calcBox").innerHTML = `
     ${row("BMR (bazal metabolizma)", fmt(b) + " kcal", `10×${wt} + 6,25×${P.h} − 5×${age} ${P.sex === "k" ? "− 161" : "+ 5"}`)}
@@ -933,15 +929,11 @@ function renderCalc(){
     ${row("Açık (yenen − yakılan)", (s.k - B.v > 0 ? "+" : "") + fmt(s.k - B.v) + " kcal", "Eksi = kalori açığı")}`;
 }
 function calcIn(){
-  const P = Object.assign({}, root.profile), d = day(cur);
-  P.h = +$("cH").value || ""; P.by = +$("cBy").value || ""; P.sex = $("cSex").value;
-  const w = +$("cW").value;
-  if(w >= 30 && w <= 300 && w !== weightOn(cur)){ d.kg = String(w); P.w = w; P.wd = cur > (P.wd || "") ? cur : P.wd; }
-  root.profile = P; d.st = $("cSt").value; d.xb = $("cXb").value; d.bu = $("cBu").value;
+  const d = day(cur);
+  d.st = $("cSt").value; d.xb = $("cXb").value; d.bu = $("cBu").value;
   save(); renderDay();
 }
-for(const id of ["cH","cW","cBy","cSt","cXb","cBu"]) $(id).addEventListener("input", calcIn);
-$("cSex").addEventListener("change", calcIn);
+for(const id of ["cSt","cXb","cBu"]) $(id).addEventListener("input", calcIn);
 document.addEventListener("click", e => { if(e.target.closest("[data-acc]")) $("codeBtn").click(); });
 function profForm(){
   const P = root.profile || {}, b = bmrOn(today());
