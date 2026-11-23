@@ -123,7 +123,9 @@
   .wobtns{display:flex;gap:8px;margin-top:6px}
   .wobtns .bigdone{flex:1 1 0;min-width:0;margin:0;padding-left:8px;padding-right:8px;font-size:15px}
   .bigdone.fin{background:var(--good)}
-  .wobtns:has(.cancel) .bigdone{white-space:nowrap;font-size:14px;padding-left:4px;padding-right:4px}
+  .wotop{display:flex;gap:6px}
+  .wobtns.end{justify-content:flex-end}
+  .gocont{min-height:44px;padding:0 18px;font-size:15px}
   .bigdone.cancel{background:none;border:1px solid var(--line);color:var(--bad)}
   .hxl{display:grid;grid-template-columns:minmax(0,1fr);column-gap:18px}
   .hx{display:grid;grid-template-columns:64px minmax(0,1fr);gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
@@ -1245,11 +1247,12 @@ function renderHomeWo(){
     : `<button class="bigdone ghostbig" id="woBig">Detay girmeden “yaptım” say ✓</button>`;
   const stats = (S || pr.sets) ? `<div class="wostats"><div><b>${pr.sets}</b> / ${pr.all} set</div><div><b>${pr.ex}</b> / ${pr.exAll} hareket</div><div><b>${fmt(pr.vol)}</b> kg toplam</div></div>`
     : done ? `<p class="small muted" style="margin:8px 0 0">Hareket ve kilo detayı girilmedi.</p>` : `<p class="small muted" style="margin:8px 0 0">Henüz başlamadın. Başlayınca hareketleri işaretledikçe ilerlemen burada görünür.</p>`;
-  el.innerHTML = `<div class="wohead"><h2>${title}</h2>${S ? "" : `<button class="ghost small-btn" id="woChange">Değiştir</button>`}</div>
+  el.innerHTML = `<div class="wohead"><h2>${title}</h2>${S ? `<div class="wotop"><button class="ghost small-btn" id="woBig">Bitirdim ✓</button><button class="ghost small-btn" id="woCancel">İptal et</button></div>` : `<button class="ghost small-btn" id="woChange">Değiştir</button>`}</div>
     <div class="cardname">${esc(c.name)}</div>
     <div class="bar wbar"><i style="width:${pct}%"></i></div>
     ${stats}
-    <div class="wobtns">${c.id ? `<button class="bigdone" data-gocard="${c.id}">${go}</button>` : ""}${big}${S ? `<button class="bigdone cancel" id="woCancel">İptal et</button>` : ""}</div>`;
+    ${S ? `<div class="wobtns end">${c.id ? `<button class="ghost gocont" data-gocard="${c.id}">${go}</button>` : ""}</div>`
+        : `<div class="wobtns">${c.id ? `<button class="bigdone" data-gocard="${c.id}">${go}</button>` : ""}${big}</div>`}`;
 }
 // Ana sayfadan dokunulunca antrenman kendiliğinden başlar
 function homeSession(){
