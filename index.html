@@ -522,6 +522,12 @@
     #vKalori{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch} #vKalori>*{margin:0} #vKalori>.kseg{grid-column:1 / -1}
     #vYemek{align-items:start} #addCard{grid-column:1} #eatCard{grid-column:2}
   }
+  .mkg{display:flex;align-items:center;gap:6px;font-size:13px;margin-bottom:8px}
+  .mkg svg.i{color:var(--accent)}
+  .mcmp{background:var(--card-2);border-radius:12px;padding:10px 12px}
+  .mcr{display:grid;grid-template-columns:1fr 50px 16px 50px 70px;gap:6px;font-size:13px;padding:3px 0;align-items:center}
+  .mcr b:last-child{text-align:right;font-size:12px}
+  .mcr.kg{border-top:1px solid var(--line);margin-top:4px;padding-top:7px}
   .pastc{display:flex;flex-direction:column;gap:6px}
   .pci{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card-2);border-radius:12px;padding:8px 8px 8px 14px;flex-wrap:wrap}
   .pci b{font-size:14px}
@@ -615,8 +621,8 @@
   .datebar{max-width:560px;margin-left:auto;margin-right:auto}
   .sumtop{margin-bottom:6px}
   @media (min-width:1000px){
-    #vOzet{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto auto}
-    #vOzet>.card:first-child{grid-column:1 / -1;grid-row:1;display:grid;grid-template-columns:minmax(0,1fr) 280px;column-gap:28px;align-items:center}
+    #vOzet{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:auto auto}
+    #vOzet>.card:first-child{grid-column:1 / span 2;grid-row:1;display:grid;grid-template-columns:minmax(0,1fr) 220px;column-gap:20px;align-items:center;align-content:center;row-gap:14px;align-self:stretch}
     #vOzet>.card:first-child>.sumtop,#vOzet>.card:first-child>.rings{grid-column:1}
     #vOzet>.card:first-child>.bal{grid-column:2;grid-row:1 / span 2;grid-template-columns:1fr;margin:0;align-self:stretch;align-content:center}
     #vOzet>.card:first-child>.wstrip{grid-column:1 / -1}
@@ -624,12 +630,15 @@
     #vOzet .rw{max-width:132px}
     #ozWo{grid-column:1;grid-row:2}
     #ozCardio{grid-column:2;grid-row:2;align-self:stretch}
-    #ozStreak{grid-column:1;grid-row:3}
+    #ozStreak{grid-column:3;grid-row:2}
     #ozWo,#ozStreak,#ozCardio{align-self:stretch;display:flex;flex-direction:column}
     #ozStreak .bdrow{margin-top:auto;padding-top:12px}
-    #ozTasks{grid-column:2;grid-row:3;align-self:stretch}
-    #ozTrack{grid-column:1 / -1;grid-row:4}
-    #ozMove{grid-column:1 / -1;grid-row:5}
+    #ozTasks{grid-column:3;grid-row:1;align-self:stretch}
+    #ozTasks .tk{min-height:36px;padding:5px 10px 5px 6px} #ozTasks .tki{width:24px;height:24px} #ozTasks .tkt{font-size:13px} #ozTasks .tklist{gap:5px}
+    #ozTasks .row{flex-wrap:nowrap} #ozTasks h2{white-space:nowrap}
+    #vOzet .rw{max-width:112px}
+    #ozTrack{grid-column:1 / -1;grid-row:3}
+    #ozMove{grid-column:1 / -1;grid-row:4}
   }
 
   /* tamamlanan: yeşil tik yerine turuncu dolu kutu */
@@ -1326,7 +1335,7 @@ const dayName = (s, o) => new Date(s+"T12:00").toLocaleDateString("tr-TR", o);
 const blankDay = () => ({f:[], w:0, wo:"", ca:"", st:"", bu:"", kg:""});
 const freshRoot = () => ({v:1, goals:{k:2100, p:130, w:12, st:8000, bu:2500}, days:{}, cards:defaultCards(), lifts:{}, session:null, _ver:0, _dirty:true});
 const FIELDS = ["wo","ca","st","bu","kg"];
-let CUR = "", root = null, cur = today(), tab = "ozet", grp = "Tümü";
+let CUR = "", root = null, cur = today(), tab = (() => { try{ return localStorage.getItem("sd-tab") || "ozet"; }catch(e){ return "ozet"; } })(), grp = "Tümü";
 
 function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
 function lsSet(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
@@ -1570,7 +1579,7 @@ const VIEWS = {ozet:["vOzet","Günün özeti"], yemek:["vYemek","Kalori alımı"
 const DATED = ["ozet","kalori","yemek","su","adim","hareket","supp","hab"];
 function setTab(t){
   if(!VIEWS[t]) t = "ozet";
-  tab = t;
+  tab = t; try{ localStorage.setItem("sd-tab", t); localStorage.setItem("sd-cardpage", t === "cards" && cardPage ? cardPage : ""); }catch(e){}
   for(const [k, [id]] of Object.entries(VIEWS)) $(id).hidden = k !== t;
   for(const b of $("dnav").querySelectorAll("button[data-v]")) b.classList.toggle("on", b.dataset.v === t);
   $("vTitle").textContent = VIEWS[t][1];
@@ -1883,7 +1892,7 @@ function foodTip(s, g, gy, gc){
   return out.map(t => `<div class="tipl">${I("bulb")}<span>${t}</span></div>`).join("");
 }
 const MEAS = [["solkol","Sol kol"],["sagkol","Sağ kol"],["omuz","Omuz"],["gogus","Göğüs"],["bel","Bel"]];
-function lastMeasDay(before){ const ks = Object.keys(root.meas || {}).filter(k => (!before || k < before) && Object.values(root.meas[k]).some(v => +v > 0)).sort(); return ks[ks.length - 1] || ""; }
+function lastMeasDay(before){ const ks = Object.keys(root.meas || {}).filter(k => (!before || k < before) && MEAS.some(([f]) => +root.meas[k][f] > 0)).sort(); return ks[ks.length - 1] || ""; }
 function renderBody(){
   const P = root.profile || {}, h = +P.h || 0, w = weightOn(cur), age = P.by ? new Date(cur + "T12:00").getFullYear() - +P.by : 0, male = P.sex !== "k";
   const lm = lastMeasDay(shift(cur, 1)), M = lm ? root.meas[lm] : {}, v = k => +M[k] || 0;
@@ -1912,10 +1921,34 @@ function renderMeas(){
   renderBody();
   const m = (root.meas || {})[cur] || {};
   for(const [k] of MEAS){ const el = $("m_" + k); if(document.activeElement !== el) el.value = m[k] ?? ""; }
-  const pd = lastMeasDay(cur), P = pd ? root.meas[pd] : null;
-  $("mNote").innerHTML = P ? `Önceki ölçüm ${dayName(pd, {day:"numeric", month:"short"})}: ` + MEAS.filter(([k]) => +P[k] > 0).map(([k, t]) => { const df = +m[k] > 0 ? Math.round((+m[k] - +P[k]) * 10) / 10 : null; return `${t} ${num(+P[k])}${df ? ` <b class="${(df < 0) === (k === "bel") ? "gd" : "bd"}">(${df > 0 ? "+" : ""}${num(df)})</b>` : ""}`; }).join(" · ") : "İlk ölçümünü gir; sonraki ayda farkı burada görürsün.";
+  const pd = lastMeasDay(cur), P = pd ? root.meas[pd] : null, has = MEAS.some(([k]) => +m[k] > 0);
+  const kgNow = +m._kg || weightOn(cur), kgOld = P ? (+P._kg || weightOn(pd)) : 0, f1 = x => String(Math.round(x * 10) / 10).replace(".", ",");
+  const head = has ? `<div class="mkg">${I("scale")} Bu ölçümdeki kilo: <b>${kgNow ? f1(kgNow) + " kg" : "—"}</b></div>` : "";
+  if(!P){ $("mNote").innerHTML = head + (has ? "Bu ilk ölçümün; bir dahaki ölçümde farkları ve yorumu burada görürsün." : "İlk ölçümünü gir; sonraki ölçümde farkı burada görürsün."); return; }
+  const rows = MEAS.filter(([k]) => +P[k] > 0).map(([k, t]) => { const nw = +m[k] || 0, df = nw ? Math.round((nw - +P[k]) * 10) / 10 : null;
+    return `<div class="mcr"><span>${t}</span><span class="muted">${f1(+P[k])}</span><span>→</span><b>${nw ? f1(nw) : "—"}</b><b class="${df == null || !df ? "muted" : (df < 0) === (k === "bel") ? "gd" : "bd"}">${df == null ? "" : (df > 0 ? "+" : "") + f1(df) + " cm"}</b></div>`; }).join("");
+  const kd = kgNow && kgOld ? Math.round((kgNow - kgOld) * 10) / 10 : null;
+  const kgRow = `<div class="mcr kg"><span>Kilo</span><span class="muted">${kgOld ? f1(kgOld) : "—"}</span><span>→</span><b>${kgNow ? f1(kgNow) : "—"}</b><b class="muted">${kd == null ? "" : (kd > 0 ? "+" : "") + f1(kd) + " kg"}</b></div>`;
+  // yorum: ölçü değişimini kilo değişimiyle birlikte oku
+  const dv = k => +m[k] > 0 && +P[k] > 0 ? +m[k] - +P[k] : null, bel = dv("bel"), arm = [dv("solkol"), dv("sagkol")].filter(x => x != null), kol = arm.length ? arm.reduce((a, b) => a + b, 0) / arm.length : null, omuz = dv("omuz"), gog = dv("gogus");
+  const T = [];
+  if(bel != null && kd != null){
+    if(bel <= -1 && kd < -.3) T.push("Bel inceliyor ve kilo düşüyor: verdiğin kilonun önemli kısmı yağ. Doğru yoldasın.");
+    else if(bel <= -1 && Math.abs(kd) <= .5) T.push("Kilon neredeyse aynı ama belin inceldi: yağ yakıp kas yapıyorsun (vücut yeniden şekilleniyor). Tartıya takılma.");
+    else if(bel >= 1 && kd > .3) T.push("Hem bel hem kilo artmış: alınan kilonun bir kısmı yağ olabilir. Kaloriyi biraz azalt, adımı artır.");
+    else if(Math.abs(bel) < 1 && kd < -.5) T.push("Kilo düştü ama bel değişmedi: kayıp su ya da kas olabilir. Proteini yüksek tut, ağırlıkları düşürme.");
+    else if(Math.abs(bel) < 1 && kd > .5) T.push("Kilo arttı, bel aynı: büyük ihtimalle kas ve su. Güzel bir artış.");
+  }
+  if(kol != null){
+    if(kol >= .5 && (kd == null || kd < 1.5)) T.push(`Kolların ortalama ${f1(kol)} cm büyümüş${kd != null && kd <= .3 ? ", kilo artmadan" : ""}: kas kazanıyorsun.`);
+    else if(kol <= -.5 && kd != null && kd < -1) T.push("Kilo verirken kolların da incelmiş: kas kaybetmemek için protein (kilo başı ~1,8 g) ve ağır setlere devam.");
+  }
+  if(omuz != null && omuz >= 1) T.push(`Omuz ${f1(omuz)} cm genişlemiş: V görünüme yaklaşıyorsun.`);
+  if(gog != null && gog >= 1 && (bel == null || bel <= 0)) T.push("Göğüs büyürken bel artmamış: üst gövde kası gelişiyor.");
+  if(!T.length && has) T.push("Değişim küçük; ölçümler en iyi 3–4 haftada bir, aynı saatte ve aynı yerden alınınca anlam kazanır.");
+  $("mNote").innerHTML = head + `<div class="mcmp"><div class="small muted" style="margin-bottom:6px">Önceki ölçüm (${dayName(pd, {day:"numeric", month:"short"})}) → bu ölçüm</div>${rows}${kgRow}</div>` + T.map(t => `<div class="tipl" style="margin-top:8px">${I("bulb")}<span>${t}</span></div>`).join("");
 }
-document.addEventListener("input", e => { const k = e.target.dataset?.meas; if(!k) return; root.meas = root.meas || {}; const m = root.meas[cur] = root.meas[cur] || {}; m[k] = e.target.value; save(); renderMeas(); });
+document.addEventListener("input", e => { const k = e.target.dataset?.meas; if(!k) return; root.meas = root.meas || {}; const m = root.meas[cur] = root.meas[cur] || {}; m[k] = e.target.value; const w = weightOn(cur); if(w) m._kg = w; save(); renderMeas(); });
 const HAB_PRE = ["Sabah diş fırçala","Akşam diş fırçala","Duş / banyo","Cilt bakımı","Esneme (10 dk)","Kitap oku","Erken yat (00:00 öncesi)","Telefonsuz 1 saat","Yürüyüş","Diş ipi"];
 const habStreak = id => streak(ds => !!((root.days[ds] || {}).hb || {})[id]);
 function renderHab(){
@@ -2133,7 +2166,7 @@ let openCard = null;
 const lastLift = id => { const a = root.lifts[id]; return a && a.length ? a[a.length - 1] : null; };
 const liftText = l => l ? l.s.map(x => x[0] ? `${num(x[0])}×${x[1]}` : `${x[1]}`).join(", ") : "";
 let editCard = null; // düzenleme modundaki kartın id'si
-let cardPage = null; // açık kart sayfası (id)
+let cardPage = (() => { try{ return localStorage.getItem("sd-cardpage") || null; }catch(e){ return null; } })(); // açık kart sayfası (id)
 function renderCards(){
   const el = $("tCards"); el.classList.remove("cflow");
   if(root.session && !listOverride) return renderSession();
@@ -2194,8 +2227,8 @@ $("tCards").addEventListener("click", e => {
   const b = e.target.closest("button"); if(!b) return;
   const d = b.dataset;
   if(d.info) return showEx(d.info);
-  if(d.open){ cardPage = openCard = d.open; editCard = null; renderCards(); window.scrollTo({top: 0}); return; }
-  if("back" in d){ cardPage = null; editCard = null; renderCards(); window.scrollTo({top: 0}); return; }
+  if(d.open){ cardPage = openCard = d.open; editCard = null; try{ localStorage.setItem("sd-cardpage", cardPage); }catch(e){} renderCards(); window.scrollTo({top: 0}); return; }
+  if("back" in d){ cardPage = null; editCard = null; try{ localStorage.setItem("sd-cardpage", ""); }catch(e){} renderCards(); window.scrollTo({top: 0}); return; }
   if("edit" in d){ editCard = d.edit || null; if(editCard) openCard = editCard; renderCards(); return; }
   if(d.mv){ const [ci, xi, dir] = d.mv.split(":").map(Number); const a = root.cards[ci].ex; const j = xi + dir; if(j < 0 || j >= a.length) return; [a[xi], a[j]] = [a[j], a[xi]]; save(); renderCards(); return; }
   if(d.rm){ const [ci, xi] = d.rm.split(":").map(Number); const x = root.cards[ci].ex.splice(xi, 1)[0]; save(); renderCards(); toast(`${EXM[x.id]?.tr || "Hareket"} çıkarıldı`); return; }
