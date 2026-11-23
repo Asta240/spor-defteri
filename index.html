@@ -55,7 +55,7 @@
   label.f{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:600;color:var(--muted);flex:1 1 130px}
   input,select{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 11px;width:100%;min-height:44px}
   input:focus,select:focus{outline:2px solid var(--accent);outline-offset:-1px}
-  button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:10px 16px;cursor:pointer;background:transparent;color:var(--ink);border:1px solid var(--line);min-height:44px}
+  button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:8px 14px;font-size:14px;cursor:pointer;background:transparent;color:var(--ink);border:1px solid var(--line);min-height:40px}
   button:hover{background:var(--bg)}
   button.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
   button.ghost:hover{color:var(--ink)}
@@ -118,15 +118,15 @@
   .stepbox{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
   .stepbox .k{font-size:12px;font-weight:700;color:var(--muted)}
   .stepbox .v{font-size:30px;font-weight:800;letter-spacing:-.02em}
-  .bigdone{width:100%;min-height:52px;font-size:16px;margin:6px 0 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0}
+  .bigdone{width:100%;min-height:40px;font-size:14px;margin:6px 0 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0}
   .bigdone small{font-size:12px;font-weight:500;opacity:.85}
   .bigdone.on{background:var(--good)}
   .wobtns{display:flex;gap:8px;margin-top:6px}
-  .wobtns .bigdone{flex:1 1 0;min-width:0;margin:0;padding-left:8px;padding-right:8px;font-size:15px}
+  .wobtns .bigdone{flex:1 1 0;min-width:0;margin:0;padding-left:8px;padding-right:8px;font-size:14px}
   .bigdone.fin{background:var(--good)}
   .wotop{display:flex;gap:6px}
   .wobtns.end{justify-content:flex-end}
-  .gocont{min-height:44px;padding:0 18px;font-size:15px}
+  .gocont{min-height:40px;padding:0 16px;font-size:14px}
   .bigdone.cancel{background:none;border:1px solid var(--line);color:var(--bad)}
   .hxl{display:grid;grid-template-columns:minmax(0,1fr);column-gap:18px}
   .hx{display:grid;grid-template-columns:64px minmax(0,1fr);gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
@@ -152,7 +152,7 @@
   .fres li button b{font-weight:600}
   .fres li button small{color:var(--muted);font-weight:500;text-align:right;max-width:58%}
   .fres li button:hover{background:var(--bg)}
-  .camBtn{display:flex;align-items:center;justify-content:center;gap:8px;background:transparent;color:var(--ink);border:1px solid var(--line);text-decoration:none;font-weight:700;border-radius:10px;min-height:48px;padding:0 16px}
+  .camBtn{display:flex;align-items:center;justify-content:center;gap:8px;background:transparent;color:var(--ink);border:1px solid var(--line);text-decoration:none;font-weight:700;border-radius:10px;min-height:40px;padding:0 14px;font-size:14px}
   /* sekmeler */
   .tabs{display:flex;gap:4px;padding:4px;margin:0 0 16px;background:var(--card);border:1px solid var(--line);border-radius:99px;position:sticky;top:8px;z-index:5}
   .tabs button{flex:1;background:transparent;color:var(--muted);border-radius:99px;padding:8px 6px;font-size:14px;font-weight:700;min-height:40px}
@@ -394,7 +394,7 @@
         <h2>Bu gün yediklerin</h2>
         <ul class="list" id="fl"></ul>
         <p class="empty" id="fe">Bu gün için henüz bir şey eklemedin.</p>
-        <button class="ghost" id="fReset" style="width:100%;margin-top:12px;color:var(--bad)">Günün yemeklerini sıfırla</button>
+        <button class="ghost small-btn" id="fReset" style="margin-top:12px;color:var(--bad)">Günün yemeklerini sıfırla</button>
       </div>
     </section>
 
@@ -1300,13 +1300,12 @@ function goCard(id){
 function renderSession(){
   const S = root.session;
   $("tCards").innerHTML = `<div class="card">
-    <div class="row" style="justify-content:space-between;align-items:center"><div><h2 style="margin:0">${esc(S.card)}</h2><div class="small muted">${dayName(S.date, {weekday:"long", day:"numeric", month:"long"})}</div></div><span class="pill">${S.ex.reduce((a, x) => a + x.sets.filter(s => s.done).length, 0)} / ${S.ex.reduce((a, x) => a + x.sets.length, 0)} set</span></div>
+    <div class="row" style="justify-content:space-between;align-items:center"><div><h2 style="margin:0">${esc(S.card)}</h2><div class="small muted">${dayName(S.date, {weekday:"long", day:"numeric", month:"long"})}</div></div><div class="wotop" style="align-items:center"><span class="pill">${S.ex.reduce((a, x) => a + x.sets.filter(s => s.done).length, 0)} / ${S.ex.reduce((a, x) => a + x.sets.length, 0)} set</span><button class="ghost small-btn" id="sesEnd">Bitir ve kaydet ✓</button><button class="ghost small-btn" id="sesCancel">İptal et</button></div></div>
     ${S.ex.map((x, xi) => { const e = EXM[x.id], l = lastLift(x.id); return `<div class="logex">
       <div class="row" style="align-items:center;flex-wrap:nowrap"><div style="width:72px;flex:none">${anim(e.id, e.tr)}</div><div style="flex:1"><h3><button data-info="${e.id}" style="all:unset;cursor:pointer">${esc(e.tr)}</button></h3><div class="small muted">${l ? "Geçen sefer: " + esc(liftText(l)) : "İlk sefer, rahat bir kiloyla başla"}</div></div></div>
       <div class="sets"><span class="h">Set</span><span class="h">${e.u ? "" : "kg"}</span><span class="h">${unit(e)}</span><span></span>
       ${x.sets.map((s, si) => `<span class="i">${si + 1}</span>${e.u ? "<span></span>" : `<input type="number" inputmode="decimal" step="0.5" min="0" value="${esc(s.kg)}" data-kg="${xi}:${si}" aria-label="${si+1}. set kg">`}<input type="number" inputmode="numeric" min="0" value="${esc(s.r)}" data-rp="${xi}:${si}" aria-label="${si+1}. set ${unit(e)}"><button class="${s.done ? "done" : "ghost"}" data-ok="${xi}:${si}" aria-label="${si+1}. set tamam">✓</button>`).join("")}
       </div><button class="ghost" data-addset="${xi}" style="margin-top:8px;min-height:36px">+ Set</button></div>`; }).join("")}
-    <div class="row" style="margin-top:14px"><button class="ghost" id="sesCancel" style="flex:1">Kaydetmeden kapat</button><button id="sesEnd" style="flex:2">Bitir ve kaydet</button></div>
   </div>`;
 }
 function finishSession(){
