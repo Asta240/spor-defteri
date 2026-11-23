@@ -709,6 +709,21 @@
   .htile.on .spck{background:var(--accent)!important;border-color:var(--accent)!important;color:#1a1205!important}
   .htile .spi small svg.i{color:var(--accent)}
   @media (max-width:600px){ .hsg{grid-template-columns:1fr 1fr} .hsg .hsc:last-child{grid-column:1 / -1} .hsc b{font-size:22px} }
+
+  .ptabs{grid-column:1 / -1;display:flex;flex-wrap:wrap;width:max-content;max-width:100%;margin-bottom:2px}
+  .ptabs button{font-size:13px}
+  @media (max-width:700px){ .ptabs{width:100%;flex-wrap:nowrap;overflow-x:auto} .ptabs button{flex:none} }
+  #tProg[data-tab] > [data-pt]{display:none}
+  #tProg[data-tab="genel"] > [data-pt~="genel"],#tProg[data-tab="antrenman"] > [data-pt~="antrenman"],#tProg[data-tab="beslenme"] > [data-pt~="beslenme"],#tProg[data-tab="vucut"] > [data-pt~="vucut"],#tProg[data-tab="aliskanlik"] > [data-pt~="aliskanlik"],#tProg[data-tab="takviye"] > [data-pt~="takviye"],#tProg[data-tab="rozet"] > [data-pt~="rozet"]{display:block}
+  .sklist{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+  .ski{background:var(--card-2);border-radius:16px;padding:12px}
+  .skh{display:flex;align-items:center;gap:10px}
+  .skh b{display:block;font-size:14px} .skh small{display:block;font-size:11px;color:var(--muted)}
+  .skn{text-align:right} .skn b{font-size:22px;font-weight:800;color:var(--accent);line-height:1} .skn small{display:block;font-size:10px;color:var(--muted)}
+  .skheat{display:grid;grid-template-columns:repeat(15,1fr);gap:3px;margin:10px 0 8px}
+  .skheat i{aspect-ratio:1;border-radius:3px;background:var(--card)}
+  .skheat i.on{background:var(--accent)} .skheat i.t{outline:1.5px solid var(--ink);outline-offset:-1px}
+  .skf{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)} .skf b{color:var(--ink)}
 </style>
 </head>
 <body>
@@ -1012,48 +1027,55 @@
     </section>
 
     <!-- İLERLEME -->
-    <section id="tProg" hidden>
-      <div class="card">
+    <section id="tProg" hidden data-tab="genel">
+      <div class="ptabs seg" id="ptabs"><button data-ptab="genel">Genel</button><button data-ptab="antrenman">Antrenman</button><button data-ptab="beslenme">Beslenme</button><button data-ptab="vucut">Vücut</button><button data-ptab="aliskanlik">Alışkanlıklar</button><button data-ptab="takviye">Takviyeler</button><button data-ptab="rozet">Rozetler</button></div>
+      <div data-pt="genel" class="card" style="grid-column:1 / -1"><h2><i data-i="flame"></i> Bütün seriler</h2><div class="sklist" id="pgAll"></div></div>
+      <div data-pt="beslenme" class="card" style="grid-column:1 / -1"><h2><i data-i="utensils"></i> Beslenme serileri</h2><div class="sklist" id="pgNut"></div></div>
+      <div data-pt="antrenman" class="card" style="grid-column:1 / -1"><h2><i data-i="dumbbell"></i> Antrenman serisi</h2><div class="sklist" id="pgWo"></div></div>
+      <div data-pt="aliskanlik" class="card" style="grid-column:1 / -1"><h2><i data-i="check"></i> Alışkanlıklar</h2><div class="sklist" id="pgHab"></div></div>
+      <div data-pt="takviye" class="card" style="grid-column:1 / -1"><h2><i data-i="pill"></i> Takviyeler</h2><div class="sklist" id="pgSupp"></div></div>
+      <div data-pt="vucut" class="card"><h2><i data-i="ruler"></i> Ölçüler</h2><div id="pgMeas"></div></div>
+      <div data-pt="genel" class="card" style="grid-column:1 / -1">
         <h2><i data-i="chartbar"></i> Haftalık rapor</h2>
         <div class="rpgrid" id="rpGrid"></div>
         <p class="small muted" id="rpNote" style="margin:10px 0 0"></p>
       </div>
-      <div class="card">
+      <div data-pt="beslenme" class="card">
         <h2>Son 7 gün</h2>
         <div class="scroll"><table><thead><tr><th>Gün</th><th>Alınan</th><th>Yakılan</th><th>Açık</th><th>Protein</th><th>Kilo</th></tr></thead><tbody id="wk"></tbody></table></div>
         <p class="small muted" id="avg"></p>
       </div>
-      <div class="card">
+      <div data-pt="vucut" class="card">
         <h2>Kilo</h2>
         <div class="fig" id="kgFig"></div>
         <p class="small muted" id="kgNote"></p>
       </div>
-      <div class="card">
+      <div data-pt="antrenman" class="card">
         <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px"><h2 style="margin:0"><i data-i="calendar"></i> Salon takvimi</h2>
           <div class="row" style="gap:4px"><button class="ghost small-btn" id="calPrev" aria-label="Önceki ay">‹</button><b id="calMon" style="min-width:110px;text-align:center;font-size:14px"></b><button class="ghost small-btn" id="calNext" aria-label="Sonraki ay">›</button></div></div>
         <div class="cal" id="calGrid"></div>
         <div class="rpgrid c3" id="calStats" style="margin-top:12px"></div>
       </div>
-      <div class="card">
+      <div data-pt="antrenman" class="card">
         <h2><i data-i="chartbar"></i> Haftada kaç gün gittin</h2>
         <div class="wkbars" id="wkBars"></div>
         <p class="small muted" id="wkNote" style="margin:10px 0 0"></p>
       </div>
-      <div class="card" style="grid-column:1 / -1">
+      <div data-pt="rozet genel" class="card" style="grid-column:1 / -1">
         <h2><i data-i="medal"></i> Rozetler</h2>
         <div class="bdgrid" id="bdGrid"></div>
       </div>
-      <div class="card">
+      <div data-pt="antrenman" class="card">
         <h2><i data-i="trend"></i> Hareketlerde gelişim</h2>
         <div id="gainList" class="gains"></div>
         <p class="empty" id="gainEmpty">Aynı hareketi en az 2 kez kaydedince ilk günden bugüne ne kadar geliştiğin burada çıkar.</p>
       </div>
-      <div class="card">
+      <div data-pt="antrenman" class="card">
         <h2><i data-i="trophy"></i> Rekorlar</h2>
         <ul class="list" id="prList"></ul>
         <p class="empty" id="prEmpty">Kilolu set kaydettikçe her hareketteki en ağır kaldırışın burada çıkar.</p>
       </div>
-      <div class="card">
+      <div data-pt="antrenman" class="card">
         <h2>Ağırlık defteri</h2>
         <select id="liftSel" aria-label="Hareket seç"></select>
         <div class="fig" id="liftFig"></div>
@@ -1795,6 +1817,36 @@ function renderStreaks(){
     <div class="bdrow">${got.slice(-6).map(b => `<span class="bd on" title="${esc(b[2])}">${I(b[1])}</span>`).join("") || `<span class="small muted">İlk rozet için bugün su ya da protein hedefini tuttur.</span>`}</div>`;
   $("bdGo").onclick = () => setTab("prog");
 }
+// ================= İLERLEME SEKMELERİ + SERİLER =================
+let progTab = (() => { try{ return localStorage.getItem("sd-ptab") || "genel"; }catch(e){ return "genel"; } })();
+document.addEventListener("click", e => { const b = e.target.closest("[data-ptab]"); if(!b) return; progTab = b.dataset.ptab; try{ localStorage.setItem("sd-ptab", progTab); }catch(err){} renderProgTabs(); });
+function skItem(ic, name, ok, sub){
+  const cur0 = streak(ok), best = bestStreak(ok), last = Array.from({length: 30}, (_, i) => shift(today(), i - 29)), pct = Math.round(last.filter(ok).length / 30 * 100);
+  return `<div class="ski"><div class="skh"><span class="hico sm">${I(ic)}</span><div style="flex:1;min-width:0"><b>${esc(name)}</b>${sub ? `<small>${esc(sub)}</small>` : ""}</div>
+    <div class="skn"><b>${cur0}</b><small>gün seri</small></div></div>
+    <div class="skheat">${last.map(ds => `<i class="${ok(ds) ? "on" : ""} ${ds === today() ? "t" : ""}" title="${ds}"></i>`).join("")}</div>
+    <div class="skf"><span>En uzun <b>${best} gün</b></span><span>Son 30 gün <b>%${pct}</b></span></div></div>`;
+}
+function renderProgTabs(){
+  $("tProg").dataset.tab = progTab;
+  for(const b of document.querySelectorAll("[data-ptab]")) b.classList.toggle("on", b.dataset.ptab === progTab);
+  const H = root.habits || [], S = root.supp || [];
+  const hOk = id => ds => !!((root.days[ds] || {}).hb || {})[id], sOk = id => ds => !!((root.days[ds] || {}).sp || {})[id];
+  const okSt = ds => +((root.days[ds] || {}).st) >= root.goals.st, okLog = ds => (root.days[ds] || {}).f?.length > 0, okPerf = ds => perfectDay(ds);
+  const nut = [skItem("droplet", "Su hedefi", okWater, `${root.goals.w} bardak`), skItem("egg", "Protein hedefi", okProt, `${root.goals.p} g`), skItem("utensils", "Yemek kaydı", okLog, "her gün kayıt")];
+  const wo = [skItem("dumbbell", "Antrenman / planlı boş gün", okWo), skItem("shoe", "Adım hedefi", okSt, `${fmt(root.goals.st)} adım`)];
+  const hb = H.map(x => skItem(HSEG.find(z => z[0] === habSeg(x))?.[2] || "check", x.name, hOk(x.id), HSEG.find(z => z[0] === habSeg(x))?.[1]));
+  const sp = S.map(x => skItem("pill", x.name, sOk(x.id), x.dose));
+  $("pgNut").innerHTML = nut.join(""); $("pgWo").innerHTML = wo.join("");
+  $("pgHab").innerHTML = hb.join("") || `<p class="small muted" style="margin:0">Alışkanlık ekleyince her birinin serisi burada çıkar.</p>`;
+  $("pgSupp").innerHTML = sp.join("") || `<p class="small muted" style="margin:0">Takviye ekleyince serileri burada çıkar.</p>`;
+  $("pgAll").innerHTML = [...wo, ...nut, skItem("target", "Mükemmel gün", okPerf, "bütün günlük görevler"), ...hb, ...sp].join("");
+  // ölçü geçmişi
+  const md = Object.keys(root.meas || {}).filter(k => MEAS.some(([f]) => +root.meas[k][f] > 0)).sort();
+  $("pgMeas").innerHTML = md.length ? `<div class="mtab"><div class="mtr mth" style="grid-template-columns:minmax(0,1.2fr) repeat(${MEAS.length + 1},minmax(0,1fr))"><span>Tarih</span>${MEAS.map(([, t]) => `<span>${t}</span>`).join("")}<span>Kilo</span></div>
+    ${md.slice(-8).reverse().map(k => { const m = root.meas[k]; return `<div class="mtr" style="grid-template-columns:minmax(0,1.2fr) repeat(${MEAS.length + 1},minmax(0,1fr))"><span>${dayName(k, {day:"numeric", month:"short"})}</span>${MEAS.map(([f]) => `<span>${+m[f] > 0 ? num(+m[f]) : "—"}</span>`).join("")}<span>${+m._kg > 0 ? num(+m._kg) : "—"}</span></div>`; }).join("")}</div>`
+    : `<p class="small muted" style="margin:0">Kilo ve ölçüler sayfasından ölçü girince geçmişin burada listelenir.</p>`;
+}
 // ================= SALON TAKVİMİ =================
 let calM = today().slice(0, 7);
 const monOf = ds => { const d = new Date(ds + "T12:00"); return shift(ds, -((d.getDay() + 6) % 7)); };
@@ -1820,7 +1872,7 @@ $("calPrev").onclick = () => { const [y, m] = calM.split("-").map(Number), d = n
 $("calNext").onclick = () => { const [y, m] = calM.split("-").map(Number), d = new Date(y, m, 1); const v = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`; if(v <= today().slice(0, 7)){ calM = v; renderGym(); } };
 $("calGrid").onclick = e => { const b = e.target.closest("[data-calday]"); if(b && !b.disabled){ cur = b.dataset.calday; sumMode = "gun"; try{ localStorage.setItem("sd-sum", "gun"); }catch(err){} setTab("ozet"); } };
 function renderBadges(){
-  renderGym();
+  renderGym(); renderProgTabs();
   $("bdGrid").innerHTML = badgeList().map(([id, ic, name, desc, ok]) => `<div class="bdc ${ok ? "on" : ""}"><span>${I(ic)}</span><b>${esc(name)}</b><small>${ok && root.badges?.[id] ? dayName(root.badges[id], {day:"numeric", month:"short"}) : esc(desc)}</small></div>`).join("");
 }
 function renderAll(){ if(!root) return; checkBadges(); if(tab === "prog") renderBadges(); if(DATED.includes(tab)) renderDay(); if(tab === "cards") renderCards(); if(tab === "lib") renderLib(); if(tab === "prog") renderProg(); }
