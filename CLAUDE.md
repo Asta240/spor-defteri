@@ -42,3 +42,10 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Antrenman ve kilo sayfası `renderHareket`: antrenman durumu, büyük kilo + öncekine göre fark + son 30 tartı çizgisi.
 - EX 77 hareket (38 yeni, görseller img/). Popeyes değerleri Yasin'in verdiği Popchicken 692 kcal'e göre yükseltildi.
 - Fotoğraftan Kalori artifact'inin prompt'u: düşük tahmin etme + zincir fast food referans değerleri (artifact'te ve extras/foto-kalori'de aynı).
+- Apple Sağlık adım senkronu: `api/steps.js` (anahtar `fit:stok:<t>`→kod, `fit:stokof:<kod>`; GET `?t=&s=` o günün `st`'sini sunucu verisine yazar, Türkiye saati). Hesap sayfası → "🍎 Apple Sağlık" (`showHealthSync`) kestirme tarifini gösterir.
+- Hesap artık ayrı sayfa (`hesap`, `renderAccount`); menüde "Fotoğraftan kalori" yok (📷 Kalori alımında).
+- Hedefler: `goals.kgT` hedef kilo (Kilo sayfasında kalan + hız), `root.waterRem` su hatırlatması saat (site açıkken bildirim / ana sayfada uyarı, `waterDue`).
+- Antrenman bitirince `finishSession` pencere açar: ağırlık süresi (gerçek süre ya da set×3 dk) + kardiyo türü/dk → `workoutKcal` (MET−1)×kg×saat → `d.wk` (yakılana eklenir), `commitSession`. Rekor `bestOf`, toast.
+- İlerleme: Haftalık rapor (`renderReport`, bu hafta vs geçen), Hareketlerde gelişim (ilk→son), Rekorlar.
+- Yemekler öğünlü (`m`: k/o/a/s, `MEALS`, `mealSeg`); boş aramada öneri yok. Ölçüler `root.meas[gün]={bel,kol,gogus,kalca}`, ayda bir ana sayfa uyarısı (`measSnooze` 7 gün).
+- Kas haritası: kendi SVG'miz `bodySvg` (`MUS` free-exercise-db kasları); kart/kütüphane küçük görseli kas haritası, detayda fotoğraflı yapılış + kaslar. Bugünkü antrenman seçimi/kardiyo Kartlar sayfasının üstünde (`woT`, `caT`); `hareket` sayfası = Kilo ve ölçüler.
