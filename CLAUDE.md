@@ -37,3 +37,8 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Menü grupları: Günün özeti / Kalori hesabı / Hedefler · GÜNLÜK GİRİŞ (yemek, su, adım, antrenman ve kilo; burada hedef girilmez) · ANTRENMAN (kartlar, hareketler, ilerleme).
 - Ana sayfa uyarıları (`#ozMove`, uyarı yoksa gizli): dünün adımı yoksa `#ozYest` (adımı düne yazar); son tartı (`lastWeighDay`) ≥3 gün önceyse `#ozKg` (bugünün kg + profil kilosu).
 - Fast food: `FOODS` 5. eleman 1 → ekleme penceresinde `EXTRAS` (sos, peynir, menü; menüler birbirini dışlar). İçecekler listesi FOODS sonunda.
+- Kartlar: normalde sadece görüntüleme; ✏️ Düzenle (`editCard`) ile set/tekrar, sıra, çıkarma, hareket ekleme, ad, silme. Antrenman modunda kg/tekrar her zaman girilir.
+- Menü: Kalori grubu = 🍽️ Kalori alımı (`yemek`, 📷 Fotoğraf arama satırında) + 🔥 Kalori yakımı (`kalori`); iki sayfanın üstünde `.kseg` sekmesi.
+- Antrenman ve kilo sayfası `renderHareket`: antrenman durumu, büyük kilo + öncekine göre fark + son 30 tartı çizgisi.
+- EX 77 hareket (38 yeni, görseller img/). Popeyes değerleri Yasin'in verdiği Popchicken 692 kcal'e göre yükseltildi.
+- Fotoğraftan Kalori artifact'inin prompt'u: düşük tahmin etme + zincir fast food referans değerleri (artifact'te ve extras/foto-kalori'de aynı).
