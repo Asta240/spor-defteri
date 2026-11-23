@@ -61,3 +61,6 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Salon takvimi + haftalık çubuklar İlerleme’de (`renderGym`, `calM`); günler `d.wo`’dan. Ana sayfa seçili kartta hareket kutucukları (`.xtiles`, x/y set), Seriler kutusunda bu hafta/bu ay salon günü.
 - Tarih çubuğu: tarihe basınca takvim (`dpick`), bugünden farklıysa "Bugün" tuşu (`toToday`). Kilo ve ölçüler: ölçüler sol kol/sağ kol/omuz/göğüs/bel; Vücut analizi `renderBody` (BMI, sağlıklı aralık, tahmini yağ %, bel/boy, omuz/bel, kol farkı + öneriler).
 - Görevler (`#ozTasks`, `renderTasks`, Günlük/Haftalık sekme `taskTab`): günlük `dailyTasks` (su, protein, kalori ±%10, adım, antrenman/boş gün, alışkanlıklar), haftalık `weeklyTasks` (3 antrenman, 5 gün su, 5 gün protein, haftalık adım, 2 tartı). Mükemmel gün/hafta rozetleri. Toplam 37 rozet.
+- Geçmiş güne antrenman (ana sayfa, bugün değilse `#ozWo`): kart → "Direkt ekle" (`data-pastadd`, set×3 dk kcal) ya da "Detaylı gir" (`data-pastdet`: set set kg/tekrar + süre → lifts + d.wo + d.wk), "Boş gün", "Kaldır".
+- Kardiyo kutusu `#ozCardio` (`renderCardio`): tür/süre/hız/eğim → `cardioKcal` (bant/dışarı ACSM net, diğerleri MET) → `d.cardio[]`, `d.ck` (yakılana eklenir), `d.ca` toplam dk (`syncCardio`).
+- Tamamlanan işaretler yeşil değil turuncu (Yasin istedi).

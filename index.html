@@ -498,6 +498,23 @@
   .tk.on small{color:var(--good)}
   .tkb{display:block;height:5px;border-radius:99px;background:var(--card);overflow:hidden} .tkb i{display:block;height:100%;background:var(--accent);border-radius:99px}
   .tk.on .tkb i{background:var(--good)}
+  .pastc{display:flex;flex-direction:column;gap:6px}
+  .pci{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card-2);border-radius:12px;padding:8px 8px 8px 14px;flex-wrap:wrap}
+  .pci b{font-size:14px}
+  .pdl{display:flex;flex-direction:column;gap:10px;max-height:52vh;overflow:auto}
+  .pde{background:var(--card-2);border-radius:12px;padding:10px 12px}
+  .pde>b{font-size:14px}
+  .pds{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+  .pdr{display:grid;grid-template-columns:20px 1fr 1fr;gap:6px;align-items:center}
+  .pdr span{font-size:12px;color:var(--muted);font-weight:700}
+  .pdr input{min-height:38px;padding:6px 10px}
+  .cdl{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+  .cdi{display:flex;align-items:center;gap:10px;background:var(--card-2);border-radius:12px;padding:6px 4px 6px 8px}
+  .cdi small{display:block;font-size:12px;color:var(--muted)} .cdi b{font-size:14px} .cdk{color:var(--accent);white-space:nowrap}
+  .cdf{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:end;margin-top:auto}
+  .cdf .f[hidden]{display:none!important}
+  .cdprev{grid-column:1 / 3;font-size:14px;font-weight:800;color:var(--accent);align-self:center}
+  .cdf button{justify-self:end}
   .tcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
   .tcol{background:var(--card-2);border-radius:16px;padding:12px}
   .tcol .tbar{background:var(--card)}
@@ -582,15 +599,23 @@
     #vOzet .rings{gap:14px;margin-top:6px}
     #vOzet .rw{max-width:132px}
     #ozWo{grid-column:1;grid-row:2}
-    #ozStreak{grid-column:2;grid-row:2}
-    #ozWo,#ozStreak{align-self:stretch;display:flex;flex-direction:column}
+    #ozCardio{grid-column:2;grid-row:2;align-self:stretch}
+    #ozStreak{grid-column:1;grid-row:3}
+    #ozWo,#ozStreak,#ozCardio{align-self:stretch;display:flex;flex-direction:column}
     #ozStreak .bdrow{margin-top:auto;padding-top:12px}
-    #ozTasks{grid-column:1;grid-row:3;align-self:stretch}
-    #ozTrack{grid-column:2;grid-row:3;align-self:stretch}
-    #vOzet:has(#ozTrack[hidden]) #ozTasks{grid-column:1 / -1}
-    #ozTrack .tcols{grid-template-columns:1fr}
-    #ozMove{grid-column:1 / -1;grid-row:4}
+    #ozTasks{grid-column:2;grid-row:3;align-self:stretch}
+    #ozTrack{grid-column:1 / -1;grid-row:4}
+    #ozMove{grid-column:1 / -1;grid-row:5}
   }
+
+  /* tamamlanan: yeşil tik yerine turuncu dolu kutu */
+  .trow.on .tck,.tk.on .tki,.sp.on .spck,.tchip.on .tck{background:var(--accent)!important;border-color:var(--accent)!important;color:#1a1205!important}
+  .trow.on,.tchip.on,.xt.ok{border-color:rgba(255,159,28,.35)!important}
+  .tk.on small,.tchip.on,.xt.ok small{color:var(--accent)!important}
+  .tk.on .tkb i,.tbar i{background:var(--accent)!important}
+  .stk i{color:var(--accent)!important}
+  .tall.ok{color:var(--accent)!important;background:var(--accent-soft)!important}
+  .spdots i.on{background:var(--accent)!important}
 </style>
 </head>
 <body>
@@ -664,6 +689,7 @@
         <div class="wstrip" id="wStrip" hidden></div>
       </div>
       <div class="card" id="ozWo"></div>
+      <div class="card" id="ozCardio"></div>
       <div class="card" id="ozStreak"></div>
       <div class="card" id="ozTasks"></div>
       <div class="card" id="ozTrack" hidden></div>
@@ -1467,8 +1493,9 @@ function renderCalc(){
     ${row("BMR (bazal metabolizma)", fmt(b) + " kcal", `10×${wt} + 6,25×${P.h} − 5×${age} ${P.sex === "k" ? "− 161" : "+ 5"}`)}
     ${row("Adım", fmt(sk) + " kcal", `${fmt(+d.st || 0)} adım × ${wt} kg × 0,0005`)}
     ${row("Antrenman", fmt(+d.wk || 0) + " kcal", +d.wk > 0 ? "Antrenmanı bitirince hesaplandı" : "Antrenmanı bitirince hesaplanır")}
+    ${row("Kardiyo", fmt(+d.ck || 0) + " kcal", +d.ck > 0 ? `${fmt(+d.ca || 0)} dk, ana sayfadan` : "Ana sayfadaki Kardiyo kutusundan")}
     ${row("Ekstra", fmt(+d.xb || 0) + " kcal", "Elle girdiğin")}
-    ${row("Toplam yakılan", fmt(B.v) + " kcal", +d.bu > 0 ? "Eski Fitness kaydı" : "BMR + adım + antrenman + ekstra")}
+    ${row("Toplam yakılan", fmt(B.v) + " kcal", +d.bu > 0 ? "Eski Fitness kaydı" : "BMR + adım + antrenman + kardiyo + ekstra")}
     ${row("Yenen", fmt(s.k) + " kcal")}
     ${row("Açık (yenen − yakılan)", (s.k - B.v > 0 ? "+" : "") + fmt(s.k - B.v) + " kcal", "Eksi = kalori açığı")}`;
 }
@@ -1628,9 +1655,9 @@ function renderTasks(){
   const pd = Object.keys(root.days).filter(perfectDay).length;
   const body = taskTab === "gun"
     ? `<div class="tklist">${T.map(([ic, t, ok, v]) => `<div class="tk ${ok ? "on" : ""}"><span class="tki">${ok ? I("check") : I(ic)}</span><span class="tkt">${esc(t)}</span><small>${esc(String(v))}</small></div>`).join("")}</div>
-       <p class="small muted" style="margin:10px 0 0">${dn === T.length ? `<b style="color:var(--good)">Mükemmel gün!</b> ` : `${T.length - dn} görev kaldı. `}Toplam ${pd} mükemmel gün.</p>`
+       <p class="small muted" style="margin:10px 0 0">${dn === T.length ? `<b style="color:var(--accent)">Mükemmel gün!</b> ` : `${T.length - dn} görev kaldı. `}Toplam ${pd} mükemmel gün.</p>`
     : `<div class="tklist">${W.map(([ic, t, v, goal]) => { const ok = v >= goal; return `<div class="tk wk ${ok ? "on" : ""}"><span class="tki">${ok ? I("check") : I(ic)}</span><span class="tkt">${esc(t)}<span class="tkb"><i style="width:${Math.min(100, v / goal * 100)}%"></i></span></span><small>${fmt(Math.min(v, goal))}/${fmt(goal)}</small></div>`; }).join("")}</div>
-       <p class="small muted" style="margin:10px 0 0">${wdn === W.length ? `<b style="color:var(--good)">Mükemmel hafta!</b>` : `${W.length - wdn} haftalık hedef kaldı · ${dayName(shift(mon, 6), {weekday:"long"})} akşamına kadar.`}</p>`;
+       <p class="small muted" style="margin:10px 0 0">${wdn === W.length ? `<b style="color:var(--accent)">Mükemmel hafta!</b>` : `${W.length - wdn} haftalık hedef kaldı · ${dayName(shift(mon, 6), {weekday:"long"})} akşamına kadar.`}</p>`;
   $("ozTasks").innerHTML = `<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:12px"><h2 style="margin:0">${I("target")} Görevler</h2>
     <div class="seg tseg"><button data-tt="gun" class="${taskTab === "gun" ? "on" : ""}">Günlük ${dn}/${T.length}</button><button data-tt="hafta" class="${taskTab === "hafta" ? "on" : ""}">Haftalık ${wdn}/${W.length}</button></div></div>` + body;
 }
@@ -1731,7 +1758,7 @@ function stepKcal(ds){
 }
 function estBurn(ds){
   const b = bmrOn(ds); if(!b) return 0;
-  const D = root.days[ds] || {}; return Math.round(b + stepKcal(ds) + (+D.xb || 0) + (+D.wk || 0));
+  const D = root.days[ds] || {}; return Math.round(b + stepKcal(ds) + (+D.xb || 0) + (+D.wk || 0) + (+D.ck || 0));
 }
 // {v, est}: girilen değer ya da tahmin; ikisi de yoksa v = 0
 function burnedOf(ds){
@@ -1763,7 +1790,7 @@ function renderDay(){
     $("rings").innerHTML = ring(s.k, g.k, "var(--bad)", "Kalori", "kcal", "yemek") + ring(s.p, g.p, "var(--good)", "Protein", "g", "yemek") + ring(d.w, g.w, "#4dabf7", "Su", "bardak", "su");
     const B = burnedOf(cur), net = B.v ? s.k - B.v : null;
     $("rings").innerHTML += ring(+d.st || 0, g.st, "var(--warn)", "Adım", "", "adim") + ring(B.v, g.bu, "#ae3ec9", "Yakılan", "kcal", "kalori");
-    $("bal").innerHTML = `<div>Kalan<strong>${fmt(Math.max(g.k - s.k, 0))}</strong></div><div>Yakılan<strong>${burnTxt(B)}</strong>${bmrOn(cur) ? `<span class="bmrl">BMR ${fmt(bmrOn(cur))}${+d.st > 0 ? " + adım " + fmt(stepKcal(cur)) : ""}${+d.wk > 0 ? " + antrenman " + fmt(+d.wk) : ""}${+d.xb > 0 ? " + ekstra " + fmt(+d.xb) : ""}</span>` : ""}</div><div>Açık<strong class="${net == null ? "" : net < 0 ? "neg" : "pos"}">${net == null ? "—" : (net > 0 ? "+" : "") + fmt(net)}</strong></div>`;
+    $("bal").innerHTML = `<div>Kalan<strong>${fmt(Math.max(g.k - s.k, 0))}</strong></div><div>Yakılan<strong>${burnTxt(B)}</strong>${bmrOn(cur) ? `<span class="bmrl">BMR ${fmt(bmrOn(cur))}${+d.st > 0 ? " + adım " + fmt(stepKcal(cur)) : ""}${+d.wk > 0 ? " + antrenman " + fmt(+d.wk) : ""}${+d.ck > 0 ? " + kardiyo " + fmt(+d.ck) : ""}${+d.xb > 0 ? " + ekstra " + fmt(+d.xb) : ""}</span>` : ""}</div><div>Açık<strong class="${net == null ? "" : net < 0 ? "neg" : "pos"}">${net == null ? "—" : (net > 0 ? "+" : "") + fmt(net)}</strong></div>`;
   }
   renderHomeWo();
   $("adV").textContent = d.st ? fmt(d.st) + " / " + fmt(g.st) : "— / " + fmt(g.st);
@@ -1910,7 +1937,7 @@ document.addEventListener("click", e => {
 });
 $("spForm").onsubmit = e => { e.preventDefault(); const n = $("spName").value.trim(); if(!n) return; root.supp = root.supp || []; root.supp.push({id: Math.random().toString(36).slice(2, 8), name: n, dose: $("spDose").value.trim()}); $("spName").value = $("spDose").value = ""; save(); renderSupp(); };
 function renderHareket(d){
-  checkBadges(); if(tab === "ozet"){ renderStreaks(); renderTasks(); }
+  checkBadges(); if(tab === "ozet"){ renderStreaks(); renderTasks(); renderCardio(); }
   renderSupp(); renderHab(); renderTrack();
   renderMeas();
   if($("hWoS")) $("hWoS").innerHTML = d.wo ? `<span style="color:var(--good);font-weight:700">✓ ${esc(d.wo)}</span>${+d.ca > 0 ? ` · ${fmt(+d.ca)} dk kardiyo` : ""}` : (+d.ca > 0 ? `${fmt(+d.ca)} dk kardiyo` : "Bu gün antrenman yok");
@@ -2077,7 +2104,7 @@ function renderCards(){
   const el = $("tCards"); el.classList.remove("cflow");
   if(root.session && !listOverride) return renderSession();
   const td = root.days[today()] || blankDay(), wnames = root.cards.map(c => c.name); if(td.wo && !wnames.includes(td.wo)) wnames.push(td.wo);
-  const todayCard = `<div class="card tdwo"><div class="hhead"><span class="hico">${I("dumbbell")}</span><div style="flex:1"><h2 style="margin:0">Bugün</h2><div class="small muted">${td.wo ? `<span class="gd" style="font-weight:700">✓ ${esc(td.wo)}</span>` : "Antrenman yok"}${+td.ca > 0 ? ` · ${fmt(+td.ca)} dk kardiyo` : ""}${+td.wk > 0 ? ` · ${I("flame")} ~${fmt(+td.wk)} kcal` : ""}</div></div></div>
+  const todayCard = `<div class="card tdwo"><div class="hhead"><span class="hico">${I("dumbbell")}</span><div style="flex:1"><h2 style="margin:0">Bugün</h2><div class="small muted">${td.wo ? `<span style="font-weight:700;color:var(--accent)">${esc(td.wo)}</span>` : "Antrenman yok"}${+td.ca > 0 ? ` · ${fmt(+td.ca)} dk kardiyo` : ""}${+td.wk > 0 ? ` · ${I("flame")} ~${fmt(+td.wk)} kcal` : ""}</div></div></div>
     <div class="row" style="margin-top:12px"><label class="f">Yapılan antrenman<select id="woT"><option value="">Dinlenme</option>${wnames.map(n => `<option ${n === td.wo ? "selected" : ""}>${esc(n)}</option>`).join("")}</select></label>
     <label class="f">Kardiyo (dk)<input id="caT" type="number" inputmode="numeric" min="0" value="${esc(td.ca || "")}" placeholder="0"></label></div></div>`;
   const resume = root.session ? `<div class="card resume"><span>Aktif antrenman: <b>${esc(root.session.card)}</b></span><button id="resumeBtn">Devam et →</button></div>` : "";
@@ -2193,8 +2220,18 @@ function woProgress(c){
 function renderHomeWo(){
   const el = $("ozWo");
   if(cur !== today()){
-    const d = root.days[cur] || blankDay();
-    el.innerHTML = `<h2>Antrenman</h2><p class="muted" style="margin:0">${d.wo ? `Bu gün <b>${esc(d.wo)}</b> yapılmış.` : d.rest ? "Bu gün boş gün." : "Bu gün antrenman kaydı yok."}</p>`;
+    const d = root.days[cur] || blankDay(), lbl = dayName(cur, {day:"numeric", month:"long"});
+    if(d.wo || d.rest){
+      el.innerHTML = `<div class="wohead"><h2>${d.wo ? I("dumbbell") + " " + esc(d.wo) : I("moon") + " Boş gün"}</h2><button class="ghost small-btn" id="pastDel">Kaldır</button></div>
+        <p class="small muted" style="margin:4px 0 10px">${lbl}${+d.wk > 0 ? ` · ~${fmt(+d.wk)} kcal` : ""}</p>
+        ${d.wo ? `<div class="row" style="gap:6px"><button class="ghost small-btn" data-pastdet="${esc(d.wo)}">Detayları düzenle</button></div>` : ""}`;
+      $("pastDel").onclick = () => ask(`${lbl} kaydı silinsin mi?`, "Sil", () => { d.wo = ""; d.rest = false; d.wk = ""; save(); renderAll(); });
+    } else {
+      el.innerHTML = `<h2>${I("dumbbell")} Antrenman ekle</h2><p class="small muted" style="margin:4px 0 10px">${lbl} için kayıt yok. Kartı seç:</p>
+        ${root.cards.length ? `<div class="pastc">${root.cards.map(c => `<div class="pci"><b>${esc(c.name)}</b><div class="row" style="gap:6px"><button class="small-btn" data-pastadd="${c.id}">Direkt ekle</button><button class="ghost small-btn" data-pastdet="${esc(c.name)}">Detaylı gir</button></div></div>`).join("")}</div>` : `<p class="small muted">Önce Kartlar'dan bir kart oluştur.</p>`}
+        <button class="ghost small-btn" id="pastRest" style="margin-top:8px">${I("moon")} Boş gün olarak işaretle</button>`;
+      $("pastRest").onclick = () => { d.rest = true; root.days[cur] = d; save(); renderAll(); };
+    }
     return;
   }
   if(!root.cards.length){ el.innerHTML = `<h2>Antrenman</h2><p class="muted" style="margin:4px 0 12px">Henüz antrenman kartın yok.</p><div class="row"><button id="hoTpl" style="flex:1 1 180px">✦ Hazır kartlardan ekle</button><button class="ghost" data-go="cards" style="flex:1 1 140px">Kendim oluşturayım</button></div>`; return; }
@@ -2232,6 +2269,26 @@ function renderHomeWo(){
     ${S ? `<div class="wobtns end">${c.id ? `<button class="ghost gocont" data-gocard="${c.id}">${go}</button>` : ""}</div>`
         : `<div class="wobtns">${c.id ? `<button class="bigdone" data-gocard="${c.id}">${go}</button>` : ""}${big}</div>`}`;
 }
+// Geçmiş güne antrenman: direkt (set×3 dk tahmini) ya da detaylı (kg/tekrar)
+document.addEventListener("click", e => {
+  const a = e.target.closest("[data-pastadd]"), dt = e.target.closest("[data-pastdet]"); if(!a && !dt) return;
+  if(a){ const c = root.cards.find(x => x.id === a.dataset.pastadd); if(!c) return; const d = day(cur), sets = c.ex.reduce((t, x) => t + (+x.s || 0), 0);
+    d.wo = c.name; d.rest = false; d.wk = String(workoutKcal(sets * 3, [], weightOn(cur)).total); save(); renderAll(); toast(`${c.name} eklendi`); return; }
+  const c = root.cards.find(x => x.name === dt.dataset.pastdet); if(!c) return toast("Bu kart artık yok");
+  const ds = cur, ex = c.ex.filter(x => EXM[x.id]);
+  openSheet(`<h2>${esc(c.name)}</h2><p class="small muted" style="margin:0 0 10px">${dayName(ds, {day:"numeric", month:"long", weekday:"long"})} · boş bıraktığın setler kaydedilmez</p>
+    <div class="pdl">${ex.map((x, xi) => { const e = EXM[x.id], ex0 = (root.lifts[x.id] || []).find(l => l.d === ds), ref = ex0 || [...(root.lifts[x.id] || [])].filter(l => l.d < ds).pop();
+      return `<div class="pde"><b>${esc(e.tr)}</b><div class="pds">${Array.from({length: Math.max(+x.s || 1, ex0 ? ex0.s.length : 0)}, (_, si) => { const v = ex0 && ex0.s[si];
+        return `<div class="pdr"><span>${si + 1}</span>${e.u ? "" : `<input type="number" inputmode="decimal" step="0.5" min="0" placeholder="${ref && ref.s[si] ? ref.s[si][0] : "kg"}" value="${v ? v[0] : ""}" data-pk="${xi}:${si}" aria-label="kg">`}<input type="number" inputmode="numeric" min="0" placeholder="${unit(e)}" value="${v ? v[1] : ""}" data-pr="${xi}:${si}" aria-label="${unit(e)}"></div>`; }).join("")}</div></div>`; }).join("")}</div>
+    <label class="f" style="margin-top:10px">Süre (dk, isteğe bağlı)<input id="pdMin" type="number" inputmode="numeric" min="0" placeholder="Boşsa set × 3 dk"></label>
+    <div class="row" style="margin-top:12px"><button class="ghost small-btn" data-close>Vazgeç</button><button class="small-btn" id="pdOk">Kaydet</button></div>`);
+  $("pdOk").onclick = () => { let n = 0, sets = 0;
+    ex.forEach((x, xi) => { const e = EXM[x.id], rows = [...$("sheet").querySelectorAll(`[data-pr^="${xi}:"]`)].map(r => { const si = r.dataset.pr.split(":")[1], k = $("sheet").querySelector(`[data-pk="${xi}:${si}"]`); return [k ? +k.value || 0 : 0, +r.value || 0]; }).filter(z => z[1] > 0);
+      const a = root.lifts[x.id] || (root.lifts[x.id] = []), i = a.findIndex(l => l.d === ds);
+      if(rows.length){ if(i >= 0) a[i] = {d: ds, s: rows}; else a.push({d: ds, s: rows}); a.sort((p, q) => p.d < q.d ? -1 : 1); n++; sets += rows.length; } else if(i >= 0) a.splice(i, 1); });
+    const d = day(ds), mins = +$("pdMin").value || sets * 3; d.wo = c.name; d.rest = false; d.wk = String(workoutKcal(mins, [], weightOn(ds)).total);
+    save(); closeSheet(); renderAll(); toast(`${c.name} kaydedildi · ${n} hareket`); };
+});
 // Ana sayfadan dokunulunca antrenman kendiliğinden başlar
 function homeSession(){
   if(root.session) return root.session;
@@ -2305,6 +2362,41 @@ function renderSession(){
   </div>`;
 }
 function bestOf(id){ let b = null; for(const l of root.lifts[id] || []) for(const [kg, r] of l.s){ if(!b || kg > b.kg || (kg === b.kg && r > b.r)) b = {kg, r, d: l.d}; } return b; }
+// ---------- Kardiyo kaydı: d.cardio = [{t, min, spd, inc, kcal}] ----------
+const CT = [["tread","Koşu bandı (yürüyüş/koşu)"],["bike","Bisiklet"],["ellip","Eliptik"],["row","Kürek"],["stair","Merdiven"],["airbike","Air bike"],["outrun","Dışarıda koşu"],["outwalk","Dışarıda yürüyüş"]];
+const CT_MET = {bike:7, ellip:5, row:7, stair:9, airbike:8};
+// Bant / dışarı: ACSM formülü (VO2 = yatay + dikey + 3,5), net kcal = (VO2 − 3,5) × kg / 200 × dk
+function cardioKcal(t, min, spd, inc, kg){
+  kg = kg || 70; min = +min || 0; if(!min) return 0;
+  if(t === "tread" || t === "outrun" || t === "outwalk"){
+    const v = (+spd || (t === "outrun" ? 9 : 5)) * 1000 / 60, g = (t === "tread" ? +inc || 0 : 0) / 100, run = (+spd || 0) >= 7.5 || t === "outrun";
+    const vo2 = run ? .2 * v + .9 * v * g : .1 * v + 1.8 * v * g;
+    return Math.round(vo2 * kg / 200 * min);
+  }
+  return Math.round(((CT_MET[t] || 6) - 1) * kg * min / 60);
+}
+function renderCardio(){
+  const d = root.days[cur] || blankDay(), L = d.cardio || [], tot = L.reduce((a, x) => a + (+x.kcal || 0), 0), mins = L.reduce((a, x) => a + (+x.min || 0), 0);
+  $("ozCardio").innerHTML = `<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px"><h2 style="margin:0">${I("heart")} Kardiyo</h2><span class="small muted">${mins ? `${fmt(mins)} dk · ~${fmt(tot)} kcal` : ""}</span></div>
+    ${L.length ? `<div class="cdl">${L.map((x, i) => `<div class="cdi"><span class="hico sm">${I("run")}</span><div style="flex:1"><b>${esc((CT.find(c => c[0] === x.t) || [0, "Kardiyo"])[1])}</b><small>${x.min} dk${x.spd ? ` · ${String(x.spd).replace(".", ",")} km/s` : ""}${x.inc ? ` · %${x.inc} eğim` : ""}</small></div><b class="cdk">~${fmt(x.kcal)} kcal</b><button class="icon" data-cdel="${i}" aria-label="Sil">✕</button></div>`).join("")}</div>` : ""}
+    <form id="cdForm" class="cdf">
+      <label class="f" style="grid-column:1 / -1">Tür<select id="cdT">${CT.map(([k, t]) => `<option value="${k}">${t}</option>`).join("")}</select></label>
+      <label class="f">Süre (dk)<input id="cdMin" type="number" inputmode="numeric" min="1" required placeholder="20"></label>
+      <label class="f cdspd">Hız (km/s)<input id="cdSpd" type="number" inputmode="decimal" step="0.1" min="0" placeholder="5,5"></label>
+      <label class="f cdinc">Eğim (%)<input id="cdInc" type="number" inputmode="decimal" step="0.5" min="0" max="30" placeholder="10"></label>
+      <div class="cdprev" id="cdPrev"></div>
+      <button class="small-btn">+ Ekle</button>
+    </form>`;
+  const upd = () => { const t = $("cdT").value, isT = t === "tread", isO = t === "outrun" || t === "outwalk";
+    $("ozCardio").querySelector(".cdspd").hidden = !(isT || isO); $("ozCardio").querySelector(".cdinc").hidden = !isT;
+    const k = cardioKcal(t, $("cdMin").value, $("cdSpd").value, $("cdInc").value, weightOn(cur)); $("cdPrev").textContent = k ? `≈ ${fmt(k)} kcal` : ""; };
+  for(const id of ["cdT","cdMin","cdSpd","cdInc"]) $(id).addEventListener("input", upd); upd();
+  $("cdForm").onsubmit = e => { e.preventDefault(); const t = $("cdT").value, min = +$("cdMin").value; if(!(min > 0)) return;
+    const x = {t, min, spd: +$("cdSpd").value || 0, inc: t === "tread" ? +$("cdInc").value || 0 : 0}; x.kcal = cardioKcal(t, x.min, x.spd, x.inc, weightOn(cur));
+    const dd = day(cur); dd.cardio = dd.cardio || []; dd.cardio.push(x); syncCardio(dd); save(); renderAll(); toast(`Kardiyo eklendi · ~${fmt(x.kcal)} kcal`); };
+}
+function syncCardio(d){ const L = d.cardio || []; d.ck = String(L.reduce((a, x) => a + (+x.kcal || 0), 0)); d.ca = String(L.reduce((a, x) => a + (+x.min || 0), 0) || ""); }
+document.addEventListener("click", e => { const b = e.target.closest("[data-cdel]"); if(!b) return; const d = day(cur); d.cardio.splice(+b.dataset.cdel, 1); syncCardio(d); save(); renderAll(); });
 // Antrenman kalorisi (net, BMR hariç): (MET − 1) × kilo × saat
 const CARDIO_MET = {Walking_Treadmill:6, Air_Bike:8, Rowing_Stationary:7, Bicycling_Stationary:7, Elliptical_Trainer:5, Stairmaster:9};
 const CARDIO_OPTS = [["Walking_Treadmill","Incline yürüyüş"],["Bicycling_Stationary","Bisiklet"],["Elliptical_Trainer","Eliptik"],["Rowing_Stationary","Kürek"],["Stairmaster","Merdiven"],["Air_Bike","Air bike"],["run","Koşu"]];
