@@ -438,7 +438,17 @@
 
     <!-- KALORİ HESABI -->
     <section id="vKalori" hidden>
-      <div class="card" id="calcBox"></div>
+      <div class="card">
+        <div class="prof">
+          <label class="f">Boy (cm)<input id="cH" type="number" inputmode="numeric" min="100" max="250"></label>
+          <label class="f">Kilo (kg)<input id="cW" type="number" inputmode="decimal" step="0.1" min="30" max="300"></label>
+          <label class="f">Doğum yılı<input id="cBy" type="number" inputmode="numeric" min="1930" max="2020"></label>
+          <label class="f">Cinsiyet<select id="cSex"><option value="">Seç</option><option value="e">Erkek</option><option value="k">Kadın</option></select></label>
+          <label class="f">Adım<input id="cSt" type="number" inputmode="numeric" min="0"></label>
+          <label class="f">Fitness'tan yakılan (kcal)<input id="cBu" type="number" inputmode="numeric" min="0"></label>
+        </div>
+        <div class="acc" id="calcBox"></div>
+      </div>
     </section>
 
     <!-- HEDEFLER -->
@@ -849,19 +859,29 @@ $("codeBtn").onclick = async () => {
 };
 function renderCalc(){
   const ds = cur, P = root.profile || {}, d = root.days[ds] || blankDay(), s = sum(d), b = bmrOn(ds), sk = stepKcal(ds), B = burnedOf(ds), w = weightOn(ds);
+  const setv = (id, v) => { if(document.activeElement !== $(id)) $(id).value = v ?? ""; };
+  setv("cH", P.h); setv("cW", w || ""); setv("cBy", P.by); setv("cSex", P.sex || ""); setv("cSt", d.st); setv("cBu", d.bu);
   const row = (k, v, sub) => `<div class="it"><span>${k}${sub ? `<small class="muted" style="display:block;font-size:12px">${sub}</small>` : ""}</span><b>${v}</b></div>`;
-  if(!b){ $("calcBox").innerHTML = `<p class="muted" style="margin:0 0 10px">Yakılanı hesaplamak için boy, kilo, doğum yılı ve cinsiyet lazım.</p><button class="small-btn" data-acc>Vücut bilgilerini gir</button>`; return; }
-  const age = new Date(ds + "T12:00").getFullYear() - +P.by;
-  $("calcBox").innerHTML = `<div class="acc">
-    ${row("Vücut", `${P.h} cm · ${fmt(w)} kg · ${age} yaş`, P.sex === "k" ? "Kadın" : "Erkek")}
-    ${row("BMR (bazal metabolizma)", fmt(b) + " kcal", `10×${fmt(w)} + 6,25×${P.h} − 5×${age} ${P.sex === "k" ? "− 161" : "+ 5"}`)}
-    ${row("Adım", fmt(sk) + " kcal", `${fmt(+d.st || 0)} adım × ${fmt(w)} kg × 0,0005`)}
+  if(!b){ $("calcBox").innerHTML = `<p class="muted small" style="margin:0">Boy, kilo, doğum yılı ve cinsiyeti doldurunca hesap çıkar.</p>`; return; }
+  const wt = String(w).replace(".", ","), age = new Date(ds + "T12:00").getFullYear() - +P.by;
+  $("calcBox").innerHTML = `
+    ${row("BMR (bazal metabolizma)", fmt(b) + " kcal", `10×${wt} + 6,25×${P.h} − 5×${age} ${P.sex === "k" ? "− 161" : "+ 5"}`)}
+    ${row("Adım", fmt(sk) + " kcal", `${fmt(+d.st || 0)} adım × ${wt} kg × 0,0005`)}
     ${row("Hesaplanan toplam", fmt(b + sk) + " kcal", "BMR + adım")}
-    ${row("Fitness'tan girilen", +d.bu > 0 ? fmt(+d.bu) + " kcal" : "—", +d.bu > 0 ? "Bu varken hesaplanan yerine bu kullanılır" : "Adım sayfasından girebilirsin")}
+    ${row("Kullanılan yakılan", fmt(B.v) + " kcal", +d.bu > 0 ? "Fitness değeri girildiği için o" : "Hesaplanan")}
     ${row("Yenen", fmt(s.k) + " kcal")}
-    ${row("Açık (yenen − yakılan)", B.v ? (s.k - B.v > 0 ? "+" : "") + fmt(s.k - B.v) + " kcal" : "—", "Eksi = kalori açığı")}
-  </div><button class="ghost small-btn" data-acc style="margin-top:10px">Vücut bilgilerini düzenle</button>`;
+    ${row("Açık (yenen − yakılan)", (s.k - B.v > 0 ? "+" : "") + fmt(s.k - B.v) + " kcal", "Eksi = kalori açığı")}`;
 }
+function calcIn(){
+  const P = Object.assign({}, root.profile), d = day(cur);
+  P.h = +$("cH").value || ""; P.by = +$("cBy").value || ""; P.sex = $("cSex").value;
+  const w = +$("cW").value;
+  if(w >= 30 && w <= 300 && w !== weightOn(cur)){ d.kg = String(w); P.w = w; P.wd = cur > (P.wd || "") ? cur : P.wd; }
+  root.profile = P; d.st = $("cSt").value; d.bu = $("cBu").value;
+  save(); renderDay();
+}
+for(const id of ["cH","cW","cBy","cSt","cBu"]) $(id).addEventListener("input", calcIn);
+$("cSex").addEventListener("change", calcIn);
 document.addEventListener("click", e => { if(e.target.closest("[data-acc]")) $("codeBtn").click(); });
 function profForm(){
   const P = root.profile || {}, b = bmrOn(today());
