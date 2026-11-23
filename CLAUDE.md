@@ -10,6 +10,7 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 
 ## Yapı
 - `index.html` tek dosya. Sol üstte ☰ menü (`#drawer`, `openDrawer/closeDrawer`), sayfalar `VIEWS` + `setTab(key)`: ozet (Günün özeti, ana sayfa: halkalar + sıradaki antrenman `renderHomeWo()` + Hedefler), yemek, su, hareket (bu dördü tarihli, ortak `#datebar`, hepsini `renderDay()` çizer), cards (`renderCards`, antrenman modu `renderSession`), lib (`renderLib`, detay `showEx`), prog (`renderProg`, `drawLift`).
+- Ana sayfa özet kartında Gün | Hafta seçici (`sumMode`, localStorage `sd-sum`). Hafta = seçili günün Pazartesi–Pazar haftası (`renderWeekSum()`): halkalar günlük ortalama (sadece kayıtlı günler), toplam açık, antrenman günü, kilo değişimi, 7 günlük kalori çubukları. Halkalar tıklanınca sayfa açar (gün: kalori/protein → yemek, su → su; hafta → ilerleme).
 - Ana sayfa antrenmanı: kart = başlatılmış `root.session` > bugün seçilen `root.pick` > son bitirilen `root.lastCard`'ın bir sonrakisi (`nextCard()`). Her harekette kilo seçici (−/+ 2,5 kg, elle de yazılır) ve ✓ Yaptım; ilk dokunuşta oturum kendiliğinden başlar (`homeSession()`). "Bitir ve kaydet" sadece ✓ işaretli setleri ağırlık defterine yazar.
 - Bilgisayarda (≥1000px) tam genişlik: `.wrap` 1320px, özet/yemek/kartlar/ilerleme iki sütun.
 - Yemek sayfası: hazır yemek listesi `FOODS` ([ad, porsiyon, kcal, protein], `POPULAR` boş aramada görünür, porsiyon çarpanı ½–3), elle ekleme, fotoğraf kodu.

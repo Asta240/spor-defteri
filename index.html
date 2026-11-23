@@ -128,6 +128,17 @@
   .rv{position:absolute;inset:0;display:grid;place-content:center;font-weight:800;font-size:clamp(18px,5.4vw,26px);line-height:1;letter-spacing:-.02em}
   .rv small{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-top:4px;white-space:nowrap;letter-spacing:0}
   .ring b{display:block;font-size:14px;margin-top:6px}
+  .sumtop{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .seg{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:3px}
+  .seg button{background:transparent;color:var(--muted);border-radius:99px;min-height:34px;padding:0 16px;font-size:14px}
+  .seg button.on{background:var(--accent);color:#fff}
+  .wstrip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line);text-align:center}
+  .wd{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted)}
+  .wd .col{position:relative;width:100%;max-width:34px;height:70px;background:var(--line);border-radius:6px;overflow:hidden}
+  .wd .col i{position:absolute;left:0;right:0;bottom:0;background:var(--bad);border-radius:6px}
+  .wd .col i.over{background:var(--warn)}
+  .wd b{font-size:12px;color:var(--ink);font-weight:700}
+  .wd.cur b{color:var(--accent)}
   .ring[data-go]{cursor:pointer;border-radius:14px;padding:4px 0;transition:background .15s}
   .ring[data-go]:hover{background:var(--bg)}
   .ring[data-go]:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
@@ -284,7 +295,11 @@
 
     <!-- ÖZET (ana sayfa) -->
     <section id="vOzet">
-      <div class="card"><div class="rings" id="rings"></div><div class="bal" id="bal"></div></div>
+      <div class="card">
+        <div class="sumtop"><div class="seg" id="sumSeg" role="group" aria-label="Özet türü"><button data-m="gun" class="on">Gün</button><button data-m="hafta">Hafta</button></div><span class="small muted" id="sumRange"></span></div>
+        <div class="rings" id="rings"></div><div class="bal" id="bal"></div>
+        <div class="wstrip" id="wStrip" hidden></div>
+      </div>
       <div class="card" id="ozWo"></div>
       <details class="card">
         <summary><b>Hedefler</b></summary>
@@ -755,15 +770,38 @@ function ring(val, goal, col, label, u, go){
   const r = 50, C = 2*Math.PI*r, pc = Math.min(val/(goal||1), 1);
   return `<div class="ring"${go ? ` data-go="${go}" role="button" tabindex="0" aria-label="${label}: ${fmt(val)} / ${fmt(goal)} ${u}, aç"` : ""}><div class="rw"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--line)" stroke-width="13"/><circle class="p" cx="60" cy="60" r="${r}" fill="none" stroke="${col}" stroke-width="13" stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C*(1-pc)).toFixed(1)}" transform="rotate(-90 60 60)"/></svg><div class="rv">${fmt(val)}<small>/ ${fmt(goal)} ${u}</small></div></div><b>${label}</b></div>`;
 }
+// Haftanın özeti (seçili günün haftası, Pazartesi–Pazar; gelecek günler sayılmaz)
+let sumMode = lsGet("sd-sum") === "hafta" ? "hafta" : "gun";
+$("sumSeg").onclick = e => { const b = e.target.closest("button[data-m]"); if(!b) return; sumMode = b.dataset.m; lsSet("sd-sum", sumMode); renderDay(); };
+function renderWeekSum(){
+  const g = root.goals, dow = (new Date(cur + "T12:00").getDay() + 6) % 7, mon = shift(cur, -dow);
+  const W = Array.from({length: 7}, (_, i) => { const ds = shift(mon, i), d = root.days[ds] || blankDay(), s = sum(d); return {ds, d, s, fut: ds > today()}; });
+  const past = W.filter(x => !x.fut), ate = past.filter(x => x.d.f.length), wat = past.filter(x => x.d.w > 0);
+  const avg = (a, f) => a.length ? a.reduce((t, x) => t + f(x), 0) / a.length : 0;
+  const aK = avg(ate, x => x.s.k), aP = avg(ate, x => x.s.p), aW = avg(wat, x => x.d.w);
+  $("sumRange").textContent = `${dayName(mon, {day:"numeric", month:"short"})} – ${dayName(shift(mon, 6), {day:"numeric", month:"short"})}`;
+  $("rings").innerHTML = ring(aK, g.k, "var(--bad)", "Ort. kalori", "kcal", "prog") + ring(aP, g.p, "var(--good)", "Ort. protein", "g", "prog") + ring(aW, g.w, "var(--accent)", "Ort. su", "bardak", "prog");
+  const nets = past.filter(x => +x.d.bu > 0 && x.d.f.length), net = nets.reduce((t, x) => t + x.s.k - +x.d.bu, 0);
+  const wo = past.filter(x => x.d.wo).length, kgs = past.filter(x => +x.d.kg > 0), dk = kgs.length > 1 ? +kgs[kgs.length - 1].d.kg - +kgs[0].d.kg : null;
+  $("bal").innerHTML = `<div>Toplam açık<strong class="${!nets.length ? "" : net < 0 ? "neg" : "pos"}">${nets.length ? (net > 0 ? "+" : "") + fmt(net) : "—"}</strong></div><div>Antrenman<strong>${wo} gün</strong></div><div>Kilo<strong class="${dk == null ? "" : dk <= 0 ? "neg" : "pos"}">${dk == null ? (kgs.length ? num(kgs[0].d.kg) : "—") : (dk > 0 ? "+" : "") + num(dk) + " kg"}</strong></div>`;
+  $("wStrip").innerHTML = W.map(x => { const h = x.d.f.length ? Math.min(100, x.s.k / (g.k || 1) * 100) : 0;
+    return `<div class="wd ${x.ds === cur ? "cur" : ""}"><span>${dayName(x.ds, {weekday:"short"})}</span><div class="col" title="${x.d.f.length ? fmt(x.s.k) + " kcal" : "kayıt yok"}"><i class="${x.s.k > g.k ? "over" : ""}" style="height:${h}%"></i></div><b>${x.fut ? "" : x.d.f.length ? fmt(x.s.k) : "—"}</b></div>`; }).join("");
+}
 const liters = w => (w * 0.25).toLocaleString("tr-TR", {minimumFractionDigits: 2}) + " L";
 function renderDay(){
   const d = day(cur), s = sum(d), g = root.goals;
   $("dlabel").textContent = cur === today() ? "Bugün" : dayName(cur, {weekday:"long", day:"numeric", month:"long"});
   $("next").disabled = cur >= today();
   // özet
-  $("rings").innerHTML = ring(s.k, g.k, "var(--bad)", "Kalori", "kcal", "yemek") + ring(s.p, g.p, "var(--good)", "Protein", "g", "yemek") + ring(d.w, g.w, "var(--accent)", "Su", "bardak", "su");
-  const bu = +d.bu || 0, net = bu ? s.k - bu : null;
-  $("bal").innerHTML = `<div>Kalan<strong>${fmt(Math.max(g.k - s.k, 0))}</strong></div><div>Yakılan<strong>${bu ? fmt(bu) : "—"}</strong></div><div>Açık<strong class="${net == null ? "" : net < 0 ? "neg" : "pos"}">${net == null ? "—" : (net > 0 ? "+" : "") + fmt(net)}</strong></div>`;
+  for(const b of $("sumSeg").children) b.classList.toggle("on", b.dataset.m === sumMode);
+  $("wStrip").hidden = sumMode !== "hafta";
+  if(sumMode === "hafta") renderWeekSum();
+  else {
+    $("sumRange").textContent = "";
+    $("rings").innerHTML = ring(s.k, g.k, "var(--bad)", "Kalori", "kcal", "yemek") + ring(s.p, g.p, "var(--good)", "Protein", "g", "yemek") + ring(d.w, g.w, "var(--accent)", "Su", "bardak", "su");
+    const bu = +d.bu || 0, net = bu ? s.k - bu : null;
+    $("bal").innerHTML = `<div>Kalan<strong>${fmt(Math.max(g.k - s.k, 0))}</strong></div><div>Yakılan<strong>${bu ? fmt(bu) : "—"}</strong></div><div>Açık<strong class="${net == null ? "" : net < 0 ? "neg" : "pos"}">${net == null ? "—" : (net > 0 ? "+" : "") + fmt(net)}</strong></div>`;
+  }
   renderHomeWo();
   // yemek
   $("ymSum").innerHTML = `${fmt(s.k)} / ${fmt(g.k)} kcal <span>· ${fmt(s.p)} / ${fmt(g.p)} g protein</span>`;
