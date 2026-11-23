@@ -679,9 +679,9 @@ const FOODS = [
   ["Izgara balık","200 g",350,45],["Ton balığı (süzülmüş)","1 kutu",180,38],["Kuru fasulye","1 porsiyon",300,15],["Nohut yemeği","1 porsiyon",300,13],
   ["Karnıyarık","1 porsiyon",350,14],["Zeytinyağlı taze fasulye","1 porsiyon",180,4],["Mantı","1 porsiyon",600,25],
   ["Pirinç pilavı","1 porsiyon (150 g)",280,5],["Bulgur pilavı","1 porsiyon",220,6],["Makarna","1 tabak (100 g kuru)",380,13],["Tavuklu pilav (sokak)","1 porsiyon",600,27],
-  ["Tavuk döner dürüm","1 adet",600,35],["Et döner dürüm","1 adet",700,38],["İskender","1 porsiyon",900,45],["Lahmacun","1 adet",300,14],
+  ["Tavuk döner dürüm","1 adet",600,35,1],["Et döner dürüm","1 adet",700,38,1],["İskender","1 porsiyon",900,45],["Lahmacun","1 adet",300,14],
   ["Kıymalı pide","1 adet",800,38],["Çiğ köfte dürüm","1 adet",450,10],["Çiğ köfte","1 parça",50,1],["Mercimek köftesi","1 adet",45,2],
-  ["Yaprak sarma","1 adet",45,1],["Börek","1 parça",300,8],["Hamburger","1 adet",550,28],["Pizza","1 dilim",280,12],["Patates kızartması","orta porsiyon",350,4],
+  ["Yaprak sarma","1 adet",45,1],["Börek","1 parça",300,8],["Hamburger","1 adet",550,28,1],["Pizza","1 dilim",280,12],["Patates kızartması","orta porsiyon",350,4],
   ["Yemekhane tepsisi","çorba + ana yemek + pilav",850,40],
   ["Çoban salata","1 kase (az yağlı)",80,2],["Mevsim salata","1 kase (zeytinyağlı)",120,2],["Cacık","1 kase",80,4],
   ["Yoğurt","1 kase (200 g)",130,8],["Süzme yoğurt","150 g",150,15],["Ayran","200 ml",70,4],["Kefir","200 ml",120,7],
@@ -689,17 +689,26 @@ const FOODS = [
   ["Ceviz","5 adet",130,3],["Badem","15 adet",105,4],["Fındık","1 avuç (30 g)",190,4],["Cips","küçük paket (40 g)",210,3],
   ["Çikolata","30 g",160,2],["Gofret","1 adet",160,2],["Protein bar","1 adet",200,20],["Protein tozu","1 ölçek",120,24],
   // Fast food (zincirlerin yayınladığı / yaygın değerlere göre yaklaşık)
-  ["Popeyes XL Sandviç","1 adet",600,28],["Popeyes Smoky XL Sandviç","1 adet",680,32],["Popeyes Popchicken","1 adet",400,17],["Popeyes Tavukburger","1 adet",380,16],
-  ["Popeyes Tenders","3 adet",380,28],["Popeyes Nuggets","10 adet",450,24],["Popeyes çıtır tavuk (but)","1 parça",280,20],["Popeyes kanat","4 adet",380,24],["Popeyes sarımsaklı ekmek","1 adet",180,4],
-  ["Big Mac","1 adet",525,26],["McChicken","1 adet",420,16],["Cheeseburger (McDonald's)","1 adet",300,15],["Double Cheeseburger (McDonald's)","1 adet",440,25],["Daba Daba Burger","1 adet",650,28],["McNuggets","6 adet",260,15],["Double Big Mac","1 adet",700,41],
-  ["Whopper","1 adet",660,30],["Whopper Jr.","1 adet",330,15],["Double Whopper","1 adet",940,52],["Chicken Royale","1 adet",600,25],["King Chicken","1 adet",380,15],["Big King","1 adet",520,27],
-  ["KFC Zinger burger","1 adet",450,24],["KFC tavuk parça","1 parça",250,20],["KFC Hot Wings","5 adet",350,26],
+  ["Popeyes XL Sandviç","1 adet",600,28,1],["Popeyes Smoky XL Sandviç","1 adet",680,32,1],["Popeyes Popchicken","1 adet",400,17,1],["Popeyes Tavukburger","1 adet",380,16,1],
+  ["Popeyes Tenders","3 adet",380,28,1],["Popeyes Nuggets","10 adet",450,24,1],["Popeyes çıtır tavuk (but)","1 parça",280,20,1],["Popeyes kanat","4 adet",380,24,1],["Popeyes sarımsaklı ekmek","1 adet",180,4],
+  ["Big Mac","1 adet",525,26,1],["McChicken","1 adet",420,16,1],["Cheeseburger (McDonald's)","1 adet",300,15,1],["Double Cheeseburger (McDonald's)","1 adet",440,25,1],["Daba Daba Burger","1 adet",650,28,1],["McNuggets","6 adet",260,15,1],["Double Big Mac","1 adet",700,41,1],
+  ["Whopper","1 adet",660,30,1],["Whopper Jr.","1 adet",330,15,1],["Double Whopper","1 adet",940,52,1],["Chicken Royale","1 adet",600,25,1],["King Chicken","1 adet",380,15,1],["Big King","1 adet",520,27,1],
+  ["KFC Zinger burger","1 adet",450,24,1],["KFC tavuk parça","1 parça",250,20,1],["KFC Hot Wings","5 adet",350,26,1],
   ["Patates kızartması (küçük)","küçük",230,3],["Patates kızartması (büyük)","büyük",450,5],["Soğan halkası","6 adet",250,3],
-  ["Pide (kıymalı)","1 adet",650,30],["Kokoreç","yarım ekmek",600,25],["Kumpir","1 adet",800,20],["Islak hamburger","1 adet",300,12],["Tavuk wrap","1 adet",450,25],["Pizza (orta, tamamı)","1 adet",1700,70],
+  ["Pide (kıymalı)","1 adet",650,30],["Kokoreç","yarım ekmek",600,25,1],["Kumpir","1 adet",800,20],["Islak hamburger","1 adet",300,12,1],["Tavuk wrap","1 adet",450,25,1],["Pizza (orta, tamamı)","1 adet",1700,70],
   ["Milkshake","orta boy",400,10],
   ["Kola","1 kutu (330 ml)",140,0],["Meyve suyu","200 ml",90,0],["Çay (1 şekerli)","1 bardak",20,0],["Türk kahvesi (şekersiz)","1 fincan",10,0],["Latte","1 orta boy",200,10],
+  // İçecekler
+  ["Kola zero / light","1 kutu (330 ml)",1,0],["Kola (menü, orta)","400 ml",170,0],["Kola (büyük)","500 ml",210,0],["Fanta","1 kutu (330 ml)",150,0],["Sprite","1 kutu (330 ml)",140,0],
+  ["Ice tea","330 ml",100,0],["Gazoz","1 kutu (250 ml)",110,0],["Soda (sade)","200 ml",0,0],["Meyveli soda","200 ml",50,0],["Limonata","1 bardak (250 ml)",120,0],["Taze portakal suyu","200 ml",90,1],
+  ["Şalgam","300 ml",30,1],["Red Bull","1 kutu (250 ml)",110,0],["Monster","1 kutu (500 ml)",230,0],["Enerji içeceği (şekersiz)","1 kutu",10,0],
+  ["Filtre kahve (sade)","1 kupa",5,0],["Americano","1 orta boy",10,0],["Cappuccino","1 orta boy",130,7],["Mocha","1 orta boy",300,10],["Frappe / Frappuccino","1 orta boy",350,5],["Sıcak çikolata","1 kupa",300,8],["Salep","1 kupa",250,7],
+  ["Çay (şekersiz)","1 bardak",2,0],["Bitki çayı","1 kupa",2,0],["Smoothie","1 bardak (300 ml)",220,4],["Protein shake (su ile)","1 ölçek",120,24],["Protein shake (süt ile)","1 ölçek + 250 ml süt",270,32],["Bira","500 ml",210,2],
   ["Sütlaç","1 kase",250,7],["Baklava","1 dilim",165,2],["Puding","1 kase",200,5],["Dondurma","1 top",130,2],
 ];
+// Fast food detayları (porsiyon başına eklenir)
+const EXTRAS = [["Mayonez",90,0],["Ketçap",20,0],["Barbekü / ranch sos",70,0],["Acı sos",15,0],["Ekstra cheddar",60,3],["Bacon",50,3],["Ekstra köfte / tavuk",200,18],["Sossuz",-80,0],
+  ["Menü: orta patates + kola",500,4],["Menü: orta patates + zero kola",330,4],["Büyük patates + büyük kola (menü büyüt)",660,5]];
 const POPULAR = ["Haşlanmış yumurta","Tavuk göğsü (pişmiş)","Yoğurt","Ayran","Mercimek çorbası","Pirinç pilavı","Ekmek","Yemekhane tepsisi"];
 const norm = t => String(t).toLocaleLowerCase("tr").replace(/[çğıöşü]/g, c => ({"ç":"c","ğ":"g","ı":"i","ö":"o","ş":"s","ü":"u"}[c]));
 
@@ -1098,12 +1107,20 @@ $("fres").onclick = e => {
   openSheet(`<h2>${esc(f[0])}</h2><p class="small muted" style="margin:0 0 12px">1 porsiyon = ${esc(f[1])} · ${f[2]} kcal · ${f[3]} g protein</p>
     <div class="small muted" style="margin-bottom:6px">Kaç porsiyon?</div>
     <div class="chips" id="mul">${M.map(([m, t]) => `<button type="button" data-m="${m}" class="${m === 1 ? "on" : ""}">${t}</button>`).join("")}</div>
+    ${f[4] ? `<div class="small muted" style="margin:12px 0 6px">Detay (birden fazla seçebilirsin)</div>
+    <div class="chips" id="ext">${EXTRAS.map((x, i) => `<button type="button" data-x="${i}">${esc(x[0])} <span class="muted">${x[1] > 0 ? "+" : ""}${x[1]}</span></button>`).join("")}</div>` : ""}
     <p style="font-weight:700;margin:14px 0" id="mulTot"></p>
     <div class="row"><button class="ghost" data-close style="flex:1">Vazgeç</button><button id="mulAdd" style="flex:2">Ekle</button></div>`);
-  let m = 1;
-  const upd = () => { $("mulTot").textContent = `${fmt(f[2]*m)} kcal · ${fmt(f[3]*m)} g protein`; for(const c of $("mul").children) c.classList.toggle("on", +c.dataset.m === m); };
+  let m = 1; const X = new Set();
+  const tot = () => { let k = f[2], p = f[3]; for(const i of X){ k += EXTRAS[i][1]; p += EXTRAS[i][2]; } return [Math.max(0, Math.round(k*m)), Math.round(p*m)]; };
+  const upd = () => { const [k, p] = tot(); $("mulTot").textContent = `${fmt(k)} kcal · ${fmt(p)} g protein`; for(const c of $("mul").children) c.classList.toggle("on", +c.dataset.m === m);
+    if($("ext")) for(const c of $("ext").children) c.classList.toggle("on", X.has(+c.dataset.x)); };
   $("mul").onclick = ev => { const c = ev.target.closest("button[data-m]"); if(c){ m = +c.dataset.m; upd(); } };
-  $("mulAdd").onclick = () => { const lbl = m === 1 ? f[1] : `${M.find(x => x[0] === m)[1]} × ${f[1]}`; day(cur).f.push({n: `${f[0]} (${lbl})`, k: Math.round(f[2]*m), p: Math.round(f[3]*m)}); save(); closeSheet(); renderDay(); toast("+ " + f[0]); };
+  if($("ext")) $("ext").onclick = ev => { const c = ev.target.closest("button[data-x]"); if(!c) return; const i = +c.dataset.x;
+    if(X.has(i)) X.delete(i); else { X.add(i); const menu = j => EXTRAS[j][0].includes("kola"); if(menu(i)) for(const j of [...X]) if(j !== i && menu(j)) X.delete(j); }
+    upd(); };
+  $("mulAdd").onclick = () => { const lbl = m === 1 ? f[1] : `${M.find(x => x[0] === m)[1]} × ${f[1]}`, ex = [...X].sort((a, b) => a - b).map(i => EXTRAS[i][0].replace(/^Menü: /, "menü: ").toLowerCase());
+    const [k, p] = tot(); day(cur).f.push({n: `${f[0]} (${[lbl, ...ex].join(", ")})`.slice(0, 120), k, p}); save(); closeSheet(); renderDay(); toast("+ " + f[0]); };
   upd();
 };
 renderFoods();
