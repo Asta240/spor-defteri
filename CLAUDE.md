@@ -28,3 +28,8 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Hareketler `EX` dizisinde; görseller `img/<id>/0.jpg,1.jpg` (free-exercise-db, kamu malı). Video: YouTube arama linki (`yt()`).
 - Yeni hesaba kart YÜKLENMEZ (`defaultCards()` boş). Kartlar sayfasında ve kartsız ana sayfada "✦ Hazır kartlardan ekle" → `showTemplates()`: `TEMPLATES` (Claude'un hazırladığı 7 program: Yeni başlayan tam vücut A/B, İtiş·Çekiş·Bacak (+Kol+Karın), Üst/Alt, Kol ve omuz, Karın, Vücut ağırlığı, Kardiyo + karın). Tek kart "Ekle" ya da "Hepsini ekle"; aynı adlı kart varsa "(2)" eklenir (`addTemplateCard`). Herkes ayrıca "+ Yeni kart" ile kendi kartını kurar.
 - Telefonda çift dokunma yakınlaştırmaz: `*{touch-action:manipulation}`; inputlar 16px (odakta yakınlaştırma da yok).
+
+## Vücut bilgileri + BMR
+- `root.profile = {h, w, by, sex}` (kayıtta istenir; Hesap penceresi → Vücut bilgileri `profForm/bindProf`).
+- Yakılan girilmemiş günlerde `burnedOf(ds)` sadece BMR yazar (Mifflin-St Jeor, kilo = o güne kadarki son `d.kg`, yoksa profil). "tahmini" etiketi / "~". Girilen Fitness değeri her zaman önce gelir.
+- Ana sayfada dün kayıt var ama yakılan yoksa "Dünün yakılan kalorisini girmedin" kutusu (`#ozYest`).

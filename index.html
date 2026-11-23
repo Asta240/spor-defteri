@@ -254,6 +254,8 @@
   .login{max-width:420px;margin:8vh auto 0;text-align:center}
   .login .card{text-align:left}
   .stack{display:flex;flex-direction:column;gap:8px}
+  .prof{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .estb{font-size:10px;font-weight:700;color:var(--warn);background:var(--warn-soft);border-radius:99px;padding:1px 6px;margin-left:2px;vertical-align:1px}
   .err{color:var(--bad);margin:8px 0 0;min-height:0}
   .err:empty{display:none}
   button.linkish{background:none;color:var(--muted);padding:6px 0;min-height:36px;font-weight:500;font-size:14px}
@@ -294,6 +296,13 @@
         <input id="regUser" placeholder="Kullanıcı adı (girişte bunu yazacaksın)" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="20" aria-label="Kullanıcı adı" required>
         <input id="regEmail" type="email" placeholder="E-posta" autocomplete="email" aria-label="E-posta" required>
         <input id="regPass" type="password" placeholder="Şifre (en az 6 karakter)" autocomplete="new-password" minlength="6" aria-label="Şifre" required>
+        <div class="small muted" style="margin-top:4px">Vücut bilgileri (yakılan kaloriyi hesaplamak için)</div>
+        <div class="prof">
+          <input id="regH" type="number" inputmode="numeric" min="100" max="250" placeholder="Boy (cm)" aria-label="Boy (cm)" required>
+          <input id="regW" type="number" inputmode="decimal" step="0.1" min="30" max="300" placeholder="Kilo (kg)" aria-label="Kilo (kg)" required>
+          <input id="regBy" type="number" inputmode="numeric" min="1930" max="2020" placeholder="Doğum yılı" aria-label="Doğum yılı" required>
+          <select id="regSex" aria-label="Cinsiyet" required><option value="">Cinsiyet</option><option value="e">Erkek</option><option value="k">Kadın</option></select>
+        </div>
         <button>Kayıt ol</button>
       </form>
       <p class="small muted" style="margin:8px 0 0">Kullanıcı adı: 3–20 karakter, harf, rakam, nokta ya da alt çizgi.</p>
@@ -339,6 +348,9 @@
           <label class="f" style="flex:0 1 170px">Adım gir<input id="ozSteps" type="number" inputmode="numeric" min="0" placeholder="Örn. 8000"></label>
           <label class="f" style="flex:0 1 170px">Yakılan toplam kcal<input id="ozBurn" type="number" inputmode="numeric" min="0" placeholder="Fitness'tan"></label>
         </div>
+        <div class="tip" id="ozYest" hidden style="margin-top:8px">Dünün yakılan kalorisini girmedin.
+          <div class="row" style="margin-top:6px;gap:8px"><input id="ozYestIn" type="number" inputmode="numeric" min="0" placeholder="Dün yakılan kcal" style="flex:1"><button id="ozYestOk">Kaydet</button></div></div>
+        <button class="linkish" id="ozProf" hidden>Yakılanı girmediğin günler otomatik hesaplansın: <b>vücut bilgilerini gir →</b></button>
       </div>
       <details class="card">
         <summary><b>Hedefler</b></summary>
@@ -739,7 +751,8 @@ $("inForm").onsubmit = e => { e.preventDefault(); $("inMsg").textContent = ""; b
   try{ const j = await api({action:"login", user: $("inUser").value, pass: $("inPass").value}); await enterCode(j.code, j.user); }
   catch(err){ $("inMsg").textContent = errMsg(err); } }); };
 $("regForm").onsubmit = e => { e.preventDefault(); $("regMsg").textContent = ""; busyBtn(e.target, async () => {
-  try{ const j = await api({action:"register", user: $("regUser").value, email: $("regEmail").value, pass: $("regPass").value}); await enterCode(j.code, j.user); toast("Hoş geldin, " + j.user); }
+  try{ const j = await api({action:"register", user: $("regUser").value, email: $("regEmail").value, pass: $("regPass").value}); await enterCode(j.code, j.user);
+    root.profile = {h: +$("regH").value, w: +$("regW").value, by: +$("regBy").value, sex: $("regSex").value}; save(); renderAll(); toast("Hoş geldin, " + j.user); }
   catch(err){ $("regMsg").textContent = errMsg(err); } }); };
 $("lgForm").onsubmit = e => {
   e.preventDefault();
@@ -776,7 +789,7 @@ async function initGoogle(){
 // Hesap penceresi: bağlı giriş yolları + yenilerini ekleme
 $("codeBtn").onclick = async () => {
   const foot = `<p class="small err" id="accMsg"></p><div class="row"><button class="ghost" id="logout" style="flex:1">Çıkış yap</button><button data-close style="flex:1">Kapat</button></div>`;
-  if(!ONLINE()){ openSheet(`<h2>Hesap</h2><p class="muted">Hesapsız kullanıyorsun, verilerin sadece bu cihazda.</p>` + foot); return; }
+  if(!ONLINE()){ openSheet(`<h2>Hesap</h2><p class="muted">Hesapsız kullanıyorsun, verilerin sadece bu cihazda.</p><div class="acc">${profForm()}</div>` + foot); bindProf(); return; }
   openSheet(`<h2>Hesap</h2><div class="acc" id="acc"><p class="small muted">Yükleniyor…</p></div>` + foot);
   let w = {user:"", google:""}; try{ w = await api({action:"whoami", code: CUR}); }catch(e){}
   if($("modal").hidden || !$("acc")) return;
@@ -789,13 +802,30 @@ $("codeBtn").onclick = async () => {
           <input id="lkPass" type="password" placeholder="Şifre (en az 6 karakter)" autocomplete="new-password" minlength="6" aria-label="Şifre" required>
           <button>Ekle</button></form>`) +
     (w.google ? `<div class="it"><span>Google</span><b>${esc(w.google)}</b></div>` : GID ? `<div id="gLinkWrap"><div class="small muted" style="margin-bottom:6px">Google hesabını bağla:</div><div id="gLinkBtn" class="gbtn"></div></div>` : "") +
-    `<div class="it"><span>Yedek kod</span><b style="letter-spacing:.12em">${esc(CUR)}</b></div>`;
+    `<div class="it"><span>Yedek kod</span><b style="letter-spacing:.12em">${esc(CUR)}</b></div>` + profForm();
   const lf = $("linkForm");
   if(lf) lf.onsubmit = ev => { ev.preventDefault(); $("accMsg").textContent = ""; busyBtn(lf, async () => {
     try{ const j = await api({action:"register", user: $("lkUser").value, email: $("lkEmail").value, pass: $("lkPass").value, code: CUR}); lsSet("sd-user", j.user); $("codeBtn").textContent = label(); closeSheet(); toast("Artık “" + j.user + "” ile giriş yapabilirsin"); }
     catch(err){ $("accMsg").textContent = errMsg(err); } }); };
   if($("gLinkBtn")) renderG($("gLinkBtn"), true);
+  bindProf();
 };
+function profForm(){
+  const P = root.profile || {}, b = bmrOn(today());
+  return `<form id="profForm" class="stack"><b class="small">Vücut bilgileri</b>
+    <div class="prof">
+      <label class="f">Boy (cm)<input id="pfH" type="number" inputmode="numeric" min="100" max="250" value="${esc(P.h || "")}" required></label>
+      <label class="f">Kilo (kg)<input id="pfW" type="number" inputmode="decimal" step="0.1" min="30" max="300" value="${esc(P.w || "")}" required></label>
+      <label class="f">Doğum yılı<input id="pfBy" type="number" inputmode="numeric" min="1930" max="2020" value="${esc(P.by || "")}" required></label>
+      <label class="f">Cinsiyet<select id="pfSex" required><option value="">Seç</option><option value="e" ${P.sex === "e" ? "selected" : ""}>Erkek</option><option value="k" ${P.sex === "k" ? "selected" : ""}>Kadın</option></select></label>
+    </div>
+    <button>Kaydet</button>
+    <p class="small muted" style="margin:0">${b ? `Bazal metabolizman (BMR) ~${fmt(b)} kcal. Yakılanı girmediğin günlerde bu yazılır.` : "Girince yakılanı girmediğin günler otomatik tahmin edilir."} Kilo olarak son tartın kullanılır.</p></form>`;
+}
+function bindProf(){
+  const f = $("profForm"); if(!f) return;
+  f.onsubmit = ev => { ev.preventDefault(); root.profile = {h: +$("pfH").value, w: +$("pfW").value, by: +$("pfBy").value, sex: $("pfSex").value}; save(); closeSheet(); renderAll(); toast("Vücut bilgileri kaydedildi"); };
+}
 
 // ================= PENCERE / BİLDİRİM =================
 function openSheet(html){ $("sheet").innerHTML = html; $("modal").hidden = false; document.body.style.overflow = "hidden"; const f = $("sheet").querySelector("button,input,select,a"); if(f) f.focus(); }
@@ -858,12 +888,36 @@ function renderWeekSum(){
   const aK = avg(ate, x => x.s.k), aP = avg(ate, x => x.s.p), aW = avg(wat, x => x.d.w);
   $("sumRange").textContent = "";
   $("rings").innerHTML = ring(aK, g.k, "var(--bad)", "Ort. kalori", "kcal", "prog") + ring(aP, g.p, "var(--good)", "Ort. protein", "g", "prog") + ring(aW, g.w, "var(--accent)", "Ort. su", "bardak", "prog");
-  const nets = past.filter(x => +x.d.bu > 0 && x.d.f.length), net = nets.reduce((t, x) => t + x.s.k - +x.d.bu, 0);
+  const nets = past.filter(x => burnedOf(x.ds).v > 0 && x.d.f.length), net = nets.reduce((t, x) => t + x.s.k - burnedOf(x.ds).v, 0), anyEst = nets.some(x => burnedOf(x.ds).est);
   const wo = past.filter(x => x.d.wo).length, kgs = past.filter(x => +x.d.kg > 0), dk = kgs.length > 1 ? +kgs[kgs.length - 1].d.kg - +kgs[0].d.kg : null;
-  $("bal").innerHTML = `<div>Toplam açık<strong class="${!nets.length ? "" : net < 0 ? "neg" : "pos"}">${nets.length ? (net > 0 ? "+" : "") + fmt(net) : "—"}</strong></div><div>Antrenman<strong>${wo} gün</strong></div><div>Kilo<strong class="${dk == null ? "" : dk <= 0 ? "neg" : "pos"}">${dk == null ? (kgs.length ? num(kgs[0].d.kg) : "—") : (dk > 0 ? "+" : "") + num(dk) + " kg"}</strong></div>`;
+  $("bal").innerHTML = `<div>Toplam açık${anyEst ? ` <span class="estb">tahmini</span>` : ""}<strong class="${!nets.length ? "" : net < 0 ? "neg" : "pos"}">${nets.length ? (anyEst ? "~" : "") + (net > 0 ? "+" : "") + fmt(net) : "—"}</strong></div><div>Antrenman<strong>${wo} gün</strong></div><div>Kilo<strong class="${dk == null ? "" : dk <= 0 ? "neg" : "pos"}">${dk == null ? (kgs.length ? num(kgs[0].d.kg) : "—") : (dk > 0 ? "+" : "") + num(dk) + " kg"}</strong></div>`;
   $("wStrip").innerHTML = W.map(x => { const h = x.d.f.length ? Math.min(100, x.s.k / (g.k || 1) * 100) : 0;
     return `<div class="wd ${x.ds === cur ? "cur" : ""}" ${x.fut ? "" : `data-day="${x.ds}" role="button" tabindex="0" aria-label="${dayName(x.ds, {weekday:"long", day:"numeric", month:"long"})} gününü aç"`}><span>${dayName(x.ds, {weekday:"short"})}</span><div class="col" title="${x.d.f.length ? fmt(x.s.k) + " kcal" : "kayıt yok"}"><i class="${x.s.k > g.k ? "over" : ""}" style="height:${h}%"></i></div><b>${x.fut ? "" : x.d.f.length ? fmt(x.s.k) : "—"}</b></div>`; }).join("");
 }
+// Yakılan kalori: Fitness değeri girildiyse o, yoksa tahmin (profil gerekir).
+// Tahmin = sadece BMR (Mifflin-St Jeor)
+function weightOn(ds){
+  const ks = Object.keys(root.days).filter(k => k <= ds && +root.days[k].kg > 0).sort();
+  return ks.length ? +root.days[ks[ks.length - 1]].kg : (+(root.profile || {}).w || 0);
+}
+function bmrOn(ds){
+  const P = root.profile || {}, w = weightOn(ds), h = +P.h || 0, by = +P.by || 0;
+  if(!w || !h || !by || !P.sex) return 0;
+  const age = new Date(ds + "T12:00").getFullYear() - by;
+  return 10 * w + 6.25 * h - 5 * age + (P.sex === "k" ? -161 : 5);
+}
+function estBurn(ds){
+  const b = bmrOn(ds); if(!b) return 0;
+  return Math.round(b);
+}
+// {v, est}: girilen değer ya da tahmin; ikisi de yoksa v = 0
+function burnedOf(ds){
+  const d = root.days[ds] || blankDay();
+  if(+d.bu > 0) return {v: +d.bu, est: false};
+  if(ds > today()) return {v: 0, est: false};
+  const e = estBurn(ds); return {v: e, est: e > 0};
+}
+const burnTxt = B => B.v ? (B.est ? "~" : "") + fmt(B.v) : "—";
 const liters = w => (w * 0.25).toLocaleString("tr-TR", {minimumFractionDigits: 2}) + " L";
 function renderDay(){
   const d = day(cur), s = sum(d), g = root.goals;
@@ -882,13 +936,15 @@ function renderDay(){
   else {
     $("sumRange").textContent = "";
     $("rings").innerHTML = ring(s.k, g.k, "var(--bad)", "Kalori", "kcal", "yemek") + ring(s.p, g.p, "var(--good)", "Protein", "g", "yemek") + ring(d.w, g.w, "var(--accent)", "Su", "bardak", "su");
-    const bu = +d.bu || 0, net = bu ? s.k - bu : null;
-    $("bal").innerHTML = `<div>Kalan<strong>${fmt(Math.max(g.k - s.k, 0))}</strong></div><div>Yakılan<strong>${bu ? fmt(bu) : "—"}</strong></div><div>Açık<strong class="${net == null ? "" : net < 0 ? "neg" : "pos"}">${net == null ? "—" : (net > 0 ? "+" : "") + fmt(net)}</strong></div>`;
+    const B = burnedOf(cur), net = B.v ? s.k - B.v : null;
+    $("bal").innerHTML = `<div>Kalan<strong>${fmt(Math.max(g.k - s.k, 0))}</strong></div><div>Yakılan${B.est ? ` <span class="estb">tahmini</span>` : ""}<strong>${burnTxt(B)}</strong></div><div>Açık<strong class="${net == null ? "" : net < 0 ? "neg" : "pos"}">${net == null ? "—" : (net > 0 ? "+" : "") + fmt(net)}</strong></div>`;
   }
   renderHomeWo();
   $("ozStepsV").textContent = d.st ? fmt(d.st) : "—";
   if(document.activeElement !== $("ozSteps")) $("ozSteps").value = d.st ?? "";
   if(document.activeElement !== $("ozBurn")) $("ozBurn").value = d.bu ?? "";
+  { const e = estBurn(cur); $("ozBurn").placeholder = e ? `BMR ~${fmt(e)}` : "Fitness'tan"; $("ozProf").hidden = !!bmrOn(cur);
+    const y = shift(today(), -1), yd = root.days[y]; $("ozYest").hidden = !(cur === today() && yd && !(+yd.bu > 0)); }
   // yemek
   $("ymSum").innerHTML = `${fmt(s.k)} / ${fmt(g.k)} kcal <span>· ${fmt(s.p)} / ${fmt(g.p)} g protein</span>`;
   $("ymLeft").textContent = s.k <= g.k ? `${fmt(g.k - s.k)} kcal kaldı` : `${fmt(s.k - g.k)} kcal fazla`;
@@ -1189,6 +1245,8 @@ $("ozWo").addEventListener("click", e => {
   if(b.id === "woCancel") return ask("Aktif antrenman kaydedilmeden kapatılsın mı?", "Kapat", () => { root.session = null; save(); renderDay(); });
 });
 $("ozSteps").addEventListener("input", e => { day(cur).st = e.target.value; save(); renderDay(); });
+$("ozProf").onclick = () => $("codeBtn").click();
+$("ozYestOk").onclick = () => { const v = +$("ozYestIn").value; if(!(v > 0)) return; const y = shift(today(), -1); root.days[y] = root.days[y] || blankDay(); root.days[y].bu = v; $("ozYestIn").value = ""; save(); renderAll(); toast("Dünün yakılanı kaydedildi"); };
 $("ozBurn").addEventListener("input", e => { day(cur).bu = e.target.value; save(); renderDay(); });
 // Kart kısayolu: Kartlar sayfasında o kartı açar (aktif antrenmanın kartıysa antrenmanı)
 let listOverride = false;
@@ -1278,12 +1336,12 @@ function lineChart(box, pts, fmtY){
 }
 function renderProg(){
   const rows = [];
-  for(let i = 6; i >= 0; i--){ const ds = shift(today(), -i), d = root.days[ds] || blankDay(), s = sum(d), b = +d.bu || 0; rows.push({ds, d, s, b, n: b && d.f.length ? s.k - b : null}); }
-  $("wk").innerHTML = rows.map(r => `<tr class="${r.ds === today() ? "cur" : ""}"><td>${dayName(r.ds, {weekday:"short", day:"numeric"})}</td><td>${r.d.f.length ? fmt(r.s.k) : "—"}</td><td>${r.b ? fmt(r.b) : "—"}</td><td class="${r.n == null ? "" : r.n < 0 ? "neg" : "pos"}">${r.n == null ? "—" : (r.n > 0 ? "+" : "") + fmt(r.n)}</td><td>${r.d.f.length ? fmt(r.s.p) + " g" : "—"}</td><td>${r.d.kg ? num(r.d.kg) : "—"}</td></tr>`).join("");
+  for(let i = 6; i >= 0; i--){ const ds = shift(today(), -i), d = root.days[ds] || blankDay(), s = sum(d), B = burnedOf(ds), b = B.v; rows.push({ds, d, s, b, est: B.est, n: b && d.f.length ? s.k - b : null}); }
+  $("wk").innerHTML = rows.map(r => `<tr class="${r.ds === today() ? "cur" : ""}"><td>${dayName(r.ds, {weekday:"short", day:"numeric"})}</td><td>${r.d.f.length ? fmt(r.s.k) : "—"}</td><td>${r.b ? (r.est ? "~" : "") + fmt(r.b) : "—"}</td><td class="${r.n == null ? "" : r.n < 0 ? "neg" : "pos"}">${r.n == null ? "—" : (r.est ? "~" : "") + (r.n > 0 ? "+" : "") + fmt(r.n)}</td><td>${r.d.f.length ? fmt(r.s.p) + " g" : "—"}</td><td>${r.d.kg ? num(r.d.kg) : "—"}</td></tr>`).join("");
   const eaten = rows.filter(r => r.d.f.length), nets = rows.filter(r => r.n != null), parts = [];
   if(eaten.length) parts.push(`Ortalama ${fmt(eaten.reduce((a, r) => a + r.s.k, 0)/eaten.length)} kcal, ${fmt(eaten.reduce((a, r) => a + r.s.p, 0)/eaten.length)} g protein`);
   if(nets.length){ const t = nets.reduce((a, r) => a + r.n, 0); parts.push(`toplam açık ${fmt(t)} kcal (≈ ${num(Math.abs(Math.min(t, 0))/7700)} kg yağ)`); }
-  $("avg").textContent = parts.length ? parts.join(" · ") + "." : "Birkaç gün doldurunca haftalık ortalaman burada çıkar.";
+  $("avg").textContent = (parts.length ? parts.join(" · ") + "." : "Birkaç gün doldurunca haftalık ortalaman burada çıkar.") + (rows.some(r => r.est && r.n != null) ? " ~ olanlar tahmini yakılan (Fitness değeri girilmemiş gün)." : "");
 
   const kgs = Object.keys(root.days).sort().filter(k => +root.days[k].kg > 0).slice(-30).map(k => ({x: dayName(k, {day:"numeric", month:"short"}), y: +root.days[k].kg}));
   lineChart($("kgFig"), kgs, v => num(v));
