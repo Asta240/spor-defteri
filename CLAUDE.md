@@ -66,3 +66,4 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Tamamlanan işaretler yeşil değil turuncu (Yasin istedi).
 - Kalori alımı: "Yemek ekle" kartında öğün + sekme (Listeden / Elle / Fotoğraf, `data-at`/`data-ap`); "Bu gün yediklerin" öğün kutuları (`.meal`, boş öğünde "+ Ekle" `data-addmeal`). Kalori yakımı: özet (toplam/yenen/açık + dağılım çubuğu) + Bazal, Adım, Antrenman ve kardiyo, Ekstra kutuları.
 - Sayfa yenilenince son sayfa açılır (localStorage `sd-tab`, kart sayfası `sd-cardpage`). PC ana sayfa 3 sütun: halkalar (2 sütun) + Görevler sağ üstte; altında Antrenman | Kardiyo | Seriler; sonra Bugünkü takip. Ölçüler kaydedilirken o günün kilosu `meas[gün]._kg`; önceki ölçümle karşılaştırma tablosu + kiloyla birlikte yorum.
+- Yediklerin: boş öğünler gizli, altta "Ekle: Kahvaltı/Akşam…" kısayolları; öğünsüz eski kayıtlarda öğün seçici (`data-mv`); eski "📷" adlar ikonla gösterilir.

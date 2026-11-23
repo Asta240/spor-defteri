@@ -502,15 +502,26 @@
   .mform{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
   .meals{display:flex;flex-direction:column;gap:8px;margin-top:12px}
   .meal{background:var(--card-2);border-radius:14px;padding:10px}
-  .meal .mh{display:flex;align-items:center;gap:10px}
+  .meal .mh{display:flex;align-items:center;gap:10px;padding:2px 2px 4px}
+  .mempty{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px}
+  .mempty .small-btn{min-height:30px;padding:4px 10px;font-size:12px}
+  .mempty svg.i{width:14px;height:14px;color:var(--accent)}
+  .fim{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+  .fim .n{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis}
+  .fim .k{font-size:11px;color:var(--muted)}
+  .fk{font-size:15px;font-weight:800;white-space:nowrap} .fk small{font-size:11px;color:var(--muted);font-weight:600}
+  .fmeal{width:auto;min-height:30px;padding:2px 8px;font-size:12px;border-radius:8px}
+  .meal .mk b{color:var(--ink)}
   .meal .mh b{font-size:14px} .meal .mk{flex:1;font-size:12px;color:var(--muted);text-align:right}
   .meal .mh .small-btn{min-height:28px;padding:3px 10px;font-size:12px}
   .meal.empty .mh{opacity:.75}
   .fi{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:10px;padding:6px 4px 6px 12px;margin-top:6px}
-  .fi .n{flex:1;font-size:14px;font-weight:600} .fi .k{font-size:12px;color:var(--muted);white-space:nowrap}
+  .fi{padding:8px 4px 8px 12px!important}
   .kbig{grid-column:1 / -1}
   .ktiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-  .ktiles .rp b{font-size:22px}
+  .ktiles .rp b{font-size:clamp(15px,2.2vw,22px);white-space:nowrap;line-height:1.25}
+  .ktiles .rp small{line-height:1.3;margin-top:2px}
+  .rp b{line-height:1.25}
   .kstack{display:flex;height:12px;border-radius:99px;overflow:hidden;margin-top:14px;background:var(--card-2);gap:2px}
   .kstack i{display:block;height:100%}
   .klegend{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font-size:12px;color:var(--muted)}
@@ -1862,11 +1873,15 @@ function renderDay(){
     $("ymTip").innerHTML = foodTip(s, g, gy, gc); }
   $("ymLeft").textContent = s.k <= g.k ? `${fmt(g.k - s.k)} kcal kaldı` : `${fmt(s.k - g.k)} kcal fazla`;
   $("ymBar").style.width = Math.min(100, s.k / (g.k || 1) * 100) + "%";
-  { const row = (x, i) => `<div class="fi"><span class="n">${x.ph ? I("camera", "sm") + " " : ""}${esc(x.n)}</span><span class="k">${fmt(x.k)} kcal · P ${fmt(x.p)}${x.c != null ? ` · K ${fmt(x.c)}` : ""}${x.y != null ? ` · Y ${fmt(x.y)}` : ""}</span><button class="icon" data-del="${i}" aria-label="${esc(x.n)} sil">✕</button></div>`;
+  { const nm = x => String(x.n || "").replace(/^\u{1F4F7}\s*/u, ""), isPh = x => x.ph || /^\u{1F4F7}/u.test(x.n || "");
+    const row = (x, i, other) => `<div class="fi"><div class="fim"><span class="n">${isPh(x) ? I("camera", "sm") + " " : ""}${esc(nm(x))}</span><span class="k">P ${fmt(x.p)}${x.c != null ? ` · K ${fmt(x.c)}` : ""}${x.y != null ? ` · Y ${fmt(x.y)}` : ""}</span></div>
+      ${other ? `<select class="fmeal" data-mv="${i}" aria-label="Öğün seç"><option value="">Öğün…</option>${MEALS.map(([k, t]) => `<option value="${k}">${t}</option>`).join("")}</select>` : ""}<b class="fk">${fmt(x.k)}<small> kcal</small></b><button class="icon" data-del="${i}" aria-label="${esc(nm(x))} sil">✕</button></div>`;
     const idx = d.f.map((x, i) => i), MI = {k: "egg", o: "utensils", a: "moon", s: "zap"};
-    const groups = [...MEALS, ["", "Diğer"]].map(([k, t]) => [k, t, idx.filter(i => (MEALS.some(M => M[0] === d.f[i].m) ? d.f[i].m : "") === k)]).filter(g => g[0] || g[2].length);
+    const groups = [...MEALS, ["", "Öğünü seçilmemiş"]].map(([k, t]) => [k, t, idx.filter(i => (MEALS.some(M => M[0] === d.f[i].m) ? d.f[i].m : "") === k)]);
+    const full = groups.filter(g => g[2].length), empty = groups.filter(g => g[0] && !g[2].length);
     $("eatSub").textContent = d.f.length ? `${d.f.length} yemek · ${fmt(s.k)} kcal` : "Henüz bir şey eklemedin";
-    $("fl").innerHTML = groups.map(([k, t, is]) => `<div class="meal ${is.length ? "" : "empty"}"><div class="mh"><span class="hico sm">${I(MI[k] || "list")}</span><b>${t}</b><span class="mk">${is.length ? `${fmt(is.reduce((a, i) => a + (+d.f[i].k || 0), 0))} kcal · P ${fmt(is.reduce((a, i) => a + (+d.f[i].p || 0), 0))}` : ""}</span>${k ? `<button class="ghost small-btn" data-addmeal="${k}">+ Ekle</button>` : ""}</div>${is.map(i => row(d.f[i], i)).join("")}</div>`).join(""); }
+    $("fl").innerHTML = full.map(([k, t, is]) => `<div class="meal"><div class="mh"><span class="hico sm">${I(MI[k] || "list")}</span><b>${t}</b><span class="mk"><b>${fmt(is.reduce((a, i) => a + (+d.f[i].k || 0), 0))}</b> kcal · P ${fmt(is.reduce((a, i) => a + (+d.f[i].p || 0), 0))}</span></div>${is.map(i => row(d.f[i], i, !k)).join("")}</div>`).join("")
+      + (empty.length ? `<div class="mempty"><span class="small muted">Ekle:</span>${empty.map(([k, t]) => `<button class="ghost small-btn" data-addmeal="${k}">${I(MI[k])} ${t}</button>`).join("")}</div>` : ""); }
   $("fe").hidden = d.f.length > 0;
   $("fReset").hidden = !d.f.length;
   // su
@@ -2053,6 +2068,7 @@ $("fReset").onclick = () => {
   const ds = cur, d = day(ds), n = d.f.length, k = sum(d).k; if(!n) return;
   ask(`${ds === today() ? "Bugünün" : dayName(ds, {day:"numeric", month:"long"}) + " gününün"} ${n} yemeği (${fmt(k)} kcal) silinsin mi?`, "Sıfırla", () => { day(ds).f = []; save(); renderDay(); toast("Yemekler sıfırlandı"); });
 };
+$("fl").addEventListener("change", e => { const sel = e.target.closest("select[data-mv]"); if(!sel || !sel.value) return; const x = day(cur).f[+sel.dataset.mv]; if(x){ x.m = sel.value; save(); renderDay(); } });
 $("fl").onclick = e => { const b = e.target.closest("button[data-del]"); if(!b) return; day(cur).f.splice(+b.dataset.del, 1); save(); renderDay(); };
 const MEALS = [["k","Kahvaltı"],["o","Öğle"],["a","Akşam"],["s","Ara öğün"]];
 const mealNow = () => { const h = new Date().getHours(); return h >= 5 && h < 11 ? "k" : h >= 11 && h < 16 ? "o" : h >= 18 && h < 23 ? "a" : "s"; };
