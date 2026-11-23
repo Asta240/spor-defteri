@@ -36,7 +36,7 @@
     #ozWo .hxl{grid-template-columns:repeat(2,minmax(0,1fr))}
     #vYemek{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
     #vYemek>*{margin:0}
-    #vYemek>.card:first-child{grid-column:1 / -1}
+    #vYemek>.kseg,#vYemek>.card:nth-child(2){grid-column:1 / -1}
     #tCards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
     #tCards>*{margin:0}
     #tCards>#newCard,#tCards>.empty,#tCards>.card:only-child,#tCards>.resume,#tCards>.cardbtns,#tCards>.emptycards{grid-column:1 / -1}
@@ -326,6 +326,20 @@
   @media (prefers-reduced-motion:reduce){section[id^="v"]{animation:none!important} button:active{transform:none}}
 
   /* Özet düzeni */
+  .exrow.view{grid-template-columns:72px minmax(0,1fr)}
+  .exrow.view .sr b{color:var(--ink)}
+  .kseg{margin-bottom:14px;display:flex;width:max-content;max-width:100%}
+  .fqrow{display:flex;gap:8px}
+  .fqrow input{flex:1}
+  .fqrow .camBtn{flex:none;white-space:nowrap}
+  .ymkd{margin-top:10px}
+  .ymkd summary{cursor:pointer;color:var(--muted);font-weight:600}
+  .hhead{display:flex;gap:12px;align-items:center}
+  .hico{width:42px;height:42px;border-radius:12px;background:var(--card-2);display:grid;place-items:center;font-size:20px;flex:none}
+  .kgbig{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-top:14px}
+  .kgbig>b{font-size:40px;font-weight:800;letter-spacing:-.03em;line-height:1}
+  .kgbig>b small{font-size:16px;color:var(--muted);font-weight:700}
+  .spark{width:100%;height:60px;margin-top:10px;display:block}
   .bal{border-top:0;padding-top:0;margin-top:18px;gap:8px}
   .bal>div{background:var(--card-2);border-radius:14px;padding:12px 14px}
   .bal strong{font-size:22px;margin-top:2px}
@@ -427,21 +441,18 @@
 
     <!-- YEMEK -->
     <section id="vYemek" hidden>
+      <div class="seg kseg" role="group" aria-label="Kalori"><button data-v="yemek" class="on">🍽️ Kalori alımı</button><button data-v="kalori">🔥 Kalori yakımı</button></div>
       <div class="card">
         <div class="sumbar"><div id="ymSum"></div><span id="ymLeft"></span></div>
         <div class="bar"><i id="ymBar"></i></div>
       </div>
       <div class="card">
-        <h2>Fotoğraftan kalori</h2>
-        <a class="camBtn" id="camLink" target="_blank" rel="noopener">📷 Fotoğraf at, Claude hesaplasın</a>
-        <p class="small muted" style="margin:10px 0 6px">Sayfada “Bugünkü yemeklerime ekle”ye basınca yemekler buraya kendiliğinden eklenir. Açılmazsa oradaki kodu buraya yapıştır:</p>
-        <form id="ymkForm" class="row"><input id="ymkIn" placeholder="YMK1.…" autocomplete="off" aria-label="Yemek kodu" style="flex:1 1 180px"><button>Kod yapıştır</button></form>
-      </div>
-      <div class="card">
-        <h2>Hazır yemekler</h2>
-        <input id="fq" type="search" placeholder="Ara: mercimek, pilav, döner, yumurta…" aria-label="Yemek ara">
+        <h2>Yemek ekle</h2>
+        <div class="fqrow"><input id="fq" type="search" placeholder="Ara: mercimek, whopper, kola…" aria-label="Yemek ara"><a class="camBtn" id="camLink" target="_blank" rel="noopener" title="Fotoğraftan kalori">📷 Fotoğraf</a></div>
         <ul class="fres" id="fres"></ul>
-        <p class="small muted" style="margin:8px 0 0">Değerler ortalama porsiyon için yaklaşıktır.</p>
+        <p class="small muted" style="margin:8px 0 0">Değerler ortalama porsiyon için yaklaşıktır. 📷 Fotoğraf: Claude yemeği hesaplar, “Bugünkü yemeklerime ekle”ye basınca buraya gelir.</p>
+        <details class="ymkd"><summary class="small">Fotoğraf kodu yapıştır</summary>
+          <form id="ymkForm" class="row" style="margin-top:8px"><input id="ymkIn" placeholder="YMK1.…" autocomplete="off" aria-label="Yemek kodu" style="flex:1 1 180px"><button>Kod yapıştır</button></form></details>
       </div>
       <div class="card">
         <h2>Elle ekle</h2>
@@ -475,12 +486,19 @@
 
     <!-- HAREKET VE KİLO -->
     <section id="vHareket" hidden>
-      <div class="card">
-        <div class="row">
-          <label class="f">Antrenman<select id="wo"></select></label>
-          <label class="f">Kardiyo (dk)<input id="ca" type="number" inputmode="numeric" min="0"></label>
-          <label class="f">Kilo (sabah, kg)<input id="kg" type="number" inputmode="decimal" step="0.05" min="0"></label>
+      <div class="card hcard">
+        <div class="hhead"><span class="hico">🏋️</span><div><h2 style="margin:0">Antrenman</h2><div class="small muted" id="hWoS"></div></div></div>
+        <div class="row" style="margin-top:14px">
+          <label class="f">Yapılan antrenman<select id="wo"></select></label>
+          <label class="f">Kardiyo (dk)<input id="ca" type="number" inputmode="numeric" min="0" placeholder="0"></label>
         </div>
+      </div>
+      <div class="card hcard">
+        <div class="hhead"><span class="hico">⚖️</span><div><h2 style="margin:0">Kilo</h2><div class="small muted">Sabah, aç karnına tartıl</div></div></div>
+        <div class="kgbig"><b id="hKg">—</b><span class="small" id="hKgD"></span></div>
+        <svg id="hSpark" class="spark" viewBox="0 0 300 60" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <div class="small muted" id="hSparkL"></div>
+        <label class="f" style="margin-top:12px">Bugünkü kilo (kg)<input id="kg" type="number" inputmode="decimal" step="0.05" min="0" placeholder="Örn. 76,2"></label>
       </div>
     </section>
 
@@ -497,6 +515,7 @@
 
     <!-- KALORİ HESABI -->
     <section id="vKalori" hidden>
+      <div class="seg kseg" role="group" aria-label="Kalori"><button data-v="yemek">🍽️ Kalori alımı</button><button data-v="kalori" class="on">🔥 Kalori yakımı</button></div>
       <div class="card">
         <div class="prof">
           <label class="f">Adım<input id="cSt" type="number" inputmode="numeric" min="0"></label>
@@ -563,11 +582,13 @@
   <div class="drawer-h"><b>Spor Defteri</b><button class="icon" id="drawerClose" aria-label="Menüyü kapat">✕</button></div>
   <nav id="dnav">
     <button data-v="ozet">🏠 Günün özeti</button>
-    <button data-v="kalori">🔥 Kalori hesabı</button>
     <button data-v="hedef">🎯 Hedefler</button>
     <div class="sep"></div>
+    <div class="dlab">Kalori</div>
+    <button data-v="yemek">🍽️ Kalori alımı</button>
+    <button data-v="kalori">🔥 Kalori yakımı</button>
+    <div class="sep"></div>
     <div class="dlab">Günlük giriş</div>
-    <button data-v="yemek">🍽️ Yemek</button>
     <button data-v="su">💧 Su</button>
     <button data-v="adim">👟 Adım</button>
     <button data-v="hareket">🏃 Antrenman ve kilo</button>
@@ -984,7 +1005,7 @@ function ask(text, yes, onYes){
 }
 
 // ================= MENÜ / SAYFALAR =================
-const VIEWS = {ozet:["vOzet","Günün özeti"], yemek:["vYemek","Yemek"], su:["vSu","Su"], adim:["vAdim","Adım"], hareket:["vHareket","Antrenman ve kilo"], hedef:["vHedef","Hedefler"], kalori:["vKalori","Kalori hesabı"], cards:["tCards","Antrenman kartları"], lib:["tLib","Hareketler"], prog:["tProg","İlerleme"]};
+const VIEWS = {ozet:["vOzet","Günün özeti"], yemek:["vYemek","Kalori alımı"], su:["vSu","Su"], adim:["vAdim","Adım"], hareket:["vHareket","Antrenman ve kilo"], hedef:["vHedef","Hedefler"], kalori:["vKalori","Kalori yakımı"], cards:["tCards","Antrenman kartları"], lib:["tLib","Hareketler"], prog:["tProg","İlerleme"]};
 const DATED = ["ozet","kalori","yemek","su","adim","hareket"];
 function setTab(t){
   if(!VIEWS[t]) t = "ozet";
@@ -1001,6 +1022,7 @@ $("menuBtn").onclick = openDrawer;
 $("drawerClose").onclick = closeDrawer;
 $("drawerBg").onclick = closeDrawer;
 document.addEventListener("keydown", e => { if(e.key === "Escape") closeDrawer(); });
+document.addEventListener("click", e => { const b = e.target.closest(".kseg button[data-v]"); if(b) setTab(b.dataset.v); });
 $("dnav").onclick = e => { const b = e.target.closest("button[data-v]"); if(b){ listOverride = false; setTab(b.dataset.v); } };
 $("dAcc").onclick = () => { closeDrawer(); $("codeBtn").click(); };
 $("camLink").href = $("camLink2").href = FOTO_URL;
@@ -1119,9 +1141,25 @@ function renderDay(){
   if(d.wo && !names.includes(d.wo)) names.push(d.wo);
   $("wo").innerHTML = `<option value="">Dinlenme</option>` + names.map(n => `<option>${esc(n)}</option>`).join("");
   for(const k of FIELDS){ const el = $(k); if(el && document.activeElement !== el) el.value = d[k] ?? ""; }
+  renderHareket(d);
   for(const [id, k] of [["gk","k"],["gp","p"],["gw","w"],["gst","st"],["gbu","bu"]]){ const el = $(id); if(document.activeElement !== el) el.value = g[k]; }
 }
 const renderToday = renderDay;
+function renderHareket(d){
+  $("hWoS").innerHTML = d.wo ? `<span style="color:var(--good);font-weight:700">✓ ${esc(d.wo)}</span>${+d.ca > 0 ? ` · ${fmt(+d.ca)} dk kardiyo` : ""}` : (+d.ca > 0 ? `${fmt(+d.ca)} dk kardiyo` : "Bu gün antrenman yok");
+  const ks = Object.keys(root.days).filter(k => k <= cur && +root.days[k].kg > 0).sort(), pts = ks.slice(-30).map(k => [k, +root.days[k].kg]);
+  const kgTxt = v => String(Math.round(v * 100) / 100).replace(".", ",");
+  if(!pts.length){ $("hKg").textContent = "—"; $("hKgD").textContent = ""; $("hSpark").innerHTML = ""; $("hSparkL").textContent = "Kilo girdikçe burada grafiğin çıkar."; return; }
+  const [lk, lv] = pts[pts.length - 1], prev = pts.length > 1 ? pts[pts.length - 2][1] : null;
+  $("hKg").innerHTML = kgTxt(lv) + ` <small>kg</small>`;
+  const df = prev == null ? null : Math.round((lv - prev) * 100) / 100;
+  $("hKgD").innerHTML = (lk === cur ? "" : `${dayName(lk, {day:"numeric", month:"short"})} · `) + (df == null ? "ilk tartı" : df === 0 ? "değişmedi" : `<b style="color:${df < 0 ? "var(--good)" : "var(--warn)"}">${df < 0 ? "↓" : "↑"} ${kgTxt(Math.abs(df))} kg</b> öncekine göre`);
+  if(pts.length < 2){ $("hSpark").innerHTML = ""; $("hSparkL").textContent = ""; return; }
+  const vs = pts.map(p => p[1]), mn = Math.min(...vs) - .3, mx = Math.max(...vs) + .3, X = i => i / (pts.length - 1) * 300, Y = v => 56 - (v - mn) / (mx - mn) * 52;
+  const line = pts.map((p, i) => `${i ? "L" : "M"}${X(i).toFixed(1)} ${Y(p[1]).toFixed(1)}`).join(" ");
+  $("hSpark").innerHTML = `<path d="${line} L300 60 L0 60 Z" fill="var(--accent-soft)" opacity=".6"/><path d="${line}" fill="none" stroke="var(--accent)" stroke-width="2.5" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>`;
+  $("hSparkL").textContent = `Son ${pts.length} tartı · en düşük ${kgTxt(Math.min(...vs))} · en yüksek ${kgTxt(Math.max(...vs))} kg`;
+}
 // Ana sayfa Hafta modundayken ‹ › hafta hafta gider
 const weekMode = () => tab === "ozet" && sumMode === "hafta";
 $("prev").onclick = () => { cur = shift(cur, weekMode() ? -7 : -1); renderDay(); };
@@ -1247,6 +1285,7 @@ window.addEventListener("hashchange", () => { if(readLinkHash() && root){ applyP
 let openCard = null;
 const lastLift = id => { const a = root.lifts[id]; return a && a.length ? a[a.length - 1] : null; };
 const liftText = l => l ? l.s.map(x => x[0] ? `${num(x[0])}×${x[1]}` : `${x[1]}`).join(", ") : "";
+let editCard = null; // düzenleme modundaki kartın id'si
 function renderCards(){
   if(root.session && !listOverride) return renderSession();
   const el = $("tCards");
@@ -1254,7 +1293,13 @@ function renderCards(){
     <details class="card wcard" data-card="${ci}" ${openCard === c.id ? "open" : ""}>
       <summary><h2>${esc(c.name)}</h2><span class="pill">${c.ex.length} hareket</span></summary>
       <div style="margin-top:12px">
-        ${c.ex.map((x, xi) => { const e = EXM[x.id]; if(!e) return ""; const l = lastLift(x.id);
+        ${c.ex.map((x, xi) => { const e = EXM[x.id]; if(!e) return ""; const l = lastLift(x.id), ed = editCard === c.id;
+          if(!ed) return `<div class="exrow view">
+            ${anim(e.id, e.tr)}
+            <div><div class="nm"><button data-info="${e.id}">${esc(e.tr)}</button></div>
+              <div class="sr"><b>${x.s}</b> set × <b>${x.r}</b> ${unit(e)}</div>
+              ${l ? `<div class="small muted">Son: ${esc(liftText(l))}</div>` : ""}</div>
+          </div>`;
           return `<div class="exrow">
             ${anim(e.id, e.tr)}
             <div><div class="nm"><button data-info="${e.id}">${esc(e.tr)}</button></div>
@@ -1263,14 +1308,16 @@ function renderCards(){
               ${l ? `<div class="small muted">Son: ${esc(liftText(l))}</div>` : ""}</div>
             <div class="ops"><button class="icon" data-mv="${ci}:${xi}:-1" aria-label="Yukarı" ${xi ? "" : "disabled"}>↑</button><button class="icon" data-mv="${ci}:${xi}:1" aria-label="Aşağı" ${xi < c.ex.length - 1 ? "" : "disabled"}>↓</button><button class="icon" data-rm="${ci}:${xi}" aria-label="Çıkar">✕</button></div>
           </div>`; }).join("")}
-        <div class="row" style="margin-top:12px">
-          <button data-start="${ci}" style="flex:1 1 180px">Antrenmanı başlat</button>
+        ${editCard === c.id ? `<div class="row" style="margin-top:12px">
           <button class="ghost" data-add="${ci}" style="flex:1 1 140px">+ Hareket ekle</button>
+          <button class="ghost" data-ren="${ci}" style="flex:1 1 140px">Adını değiştir</button>
+          <button class="ghost" data-delc="${ci}" style="flex:1 1 140px;color:var(--bad)">Kartı sil</button>
         </div>
-        <div class="row" style="margin-top:8px">
-          <button class="ghost" data-ren="${ci}" style="flex:1">Adını değiştir</button>
-          <button class="ghost" data-delc="${ci}" style="flex:1;color:var(--bad)">Kartı sil</button>
-        </div>
+        <div class="row" style="margin-top:8px"><button data-edit="" style="flex:1">Bitti ✓</button></div>`
+        : `<div class="row" style="margin-top:12px">
+          <button data-start="${ci}" style="flex:2 1 180px">Antrenmanı başlat</button>
+          <button class="ghost" data-edit="${c.id}" style="flex:1 1 120px">✏️ Düzenle</button>
+        </div>`}
       </div>
     </details>`).join("") +
     `${root.cards.length ? "" : `<div class="card emptycards"><h2>Henüz kartın yok</h2><p class="muted" style="margin:0 0 12px">Hazır kartlardan birini seç ya da kendi kartını oluştur, sonra Hareketler sayfasından hareket ekle.</p></div>`}
@@ -1286,6 +1333,7 @@ $("tCards").addEventListener("click", e => {
   const b = e.target.closest("button"); if(!b) return;
   const d = b.dataset;
   if(d.info) return showEx(d.info);
+  if("edit" in d){ editCard = d.edit || null; if(editCard) openCard = editCard; renderCards(); return; }
   if(d.mv){ const [ci, xi, dir] = d.mv.split(":").map(Number); const a = root.cards[ci].ex; const j = xi + dir; if(j < 0 || j >= a.length) return; [a[xi], a[j]] = [a[j], a[xi]]; save(); renderCards(); return; }
   if(d.rm){ const [ci, xi] = d.rm.split(":").map(Number); const x = root.cards[ci].ex.splice(xi, 1)[0]; save(); renderCards(); toast(`${EXM[x.id]?.tr || "Hareket"} çıkarıldı`); return; }
   if(d.add){ openCard = root.cards[+d.add].id; addTarget = openCard; setTab("lib"); toast(`“${root.cards[+d.add].name}” kartına eklenecek hareketi seç`); return; }
