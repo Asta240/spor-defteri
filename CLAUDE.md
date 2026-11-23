@@ -56,3 +56,4 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Su sayfası: bardak görseli (`wFill`), son 7 gün çubukları, su hatırlatması burada (`gwr`).
 - Menü üstünde profil (`dProf`: baş harf, ad, boy·kilo) → Hesap. Hesap sayfası PC'de iki sütun.
 - Seriler + rozetler: `streak(ok)` (bugün tutmadıysa dünden sayar), `okWo` (antrenman ya da boş gün) / `okWater` / `okProt`; ana sayfa `#ozStreak` (`renderStreaks`), İlerleme `#bdGrid` (`renderBadges`), 17 rozet `badgeList()`, kazanılan tarih `root.badges`, yeni rozette toast (`checkBadges`).
+- Tema: koyu + turuncu vurgu (`--accent:#ff9f1c`), su mavisi #4dabf7. Emoji YOK: çizgi ikonlar `ICONS` + `I(ad)`; statik HTML’de `<i data-i="ad">` → `fillIcons()`. Toast/bildirim metinleri ikonsuz düz yazı.
