@@ -696,6 +696,19 @@
   .mtr>*:first-child{text-align:left;display:flex;align-items:center;gap:6px}
   .mtr i{display:inline-block;width:9px;height:9px;border-radius:99px;flex:none}
   .mtr.mth{border-top:0;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+
+  .hsg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  .hsc{background:var(--card-2);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+  .hsc .rgh{margin:0 0 2px}
+  .hsc b{font-size:26px;font-weight:800;letter-spacing:-.02em} .hsc b small{font-size:14px;color:var(--muted)}
+  .hsc .tbar{margin-top:6px;background:var(--card)} .hsc small.muted{font-size:12px}
+  .hgrp .tch{margin-bottom:12px}
+  .hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px}
+  .htile{display:flex;align-items:center;gap:12px;background:var(--card-2);border-radius:14px;padding:10px 6px 10px 10px;border:1px solid transparent}
+  .htile.on{border-color:rgba(255,159,28,.3)}
+  .htile.on .spck{background:var(--accent)!important;border-color:var(--accent)!important;color:#1a1205!important}
+  .htile .spi small svg.i{color:var(--accent)}
+  @media (max-width:600px){ .hsg{grid-template-columns:1fr 1fr} .hsg .hsc:last-child{grid-column:1 / -1} .hsc b{font-size:22px} }
 </style>
 </head>
 <body>
@@ -906,19 +919,18 @@
 
     <!-- ALIŞKANLIKLAR -->
     <section id="vHab" hidden>
+      <div class="card hsum" id="hbSum"></div>
+      <div id="hbGroups"></div>
       <div class="card">
-        <div class="hhead"><span class="hico"><i data-i="check"></i></span><div><h2 style="margin:0">Bugünkü alışkanlıklar</h2><div class="small muted" id="hbSub"></div></div></div>
-        <div class="splist" id="hbList"></div>
-        <p class="empty" id="hbEmpty">Henüz alışkanlık eklemedin. Aşağıdan seç ya da kendin yaz.</p>
-      </div>
-      <div class="card">
-        <h2>Alışkanlık ekle</h2>
-        <div class="chips" id="hbPre"></div>
+        <div class="hhead"><span class="hico"><i data-i="check"></i></span><div><h2 style="margin:0">Alışkanlık ekle</h2><div class="small muted">Hazırlardan seç ya da kendin yaz</div></div></div>
+        <div class="chips" id="hbPre" style="margin-top:12px"></div>
         <form id="hbForm" class="row" style="margin-top:10px">
           <input id="hbName" placeholder="Ad (örn. Kitap oku)" maxlength="30" required style="flex:1 1 180px">
+          <select id="hbSeg" style="flex:0 1 140px"><option value="s">Sabah</option><option value="g" selected>Gün içi</option><option value="a">Akşam</option></select>
           <button class="small-btn">Ekle</button>
         </form>
       </div>
+      <p class="empty" id="hbEmpty" hidden></p><div id="hbList" hidden></div><span id="hbSub" hidden></span>
     </section>
 
     <!-- TAKVİYELER -->
@@ -2032,14 +2044,25 @@ function renderMeas(){
 document.addEventListener("input", e => { const k = e.target.dataset?.meas; if(!k) return; root.meas = root.meas || {}; const m = root.meas[cur] = root.meas[cur] || {}; m[k] = e.target.value; const w = weightOn(cur); if(w) m._kg = w; save(); renderMeas(); });
 const HAB_PRE = ["Sabah diş fırçala","Akşam diş fırçala","Duş / banyo","Cilt bakımı","Esneme (10 dk)","Kitap oku","Erken yat (00:00 öncesi)","Telefonsuz 1 saat","Yürüyüş","Diş ipi"];
 const habStreak = id => streak(ds => !!((root.days[ds] || {}).hb || {})[id]);
+const HSEG = [["s","Sabah","zap"],["g","Gün içi","clock"],["a","Akşam","moon"]];
+const habSeg = x => x.t || (/sabah|kahvalt/i.test(x.name) ? "s" : /akşam|yat|gece|uyku/i.test(x.name) ? "a" : "g");
 function renderHab(){
-  const L = root.habits || [], d = root.days[cur] || blankDay(), hb = d.hb || {};
-  $("hbEmpty").hidden = L.length > 0;
-  $("hbSub").textContent = L.length ? `${L.filter(x => hb[x.id]).length} / ${L.length} tamam` : "Diş fırçalama, duş, kitap…";
-  $("hbList").innerHTML = L.map(x => { const on = !!hb[x.id], st = habStreak(x.id), dots = Array.from({length: 7}, (_, i) => { const ds = shift(cur, i - 6); return `<i class="${((root.days[ds] || {}).hb || {})[x.id] ? "on" : ""}"></i>`; }).join("");
-    return `<div class="sp ${on ? "on" : ""}"><button class="spck" data-hb="${x.id}" aria-label="${esc(x.name)} yaptım">${on ? I("check") : ""}</button>
-      <div class="spi"><b>${esc(x.name)}</b><small>${st > 1 ? `${st} gün seri` : on ? "Bugün tamam" : "Bugün yapılmadı"}</small><div class="spdots">${dots}</div></div>
-      <button class="icon" data-hbrm="${x.id}" aria-label="${esc(x.name)} kaldır">✕</button></div>`; }).join("");
+  const L = root.habits || [], d = root.days[cur] || blankDay(), hb = d.hb || {}, done = L.filter(x => hb[x.id]).length;
+  const mon = monOf(cur), wk = Array.from({length: 7}, (_, i) => shift(mon, i)).filter(x => x <= today());
+  const wkPct = L.length && wk.length ? Math.round(wk.reduce((a, ds) => a + L.filter(x => ((root.days[ds] || {}).hb || {})[x.id]).length, 0) / (L.length * wk.length) * 100) : 0;
+  const best = L.map(x => [x, habStreak(x.id)]).sort((a, b) => b[1] - a[1])[0];
+  $("hbSum").innerHTML = !L.length ? `<div class="hhead"><span class="hico"><i data-i="check"></i></span><div><h2 style="margin:0">Alışkanlıklar</h2><div class="small muted">Henüz alışkanlık eklemedin. Aşağıdan başla.</div></div></div>`
+    : `<div class="hsg"><div class="hsc"><span class="rgh">Bugün</span><b>${done}<small> / ${L.length}</small></b><div class="tbar"><i style="width:${done / L.length * 100}%"></i></div></div>
+      <div class="hsc"><span class="rgh">Bu hafta</span><b>%${wkPct}</b><small class="muted">tamamlanma</small></div>
+      <div class="hsc"><span class="rgh">En uzun seri</span><b>${best && best[1] ? best[1] + " gün" : "—"}</b><small class="muted">${best && best[1] ? esc(best[0].name) : "Bugün başla"}</small></div></div>`;
+  fillIcons($("hbSum"));
+  $("hbGroups").innerHTML = HSEG.map(([k, t, ic]) => { const G = L.filter(x => habSeg(x) === k); if(!G.length) return "";
+    const n = G.filter(x => hb[x.id]).length;
+    return `<div class="card hgrp"><div class="tch"><span class="hico sm">${I(ic)}</span><b>${t}</b><span class="tcn">${n}/${G.length}</span></div>
+      <div class="hgrid">${G.map(x => { const on = !!hb[x.id], st = habStreak(x.id), dots = Array.from({length: 7}, (_, i) => { const ds = shift(cur, i - 6); return `<i class="${((root.days[ds] || {}).hb || {})[x.id] ? "on" : ""}"></i>`; }).join("");
+        return `<div class="htile ${on ? "on" : ""}"><button class="spck" data-hb="${x.id}" aria-label="${esc(x.name)} yaptım">${on ? I("check") : ""}</button>
+          <div class="spi"><b>${esc(x.name)}</b><small>${st > 1 ? `${I("flame", "sm")} ${st} gün seri` : on ? "Bugün tamam" : "Bugün yapılmadı"}</small><div class="spdots">${dots}</div></div>
+          <button class="icon" data-hbrm="${x.id}" aria-label="${esc(x.name)} kaldır">✕</button></div>`; }).join("")}</div></div>`; }).join("");
   $("hbPre").innerHTML = HAB_PRE.filter(n => !L.some(x => x.name === n)).map(n => `<button type="button" data-hbadd="${esc(n)}">+ ${esc(n)}</button>`).join("");
 }
 // Ana sayfa: bugünkü takip (alışkanlıklar + takviyeler)
@@ -2062,7 +2085,7 @@ document.addEventListener("click", e => {
   if(b.dataset.hbrm){ const x = (root.habits || []).find(x => x.id === b.dataset.hbrm); return ask(`“${x?.name}” listeden kaldırılsın mı?`, "Kaldır", () => { root.habits = root.habits.filter(y => y.id !== b.dataset.hbrm); save(); renderHab(); renderTrack(); }); }
   if(b.dataset.hbadd){ root.habits = root.habits || []; root.habits.push({id: Math.random().toString(36).slice(2, 8), name: b.dataset.hbadd}); save(); renderHab(); renderTrack(); }
 });
-$("hbForm").onsubmit = e => { e.preventDefault(); const n = $("hbName").value.trim(); if(!n) return; root.habits = root.habits || []; root.habits.push({id: Math.random().toString(36).slice(2, 8), name: n}); $("hbName").value = ""; save(); renderHab(); };
+$("hbForm").onsubmit = e => { e.preventDefault(); const n = $("hbName").value.trim(); if(!n) return; root.habits = root.habits || []; root.habits.push({id: Math.random().toString(36).slice(2, 8), name: n, t: $("hbSeg").value}); $("hbName").value = ""; save(); renderHab(); };
 const SUPP_PRE = [["Kreatin","5 g"],["Balık yağı (Omega-3)","1 kapsül"],["D vitamini","1000 IU"],["Magnezyum","200 mg"],["Multivitamin","1 tablet"],["Çinko","15 mg"],["B12","1 tablet"],["Protein tozu","1 ölçek"]];
 function suppStreak(id){ let n = 0, ds = today(); if(!((root.days[ds] || {}).sp || {})[id]) ds = shift(ds, -1); while(((root.days[ds] || {}).sp || {})[id]){ n++; ds = shift(ds, -1); } return n; }
 function renderSupp(){
