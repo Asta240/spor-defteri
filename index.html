@@ -482,6 +482,10 @@
   .dlab{text-transform:uppercase;letter-spacing:.1em!important;font-weight:800!important}
   .gfields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
   @media (min-width:1000px){ #vHedef{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch} #vHedef>*{margin:0} }
+  .dpick{position:relative;display:inline-flex;align-items:center;gap:8px;cursor:pointer;padding:6px 14px;border-radius:12px;transition:background .15s}
+  .dpick:hover{background:var(--card-2)}
+  .dpick svg.i{color:var(--accent);width:18px;height:18px}
+  .dpick input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;min-height:0;padding:0;border:0}
   .hkSteps{padding-left:20px;margin:12px 0;font-size:14px;display:flex;flex-direction:column;gap:6px}
   #hkUrl{font-size:13px}
   .kgoal{margin-top:10px;background:var(--card-2);border-radius:12px;padding:10px 12px;font-size:14px}
@@ -582,7 +586,7 @@
     <h2 class="vt" id="vTitle">Günün özeti</h2>
     <div class="datebar" id="datebar">
       <button class="ghost" id="prev" aria-label="Önceki gün">‹</button>
-      <strong id="dlabel">Bugün</strong>
+      <label class="dpick" title="Tarih seç"><strong id="dlabel">Bugün</strong><i data-i="calendar"></i><input type="date" id="dpick" aria-label="Tarih seç"></label>
       <button class="ghost" id="next" aria-label="Sonraki gün">›</button>
     </div>
 
@@ -1672,6 +1676,8 @@ function renderHareket(d){
 }
 // Ana sayfa Hafta modundayken ‹ › hafta hafta gider
 const weekMode = () => tab === "ozet" && sumMode === "hafta";
+$("dpick").addEventListener("change", e => { const v = e.target.value; if(!/^\d{4}-\d{2}-\d{2}$/.test(v)) return; cur = v > today() ? today() : v; renderAll(); });
+$("dpick").addEventListener("click", e => { e.target.max = today(); e.target.value = cur; try{ e.target.showPicker(); }catch(err){} });
 $("prev").onclick = () => { cur = shift(cur, weekMode() ? -7 : -1); renderDay(); };
 $("next").onclick = () => { if(cur >= today()) return; const n = shift(cur, weekMode() ? 7 : 1); cur = n > today() ? today() : n; renderDay(); };
 $("ff").onsubmit = e => {
