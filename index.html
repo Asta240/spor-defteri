@@ -28,11 +28,12 @@
   .wrap{max-width:1320px;margin:0 auto;padding:22px clamp(16px,3vw,40px) 60px}
   /* Bilgisayarda tam genişlik: bölümler yan yana */
   @media (min-width:1000px){
-    #vOzet{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,8fr);grid-template-rows:auto 1fr;gap:16px;align-items:start}
+    #vOzet{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,8fr);grid-template-rows:auto auto auto;gap:16px;align-items:start}
     #vOzet>*{margin:0}
-    #vOzet>.card:first-child{grid-column:1;grid-row:1}
-    #ozWo{grid-column:2;grid-row:1 / span 2}
-    #vOzet>details{grid-column:1;grid-row:2}
+    #vOzet>.card:first-child{grid-column:1;grid-row:1 / span 2}
+    #ozWo{grid-column:2;grid-row:1}
+    #vOzet>details{grid-column:1;grid-row:3}
+    #ozMove{grid-column:2;grid-row:2}
     #ozWo .hxl{grid-template-columns:repeat(2,minmax(0,1fr))}
     #vYemek{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
     #vYemek>*{margin:0}
@@ -327,6 +328,13 @@
         <div class="wstrip" id="wStrip" hidden></div>
       </div>
       <div class="card" id="ozWo"></div>
+      <div class="card" id="ozMove">
+        <div class="stepbox">
+          <div><div class="k">Adım</div><div class="v" id="ozStepsV">—</div></div>
+          <label class="f" style="flex:0 1 170px">Adım gir<input id="ozSteps" type="number" inputmode="numeric" min="0" placeholder="Örn. 8000"></label>
+          <label class="f" style="flex:0 1 170px">Yakılan toplam kcal<input id="ozBurn" type="number" inputmode="numeric" min="0" placeholder="Fitness'tan"></label>
+        </div>
+      </div>
       <details class="card">
         <summary><b>Hedefler</b></summary>
         <div class="row" style="margin-top:12px">
@@ -839,6 +847,9 @@ function renderDay(){
     $("bal").innerHTML = `<div>Kalan<strong>${fmt(Math.max(g.k - s.k, 0))}</strong></div><div>Yakılan<strong>${bu ? fmt(bu) : "—"}</strong></div><div>Açık<strong class="${net == null ? "" : net < 0 ? "neg" : "pos"}">${net == null ? "—" : (net > 0 ? "+" : "") + fmt(net)}</strong></div>`;
   }
   renderHomeWo();
+  $("ozStepsV").textContent = d.st ? fmt(d.st) : "—";
+  if(document.activeElement !== $("ozSteps")) $("ozSteps").value = d.st ?? "";
+  if(document.activeElement !== $("ozBurn")) $("ozBurn").value = d.bu ?? "";
   // yemek
   $("ymSum").innerHTML = `${fmt(s.k)} / ${fmt(g.k)} kcal <span>· ${fmt(s.p)} / ${fmt(g.p)} g protein</span>`;
   $("ymLeft").textContent = s.k <= g.k ? `${fmt(g.k - s.k)} kcal kaldı` : `${fmt(s.k - g.k)} kcal fazla`;
@@ -1087,10 +1098,7 @@ function renderHomeWo(){
   // 2) Boş gün: adım
   if(!c && d.rest){
     el.innerHTML = `<div class="wohead"><h2>😴 Boş gün</h2><button class="ghost small-btn" id="woChange">Değiştir</button></div>
-      <p class="small muted" style="margin:4px 0 12px">Bugün antrenman yok. Adımını buradan girebilirsin.</p>
-      <div class="stepbox"><div><div class="k">Adım</div><div class="v">${d.st ? fmt(d.st) : "—"}</div></div>
-        <label class="f" style="flex:0 1 170px">Bugünkü adım<input id="hoSteps" type="number" inputmode="numeric" min="0" value="${esc(d.st)}" placeholder="Örn. 8000"></label></div>
-      ${d.ca ? `<p class="small muted" style="margin:8px 0 0">Kardiyo: ${esc(d.ca)} dk</p>` : ""}`;
+      <p class="small muted" style="margin:4px 0 0">Bugün antrenman yok.</p>`;
     return;
   }
   // 3) Kart seçili / sürüyor / bitti
@@ -1139,9 +1147,8 @@ $("ozWo").addEventListener("click", e => {
   }
   if(b.id === "woCancel") return ask("Aktif antrenman kaydedilmeden kapatılsın mı?", "Kapat", () => { root.session = null; save(); renderDay(); });
 });
-$("ozWo").addEventListener("input", e => {
-  if(e.target.id === "hoSteps"){ day(today()).st = e.target.value; save(); const v = $("ozWo").querySelector(".stepbox .v"); if(v) v.textContent = e.target.value ? fmt(e.target.value) : "—"; }
-});
+$("ozSteps").addEventListener("input", e => { day(cur).st = e.target.value; save(); renderDay(); });
+$("ozBurn").addEventListener("input", e => { day(cur).bu = e.target.value; save(); renderDay(); });
 // Kart kısayolu: Kartlar sayfasında o kartı açar (aktif antrenmanın kartıysa antrenmanı)
 let listOverride = false;
 function goCard(id){
