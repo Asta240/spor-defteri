@@ -98,6 +98,20 @@
   .wohead select{width:auto;max-width:60%;min-height:38px;padding:4px 10px;font-size:14px}
   .resume{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:var(--accent-soft);border-color:var(--accent)}
   .resume button{min-height:40px}
+  .choose{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+  .choose button{min-height:56px;background:var(--bg);color:var(--ink);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;font-size:15px}
+  .choose button.sug{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+  .choose button small{font-size:11px;font-weight:600;opacity:.8}
+  .choose button.rest{color:var(--muted)}
+  .small-btn{min-height:34px;padding:0 12px;font-size:13px}
+  .cardname{font-size:26px;font-weight:800;letter-spacing:-.02em;margin:2px 0 8px}
+  .wbar{margin:0 0 10px}.wbar>i{background:var(--good)}
+  .wostats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;font-size:13px;color:var(--muted);margin-bottom:6px}
+  .wostats b{display:block;font-size:20px;color:var(--ink);letter-spacing:-.02em}
+  .ghostbig{background:transparent!important;color:var(--muted)!important;border:1px solid var(--line)!important;min-height:44px!important;font-size:14px!important}
+  .stepbox{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+  .stepbox .k{font-size:12px;font-weight:700;color:var(--muted)}
+  .stepbox .v{font-size:30px;font-weight:800;letter-spacing:-.02em}
   .bigdone{width:100%;min-height:52px;font-size:16px;margin:6px 0 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0}
   .bigdone small{font-size:12px;font-weight:500;opacity:.85}
   .bigdone.on{background:var(--good)}
@@ -1033,60 +1047,100 @@ function nextCard(){
   const li = C.findIndex(x => x.name === root.lastCard);
   return li < 0 ? C[0] : C[(li + 1) % C.length];
 }
+// Ana sayfa antrenmanı: önce "Bugün ne yapıyorsun?" (kartlar + Boş gün), seçince sadece o kart + ilerleme
+function todayCard(){
+  const S = root.session, d = day(today());
+  if(S) return root.cards.find(x => x.id === S.cardId) || root.cards.find(x => x.name === S.card) || {name: S.card, id: S.cardId || "", ex: []};
+  if(d.wo) return root.cards.find(x => x.name === d.wo) || {name: d.wo, id: "", ex: []};
+  if(root.pick && root.pick.d === today()) return root.cards.find(x => x.id === root.pick.id) || null;
+  return null;
+}
+function woProgress(c){
+  const S = root.session;
+  if(S && (S.cardId === c.id || S.card === c.name)){
+    const sets = S.ex.flatMap(x => x.sets), dn = sets.filter(st => st.done);
+    return {sets: dn.length, all: sets.length, ex: S.ex.filter(x => x.sets.length && x.sets.every(st => st.done)).length, exAll: S.ex.length,
+            vol: dn.reduce((t, st) => t + (+st.kg || 0) * (+st.r || 0), 0)};
+  }
+  const ids = (c.ex || []).map(x => x.id), all = (c.ex || []).reduce((t, x) => t + (+x.s || 0), 0);
+  let n = 0, exN = 0, vol = 0;
+  for(const id of ids){ const l = (root.lifts[id] || []).find(z => z.d === today()); if(l){ exN++; n += l.s.length; vol += l.s.reduce((t, z) => t + z[0] * z[1], 0); } }
+  return {sets: n, all, ex: exN, exAll: ids.length, vol};
+}
 function renderHomeWo(){
   const el = $("ozWo");
   if(cur !== today()){
     const d = root.days[cur] || blankDay();
-    el.innerHTML = `<h2>Antrenman</h2><p class="muted" style="margin:0">${d.wo ? `Bu gün <b>${esc(d.wo)}</b> yapılmış.` : "Bu gün antrenman kaydı yok."}</p>`;
+    el.innerHTML = `<h2>Antrenman</h2><p class="muted" style="margin:0">${d.wo ? `Bu gün <b>${esc(d.wo)}</b> yapılmış.` : d.rest ? "Bu gün boş gün." : "Bu gün antrenman kaydı yok."}</p>`;
     return;
   }
   if(!root.cards.length){ el.innerHTML = `<h2>Antrenman</h2><p class="muted">Hiç kartın yok.</p><button data-go="cards">Kart oluştur</button>`; return; }
-  const d = day(today()), S = root.session, doneToday = !S && !!d.wo;
-  const c = S ? (root.cards.find(x => x.id === S.cardId) || root.cards.find(x => x.name === S.card) || {name: S.card, id: ""})
-          : doneToday ? (root.cards.find(x => x.name === d.wo) || {name: d.wo, id: ""})
-          : nextCard();
-  const title = S ? "Aktif antrenmanım" : doneToday ? "Bugünkü antrenman" : "Sıradaki antrenman";
-  let sub = "";
-  if(S){ const all = S.ex.reduce((t, x) => t + x.sets.length, 0), dn = S.ex.reduce((t, x) => t + x.sets.filter(st => st.done).length, 0); sub = `${dn} / ${all} set yapıldı`; }
-  else if(doneToday) sub = `✓ ${esc(c.name)} yapıldı olarak kaydedildi`;
-  else sub = "Yaptığın kartı seç, sonra tuşa bas";
-  const sel = S ? `<span class="pill">${esc(c.name)}</span>`
-    : `<select id="woSel" aria-label="Kart seç">${root.cards.map(x => `<option value="${x.id}" ${x.id === c.id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}${c.id ? "" : `<option selected>${esc(c.name)}</option>`}</select>`;
+  const d = day(today()), S = root.session, c = todayCard();
+  // 1) Seçim yok: sor
+  if(!c && !d.rest){
+    const nx = nextCard();
+    el.innerHTML = `<h2>Bugün ne yapıyorsun?</h2><p class="small muted" style="margin:4px 0 10px">Sıradaki: <b>${esc(nx.name)}</b></p>
+      <div class="choose">${root.cards.map(x => `<button type="button" data-choose="${x.id}" class="${x.id === nx.id ? "sug" : ""}">${esc(x.name)}${x.id === nx.id ? "<small>sıradaki</small>" : ""}</button>`).join("")}
+      <button type="button" data-rest="1" class="rest">😴 Boş gün</button></div>`;
+    return;
+  }
+  // 2) Boş gün: adım
+  if(!c && d.rest){
+    el.innerHTML = `<div class="wohead"><h2>😴 Boş gün</h2><button class="ghost small-btn" id="woChange">Değiştir</button></div>
+      <p class="small muted" style="margin:4px 0 12px">Bugün antrenman yok. Adımını buradan girebilirsin.</p>
+      <div class="stepbox"><div><div class="k">Adım</div><div class="v">${d.st ? fmt(d.st) : "—"}</div></div>
+        <label class="f" style="flex:0 1 170px">Bugünkü adım<input id="hoSteps" type="number" inputmode="numeric" min="0" value="${esc(d.st)}" placeholder="Örn. 8000"></label></div>
+      ${d.ca ? `<p class="small muted" style="margin:8px 0 0">Kardiyo: ${esc(d.ca)} dk</p>` : ""}`;
+    return;
+  }
+  // 3) Kart seçili / sürüyor / bitti
+  const done = !S && !!d.wo, pr = woProgress(c), pct = pr.all ? Math.round(pr.sets / pr.all * 100) : (done ? 100 : 0);
+  const title = done ? "✓ Bugünkü antrenman" : S ? "Aktif antrenmanım" : "Bugünkü antrenman";
+  const go = S ? "Antrenmana devam et →" : done ? "Karta git →" : "Antrenmana başla →";
   const big = S ? `<button class="bigdone" id="woBig">Antrenmanı bitirdim ✓</button>`
-    : doneToday ? `<button class="bigdone on" id="woBig">✓ Antrenman yapıldı <small>geri almak için dokun</small></button>`
-    : `<button class="bigdone" id="woBig">Antrenmanı yaptım ✓</button>`;
-  el.innerHTML = `<div class="wohead"><h2>${title}</h2>${sel}</div>
-    <p class="small muted" style="margin:6px 0 4px">${sub}</p>
+    : done ? `<button class="bigdone on" id="woBig">✓ Antrenman yapıldı <small>geri almak için dokun</small></button>`
+    : `<button class="bigdone ghostbig" id="woBig">Detay girmeden “yaptım” say ✓</button>`;
+  const stats = (S || pr.sets) ? `<div class="wostats"><div><b>${pr.sets}</b> / ${pr.all} set</div><div><b>${pr.ex}</b> / ${pr.exAll} hareket</div><div><b>${fmt(pr.vol)}</b> kg toplam</div></div>`
+    : done ? `<p class="small muted" style="margin:8px 0 0">Hareket ve kilo detayı girilmedi.</p>` : `<p class="small muted" style="margin:8px 0 0">Henüz başlamadın. Başlayınca hareketleri işaretledikçe ilerlemen burada görünür.</p>`;
+  el.innerHTML = `<div class="wohead"><h2>${title}</h2>${S ? "" : `<button class="ghost small-btn" id="woChange">Değiştir</button>`}</div>
+    <div class="cardname">${esc(c.name)}</div>
+    <div class="bar wbar"><i style="width:${pct}%"></i></div>
+    ${stats}
+    ${c.id ? `<button class="bigdone" data-gocard="${c.id}">${go}</button>` : ""}
     ${big}
-    ${S ? `<div class="wofoot"><button data-open="${S.cardId || ""}">Antrenmana devam et →</button><button class="ghost" id="woCancel">İptal et</button></div>` : ""}
-    <div class="small muted" style="margin:14px 0 2px;font-weight:600">Kartlarım</div>
-    <div class="cardchips" role="group" aria-label="Kartlara git">${root.cards.map(x => `<button type="button" data-open="${x.id}">${esc(x.name)} <span aria-hidden="true">›</span></button>`).join("")}</div>`;
+    ${S ? `<button class="ghost" id="woCancel" style="width:100%;margin-top:6px;min-height:38px">Antrenmanı iptal et</button>` : ""}`;
 }
 // Ana sayfadan dokunulunca antrenman kendiliğinden başlar
 function homeSession(){
   if(root.session) return root.session;
   const c = nextCard(); root.session = makeSession(c); return root.session;
 }
-function markDone(name){ const d = day(today()); root.prevLast = root.lastCard ?? null; root.prevPick = root.pick ?? null; d.wo = name; root.lastCard = name; root.pick = null; }
+function markDone(name){ const d = day(today()); d.rest = false; root.prevLast = root.lastCard ?? null; root.prevPick = root.pick ?? null; d.wo = name; root.lastCard = name; root.pick = null; }
 $("ozWo").addEventListener("click", e => {
   const b = e.target.closest("button"); if(!b) return;
-  const d = b.dataset;
-  if(d.open != null){ goCard(d.open); return; }
+  const d = b.dataset, td = day(today());
+  if(d.choose){ td.rest = false; root.pick = {d: today(), id: d.choose}; save(); renderDay(); return; }
+  if(d.rest){ td.rest = true; root.pick = null; save(); renderDay(); return; }
+  if(b.id === "woChange"){
+    if(td.wo) return ask(`“${td.wo}” yapıldı kaydı silinsin ve kart seçimine dönülsün mü?`, "Değiştir", () => { td.wo = ""; root.lastCard = root.prevLast ?? null; root.pick = null; save(); renderDay(); });
+    td.rest = false; root.pick = null; save(); renderDay(); return;
+  }
+  if(d.gocard != null){
+    const ci = root.cards.findIndex(x => x.id === d.gocard);
+    if(!root.session && !td.wo && ci >= 0){ root.session = makeSession(root.cards[ci]); save(); }
+    goCard(d.gocard); return;
+  }
   if(b.id === "woBig"){
-    const S = root.session, td = day(today());
+    const S = root.session;
     if(S) return finishSession();
     if(td.wo){ td.wo = ""; root.lastCard = root.prevLast ?? null; root.pick = root.prevPick ?? null; save(); renderDay(); toast("Geri alındı: antrenman yapılmadı"); return; }
-    const c = nextCard(); markDone(c.name); save(); renderDay(); toast(`✓ ${c.name} yapıldı olarak kaydedildi`); return;
+    const c = todayCard(); if(!c) return;
+    markDone(c.name); save(); renderDay(); toast(`✓ ${c.name} yapıldı olarak kaydedildi`); return;
   }
   if(b.id === "woCancel") return ask("Aktif antrenman kaydedilmeden kapatılsın mı?", "Kapat", () => { root.session = null; save(); renderDay(); });
 });
-$("ozWo").addEventListener("change", e => {
-  const t = e.target; if(t.id !== "woSel") return;
-  const c = root.cards.find(x => x.id === t.value); if(!c) return;
-  const td = day(today());
-  if(td.wo){ td.wo = c.name; root.lastCard = c.name; toast(`Bugünkü antrenman: ${c.name}`); }
-  else root.pick = {d: today(), id: c.id};
-  save(); renderDay();
+$("ozWo").addEventListener("input", e => {
+  if(e.target.id === "hoSteps"){ day(today()).st = e.target.value; save(); const v = $("ozWo").querySelector(".stepbox .v"); if(v) v.textContent = e.target.value ? fmt(e.target.value) : "—"; }
 });
 // Kart kısayolu: Kartlar sayfasında o kartı açar (aktif antrenmanın kartıysa antrenmanı)
 let listOverride = false;
