@@ -647,6 +647,11 @@
     #vOzet .rw{max-width:132px}
     #ozWo{grid-column:1;grid-row:2}
     #ozCardio{grid-column:2;grid-row:2;align-self:stretch}
+    #ozWeek{grid-column:1 / -1;grid-row:1;margin-bottom:0}
+    #vOzet:has(#ozWeek:not([hidden])){grid-template-rows:auto auto auto auto}
+    #vOzet:has(#ozWeek:not([hidden])) > .card:first-child,#vOzet:has(#ozWeek:not([hidden])) #ozTasks{grid-row:2}
+    #vOzet:has(#ozWeek:not([hidden])) #ozWo,#vOzet:has(#ozWeek:not([hidden])) #ozCardio,#vOzet:has(#ozWeek:not([hidden])) #ozStreak{grid-row:3}
+    #vOzet:has(#ozWeek:not([hidden])) #ozTrack{grid-row:4} #vOzet:has(#ozWeek:not([hidden])) #ozMove{grid-row:5}
     #ozStreak{grid-column:3;grid-row:2}
     #ozWo,#ozStreak,#ozCardio{align-self:stretch;display:flex;flex-direction:column}
     #ozStreak .bdrow{margin-top:auto;padding-top:12px}
@@ -724,6 +729,16 @@
   .skheat i{aspect-ratio:1;border-radius:3px;background:var(--card)}
   .skheat i.on{background:var(--accent)} .skheat i.t{outline:1.5px solid var(--ink);outline-offset:-1px}
   .skf{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)} .skf b{color:var(--ink)}
+
+  .ovl{display:flex;align-items:center;gap:8px;margin-top:6px;padding:6px 8px 6px 10px;border-radius:10px;background:var(--card-2);font-size:12px}
+  .ovl span{flex:1} .ovl svg.i{color:var(--accent);flex:none}
+  .ovl.up{background:var(--accent-soft)} .ovl.down svg.i{color:#ff6b6b}
+  .ovl .small-btn{min-height:28px;padding:3px 10px;font-size:12px}
+  .exi .exo{font-weight:700} .exi .exo.up{color:var(--accent)!important} .exi .exo.down{color:#ff6b6b!important}
+  .wrv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  @media (max-width:800px){ .wrv{grid-template-columns:1fr} }
+  .wrc{background:var(--card-2);border-radius:14px;padding:12px;font-size:13px}
+  .wrc .tipl+.tipl{margin-top:6px} .wrc svg.i{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -797,6 +812,7 @@
         <div class="wstrip" id="wStrip" hidden></div>
       </div>
       <div class="card" id="ozWo"></div>
+      <div class="card" id="ozWeek" hidden></div>
       <div class="card" id="ozCardio"></div>
       <div class="card" id="ozStreak"></div>
       <div class="card" id="ozTasks"></div>
@@ -1029,6 +1045,7 @@
     <!-- İLERLEME -->
     <section id="tProg" hidden data-tab="genel">
       <div class="ptabs seg" id="ptabs"><button data-ptab="genel">Genel</button><button data-ptab="antrenman">Antrenman</button><button data-ptab="beslenme">Beslenme</button><button data-ptab="vucut">Vücut</button><button data-ptab="aliskanlik">Alışkanlıklar</button><button data-ptab="takviye">Takviyeler</button><button data-ptab="rozet">Rozetler</button></div>
+      <div data-pt="genel" class="card" style="grid-column:1 / -1" id="pgWeek"></div>
       <div data-pt="genel" class="card" style="grid-column:1 / -1"><h2><i data-i="flame"></i> Bütün seriler</h2><div class="sklist" id="pgAll"></div></div>
       <div data-pt="beslenme" class="card" style="grid-column:1 / -1"><h2><i data-i="utensils"></i> Beslenme serileri</h2><div class="sklist" id="pgNut"></div></div>
       <div data-pt="antrenman" class="card" style="grid-column:1 / -1"><h2><i data-i="dumbbell"></i> Antrenman serisi</h2><div class="sklist" id="pgWo"></div></div>
@@ -1827,7 +1844,36 @@ function skItem(ic, name, ok, sub){
     <div class="skheat">${last.map(ds => `<i class="${ok(ds) ? "on" : ""} ${ds === today() ? "t" : ""}" title="${ds}"></i>`).join("")}</div>
     <div class="skf"><span>En uzun <b>${best} gün</b></span><span>Son 30 gün <b>%${pct}</b></span></div></div>`;
 }
+// ---------- Haftanın özeti (Pazar akşamı / Pazartesi ana sayfada, her zaman İlerleme → Genel) ----------
+function weekReview(mon){
+  const g = root.goals, st = weekStats(mon), W = weeklyTasks(mon), prev = weekStats(shift(mon, -7)), good = [], bad = [], next = [];
+  for(const [, t, v, goal] of W) (v >= goal ? good : bad).push(v >= goal ? `${t} tamam` : `${t}: ${fmt(Math.min(v, goal))}/${fmt(goal)}`);
+  if(st.p != null){ if(st.p >= g.p * .95) good.push(`Protein ortalaman ${fmt(st.p)} g`); else bad.push(`Protein ortalaman ${fmt(st.p)} g, hedef ${g.p} g`); }
+  if(st.net != null){ (st.net < 0 ? good : bad).push(`Toplam ${st.net < 0 ? "açık" : "fazla"} ${fmt(Math.abs(st.net))} kcal (≈ ${String(Math.round(Math.abs(st.net) / 7700 * 100) / 100).replace(".", ",")} kg yağ)`); }
+  if(st.kg != null && prev.kg != null){ const d = Math.round((st.kg - prev.kg) * 10) / 10, k = +g.kgW || 0; (k ? (Math.sign(d) === Math.sign(k) || !d ? good : bad) : good).push(`Kilo ${d > 0 ? "+" : ""}${String(d).replace(".", ",")} kg${k ? ` (hedef ${String(k).replace(".", ",")} kg/hafta)` : ""}`); }
+  const wo = W[0]; if(wo[2] < wo[3]) next.push(`Antrenman günlerini takvime şimdiden yaz: ${wo[3]} gün hedefi için ${wo[3] - wo[2]} gün daha lazım.`);
+  else next.push(`Antrenman hedefini tuttun; gelecek hafta ana hareketlerde 2,5 kg artırmayı dene.`);
+  if(st.p != null && st.p < g.p * .95) next.push(`Her öğüne bir protein ekle (yumurta, süzme yoğurt, tavuk) — günde ${fmt(g.p - st.p)} g eksik kalıyor.`);
+  const wt = W.find(t => t[1].includes("su")); if(wt && wt[2] < wt[3]) next.push("Su hatırlatmasını aç (Su sayfası) — 5 gün hedefinin altında kaldın.");
+  const steps = W.find(t => t[1].includes("adım")); if(steps && steps[2] < steps[3] * .8) next.push(`Günlük ${fmt(Math.ceil((steps[3] - steps[2]) / 7 / 500) * 500)} adım fazladan yürüyüş ekle.`);
+  return {good, bad, next: next.slice(0, 3)};
+}
+function weekReviewHtml(mon, closable){
+  const R = weekReview(mon), sun = shift(mon, 6);
+  return `<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px"><h2 style="margin:0">${I("calendar")} Haftanın özeti</h2><span class="small muted">${dayName(mon, {day:"numeric", month:"short"})} – ${dayName(sun, {day:"numeric", month:"short"})}</span>${closable ? `<button class="icon" id="wkClose" aria-label="Kapat">✕</button>` : ""}</div>
+    <div class="wrv"><div class="wrc"><div class="rgh">İyi gidenler</div>${R.good.map(t => `<div class="tipl">${I("check")}<span>${esc(t)}</span></div>`).join("") || `<p class="small muted" style="margin:0">Bu hafta pek kayıt yok.</p>`}</div>
+    <div class="wrc"><div class="rgh">Dikkat</div>${R.bad.map(t => `<div class="tipl">${I("alert")}<span>${esc(t)}</span></div>`).join("") || `<p class="small muted" style="margin:0">Her şey hedefte!</p>`}</div>
+    <div class="wrc"><div class="rgh">Gelecek hafta</div>${R.next.map(t => `<div class="tipl">${I("target")}<span>${esc(t)}</span></div>`).join("")}</div></div>`;
+}
+function renderWeekCard(){
+  const dow = new Date(today() + "T12:00").getDay(), hr = new Date().getHours();
+  const mon = dow === 1 ? shift(monOf(today()), -7) : monOf(today()), show = cur === today() && ((dow === 0 && hr >= 17) || dow === 1) && !(root.wkSeen || {})[mon];
+  $("ozWeek").hidden = !show; if(!show) return;
+  $("ozWeek").innerHTML = weekReviewHtml(mon, true);
+  $("wkClose").onclick = () => { root.wkSeen = root.wkSeen || {}; root.wkSeen[mon] = 1; save(); renderWeekCard(); };
+}
 function renderProgTabs(){
+  { const dow = new Date(today() + "T12:00").getDay(), mon = dow === 0 || dow >= 5 ? monOf(today()) : shift(monOf(today()), -7); $("pgWeek").innerHTML = weekReviewHtml(mon, false); }
   $("tProg").dataset.tab = progTab;
   for(const b of document.querySelectorAll("[data-ptab]")) b.classList.toggle("on", b.dataset.ptab === progTab);
   const H = root.habits || [], S = root.supp || [];
@@ -2158,7 +2204,7 @@ document.addEventListener("click", e => {
 });
 $("spForm").onsubmit = e => { e.preventDefault(); const n = $("spName").value.trim(); if(!n) return; root.supp = root.supp || []; root.supp.push({id: Math.random().toString(36).slice(2, 8), name: n, dose: $("spDose").value.trim()}); $("spName").value = $("spDose").value = ""; save(); renderSupp(); };
 function renderHareket(d){
-  checkBadges(); if(tab === "ozet"){ renderStreaks(); renderTasks(); renderCardio(); }
+  checkBadges(); if(tab === "ozet"){ renderStreaks(); renderTasks(); renderCardio(); renderWeekCard(); }
   renderSupp(); renderHab(); renderTrack();
   renderMeas();
   if($("hWoS")) $("hWoS").innerHTML = d.wo ? `<span style="color:var(--good);font-weight:700">✓ ${esc(d.wo)}</span>${+d.ca > 0 ? ` · ${fmt(+d.ca)} dk kardiyo` : ""}` : (+d.ca > 0 ? `${fmt(+d.ca)} dk kardiyo` : "Bu gün antrenman yok");
@@ -2349,7 +2395,7 @@ function renderCards(){
     <div class="card"><div class="wbody" style="margin-top:0">
         ${c.ex.map((x, xi) => { const e = EXM[x.id]; if(!e) return ""; const l = lastLift(x.id);
           if(!ed) return `<button class="exv" data-info="${e.id}"><span class="exn">${xi + 1}</span><div class="mthumb sm">${muscSvg(e.id)}</div>
-            <div class="exi"><b>${esc(e.tr)}</b><small>${esc(muscTxt(e.id))}</small>${l ? `<small class="exl">Son: ${esc(liftText(l))}</small>` : ""}</div>
+            <div class="exi"><b>${esc(e.tr)}</b><small>${esc(muscTxt(e.id))}</small>${l ? `<small class="exl">Son: ${esc(liftText(l))}</small>` : ""}${(o => o && o.t !== "keep" ? `<small class="exo ${o.t}">${o.t === "up" ? "↑" : "↓"} ${esc(o.msg.split("→")[1].trim())}</small>` : "")(overload(x.id, +x.r || 10))}</div>
             <span class="exs"><b>${x.s}×${x.r}</b><small>${unit(e)}</small></span></button>`;
           return `<div class="exrow">
             <div class="mthumb sm">${muscSvg(e.id)}</div>
@@ -2401,6 +2447,7 @@ $("tCards").addEventListener("click", e => {
   if(b.id === "newCard"){ openSheet(`<h2>Yeni kart</h2><input id="ncIn" placeholder="Örn. Pazartesi – İtiş" maxlength="40"><div class="row" style="margin-top:12px"><button class="ghost" data-close style="flex:1">Vazgeç</button><button id="ncOk" style="flex:1">Oluştur</button></div>`); $("ncOk").onclick = () => { const v = $("ncIn").value.trim(); if(!v) return; const c = card(v, []); root.cards.push(c); openCard = cardPage = c.id; editCard = c.id; save(); closeSheet(); renderCards(); }; return; }
   // antrenman modu
   if(d.ok){ const [xi, si] = d.ok.split(":").map(Number); const st = root.session.ex[xi].sets[si]; st.done = !st.done; save(); renderSession(); return; }
+  if(d.ovl){ const [xi, kg] = d.ovl.split(":"); for(const st of root.session.ex[+xi].sets) if(!st.done) st.kg = kg; save(); renderSession(); toast(`${String(kg).replace(".", ",")} kg uygulandı`); return; }
   if(d.addset){ const x = root.session.ex[+d.addset]; const last = x.sets[x.sets.length - 1] || {kg:"", r:""}; x.sets.push({kg:last.kg, r:last.r, done:false}); save(); renderSession(); return; }
   if(b.id === "sesEnd") return finishSession();
   if(b.id === "sesCancel") return ask("Antrenman kaydedilmeden kapatılsın mı?", "Kapat", () => { root.session = null; save(); renderCards(); });
@@ -2577,12 +2624,24 @@ function goCard(id){
   openCard = id || openCard; cardPage = id || null;
   setTab("cards");
 }
+// Kilo artırma önerisi (kademeli yüklenme): son kayıtlara ve kartın hedef tekrarına göre
+function overload(id, targetR){
+  const e = EXM[id]; if(!e || e.u) return null;
+  const a = (root.lifts[id] || []).filter(l => l.d < today() && l.s.some(z => z[0] > 0)); if(!a.length) return null;
+  const L = a[a.length - 1], P = a[a.length - 2], kg = Math.max(...L.s.map(z => z[0])), top = L.s.filter(z => z[0] === kg);
+  const hit = l => { const k = Math.max(...l.s.map(z => z[0])); return l.s.filter(z => z[0] === k).every(z => z[1] >= targetR); };
+  const step = /Dumbbell|Curl|Raise|Fly|Extension|Kickback|Shrug/i.test(id) ? 1 : 2.5, f = x => String(Math.round(x * 2) / 2).replace(".", ",");
+  if(hit(L)) return {kg: kg + step, t: "up", msg: `Geçen sefer ${f(kg)} kg × ${targetR} tamam → bugün ${f(kg + step)} kg dene`};
+  if(P && !hit(P) && Math.max(...P.s.map(z => z[0])) === kg) return {kg: Math.round(kg * .9 * 2) / 2, t: "down", msg: `${f(kg)} kg'da 2 kez hedef tekrara ulaşamadın → ${f(Math.round(kg * .9 * 2) / 2)} kg'a düşüp tekniği oturt`};
+  const best = Math.max(...top.map(z => z[1]));
+  return {kg, t: "keep", msg: `${f(kg)} kg'da kal, hedef ${targetR} tekrar (geçen sefer en çok ${best})`};
+}
 function renderSession(){
   const S = root.session;
   $("tCards").innerHTML = `<div class="card">
     <div class="row" style="justify-content:space-between;align-items:center"><div><h2 style="margin:0">${esc(S.card)}</h2><div class="small muted">${dayName(S.date, {weekday:"long", day:"numeric", month:"long"})}</div></div><div class="wotop" style="align-items:center"><span class="pill">${S.ex.reduce((a, x) => a + x.sets.filter(s => s.done).length, 0)} / ${S.ex.reduce((a, x) => a + x.sets.length, 0)} set</span><button class="ghost small-btn" id="sesEnd">Bitir ve kaydet ✓</button><button class="ghost small-btn" id="sesCancel">İptal et</button></div></div>
     ${S.ex.map((x, xi) => { const e = EXM[x.id], l = lastLift(x.id); return `<div class="logex">
-      <div class="row" style="align-items:center;flex-wrap:nowrap"><div style="width:72px;flex:none">${anim(e.id, e.tr)}</div><div style="flex:1"><h3><button data-info="${e.id}" style="all:unset;cursor:pointer">${esc(e.tr)}</button></h3><div class="small muted">${l ? "Geçen sefer: " + esc(liftText(l)) : "İlk sefer, rahat bir kiloyla başla"}</div></div></div>
+      <div class="row" style="align-items:center;flex-wrap:nowrap"><div style="width:72px;flex:none">${anim(e.id, e.tr)}</div><div style="flex:1"><h3><button data-info="${e.id}" style="all:unset;cursor:pointer">${esc(e.tr)}</button></h3><div class="small muted">${l ? "Geçen sefer: " + esc(liftText(l)) : "İlk sefer, rahat bir kiloyla başla"}</div>${(o => o ? `<div class="ovl ${o.t}">${I(o.t === "up" ? "trend" : o.t === "down" ? "trenddown" : "target")}<span>${esc(o.msg)}</span>${o.t !== "keep" ? `<button class="small-btn" data-ovl="${xi}:${o.kg}">Uygula</button>` : ""}</div>` : "")(overload(x.id, +((root.cards.find(c => c.id === S.cardId) || {ex: []}).ex.find(y => y.id === x.id) || {}).r || 10))}</div></div>
       <div class="sets"><span class="h">Set</span><span class="h">${e.u ? "" : "kg"}</span><span class="h">${unit(e)}</span><span></span>
       ${x.sets.map((s, si) => `<span class="i">${si + 1}</span>${e.u ? "<span></span>" : `<input type="number" inputmode="decimal" step="0.5" min="0" value="${esc(s.kg)}" data-kg="${xi}:${si}" aria-label="${si+1}. set kg">`}<input type="number" inputmode="numeric" min="0" value="${esc(s.r)}" data-rp="${xi}:${si}" aria-label="${si+1}. set ${unit(e)}"><button class="${s.done ? "done" : "ghost"}" data-ok="${xi}:${si}" aria-label="${si+1}. set tamam">✓</button>`).join("")}
       </div><button class="ghost" data-addset="${xi}" style="margin-top:8px;min-height:36px">+ Set</button></div>`; }).join("")}
@@ -2769,7 +2828,7 @@ function weekStats(mon){
   const ate = D.filter(o => o.d.f.length), avg = (a, f) => a.length ? a.reduce((t, o) => t + f(o), 0) / a.length : null;
   const net = ate.filter(o => burnedOf(o.x).v > 0).reduce((t, o) => t + sum(o.d).k - burnedOf(o.x).v, 0);
   const st = D.filter(o => +o.d.st > 0), kg = D.filter(o => +o.d.kg > 0);
-  return {k: avg(ate, o => sum(o.d).k), p: avg(ate, o => sum(o.d).p), net: ate.length ? net : null, wo: D.filter(o => o.d.wo).length, st: avg(st, o => +o.d.st), kg: kg.length ? +kg[kg.length - 1].d.kg : null, days: ds.length};
+  return {k: avg(ate, o => sum(o.d).k), p: avg(ate, o => sum(o.d).p), net: ate.some(o => burnedOf(o.x).v > 0) ? net : null, wo: D.filter(o => o.d.wo).length, st: avg(st, o => +o.d.st), kg: kg.length ? +kg[kg.length - 1].d.kg : null, days: ds.length};
 }
 function renderReport(){
   const mon = (() => { const d = new Date(today() + "T12:00"); return shift(today(), -((d.getDay() + 6) % 7)); })();
