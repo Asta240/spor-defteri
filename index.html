@@ -268,7 +268,6 @@
   .prof{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   .bmrl{display:block;font-size:11px;color:var(--muted);margin-top:2px;font-weight:500}
   #dnav button{border-color:transparent}
-  #vHedef .stack .f{flex:none}
   .dlab{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:4px 12px 2px}
   .estb{font-size:10px;font-weight:700;color:var(--warn);background:var(--warn-soft);border-radius:99px;padding:1px 6px;margin-left:2px;vertical-align:1px}
   .err{color:var(--bad);margin:8px 0 0;min-height:0}
@@ -481,6 +480,8 @@
   .cup{border-color:#4dabf7!important} .cup.f{background:#4dabf7!important}
   .wd2 .wb i{background:#4dabf7!important}
   .dlab{text-transform:uppercase;letter-spacing:.1em!important;font-weight:800!important}
+  .gfields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+  @media (min-width:1000px){ #vHedef{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch} #vHedef>*{margin:0} }
   .hkSteps{padding-left:20px;margin:12px 0;font-size:14px;display:flex;flex-direction:column;gap:6px}
   #hkUrl{font-size:13px}
   .kgoal{margin-top:10px;background:var(--card-2);border-radius:12px;padding:10px 12px;font-size:14px}
@@ -736,18 +737,34 @@
 
     <!-- HEDEFLER -->
     <section id="vHedef" hidden>
-      <div class="card">
-        <div class="stack">
+      <div class="card gseg">
+        <div class="hhead"><span class="hico"><i data-i="utensils"></i></span><div><h2 style="margin:0">Beslenme</h2><div class="small muted">Günlük alım hedeflerin</div></div></div>
+        <div class="gfields">
           <label class="f">Kalori (kcal)<input id="gk" type="number" inputmode="numeric" min="0"></label>
           <label class="f">Protein (g)<input id="gp" type="number" inputmode="numeric" min="0"></label>
-          <label class="f">Su (bardak)<input id="gw" type="number" inputmode="numeric" min="1"></label>
+          <label class="f">Karbonhidrat (g)<input id="gc" type="number" inputmode="numeric" min="0" placeholder="Boşsa otomatik"></label>
+          <label class="f">Yağ (g)<input id="gy" type="number" inputmode="numeric" min="0" placeholder="Boşsa otomatik"></label>
+        </div>
+        <p class="small muted" style="margin:10px 0 0">Karbonhidrat ve yağ boş kalırsa kaloriye göre otomatik hesaplanır.</p>
+      </div>
+      <div class="card gseg">
+        <div class="hhead"><span class="hico"><i data-i="flame"></i></span><div><h2 style="margin:0">Aktivite</h2><div class="small muted">Hareket ve yakım</div></div></div>
+        <div class="gfields">
           <label class="f">Adım<input id="gst" type="number" inputmode="numeric" min="0"></label>
           <label class="f">Yakılan (kcal)<input id="gbu" type="number" inputmode="numeric" min="0"></label>
-          <label class="f">Yağ (g)<input id="gy" type="number" inputmode="numeric" min="0" placeholder="Boşsa otomatik"></label>
-          <label class="f">Karbonhidrat (g)<input id="gc" type="number" inputmode="numeric" min="0" placeholder="Boşsa otomatik"></label>
+        </div>
+      </div>
+      <div class="card gseg">
+        <div class="hhead"><span class="hico" style="color:#4dabf7"><i data-i="droplet"></i></span><div><h2 style="margin:0">Su</h2><div class="small muted">1 bardak = 250 ml</div></div></div>
+        <div class="gfields">
+          <label class="f">Su (bardak)<input id="gw" type="number" inputmode="numeric" min="1"></label>
+        </div>
+      </div>
+      <div class="card gseg">
+        <div class="hhead"><span class="hico"><i data-i="scale"></i></span><div><h2 style="margin:0">Vücut</h2><div class="small muted">Kilo hedefin</div></div></div>
+        <div class="gfields">
           <label class="f">Hedef kilo (kg)<input id="gkg" type="number" inputmode="decimal" step="0.1" min="30" max="300" placeholder="Örn. 72"></label>
         </div>
-        <p class="small muted" style="margin:10px 0 0">Ana sayfadaki halkalar bu hedeflere göre dolar.</p>
       </div>
     </section>
 
