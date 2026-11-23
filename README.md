@@ -1,4 +1,4 @@
-# Spor Defteri · CardiacAI
+# Spor Defteri · Yas
 
 Kalori, protein, su, adım takibi + antrenman kartları + ağırlık defteri + kilo takibi.
 Sınav Haftası Asistanı ile aynı altyapı (4 haneli kodla giriş), ama **kendi ayrı veritabanı** var. Site Vercel'de, veritabanı Upstash'te. İkisi de ücretsiz, kart istemez.

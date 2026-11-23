@@ -1,4 +1,6 @@
-# Spor Defteri — CardiacAI (devir notu)
+# Spor Defteri — Yas (devir notu)
+
+Kişisel proje: imza **Yas** (CardiacAI değil; CardiacAI sadece Sınav Asistanı'nın grup adı).
 
 Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (repo Asta240/sinav-asistani) ile aynı altyapı ve görünüm.
 
