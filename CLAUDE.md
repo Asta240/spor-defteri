@@ -73,3 +73,7 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Kilo artırma önerisi `overload(id, hedefTekrar)`: son kayıtta en ağır setler hedef tekrara ulaştıysa +2,5 kg (dambıl/izole +1), 2 kez ulaşamadıysa %10 düş, yoksa kal. Antrenman ekranında (Uygula → tamamlanmamış setlere kg) ve kart sayfasında.
 - Haftanın özeti `weekReview/weekReviewHtml`: Pazar 17:00 sonrası ve Pazartesi ana sayfada (`#ozWeek`, ✕ ile `root.wkSeen[pazartesi]`), İlerleme → Genel’de her zaman (`#pgWeek`). İyi gidenler / Dikkat / Gelecek hafta.
 - Boş gün antrenman sayılmaz: okWo sadece d.wo; antrenman serisi haftalık (woWeekOk/woWeekStreak/woWeekBest, goals.woW); takvimde boş gün kesik çerçeve + açıklama.
+- Kas yorgunluğu: `fatigue()`/`renderFatigue()` (İlerleme → Antrenman, #fgBox): son 4 gün, birincil kas set başı 1, yardımcı 0,5, günde %25 azalır; `bodySvg` artık renk fonksiyonu da alır (f1/f2/f3).
+- Birleşik grafik: `renderCombo()` (#cmFig, Genel + Vücut): kilo/kalori/adım son 30 gün, her biri kendi aralığına ölçekli, dokununca o günün değerleri.
+- Hareket notları: `root.exNotes={exId: metin}`; showEx'te textarea, kart listesinde ve antrenmanda gösterilir.
+- Yenilikler penceresi: `NEWS={id, items}` + `maybeNews()`; açılışta bir kez, "Tamam" → `root.newsSeen` (+ localStorage `sd-news`). Yeni hesap görmez. Yeni yenilikte NEWS.id'yi değiştir. Update log sayfası YOK (Yasin istemedi).

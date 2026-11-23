@@ -343,6 +343,16 @@
   .musc{width:100%;height:auto;display:block}
   .musc .m0{fill:var(--line)} .musc .mh{fill:var(--card-2);stroke:var(--line);stroke-width:1}
   .musc .mp{fill:#ff6b6b} .musc .ms{fill:#ff6b6b;opacity:.45}
+  .musc .f1{fill:var(--accent);opacity:.3} .musc .f2{fill:var(--accent);opacity:.65} .musc .f3{fill:var(--accent)}
+  .fgwrap{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap} .fgwrap .musc{width:220px;max-width:100%;flex:none}
+  .fglist{flex:1 1 200px;display:grid;gap:6px} .fgr{display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:6px 10px;border-radius:10px;background:var(--card-2)} .fgr small{color:var(--muted)}
+  .fgdot{display:inline-block;width:9px;height:9px;border-radius:3px;background:var(--accent);margin-right:6px;vertical-align:0}
+  .fgleg{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
+  .cmleg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:6px} .cmleg i{display:inline-block;width:12px;height:3px;border-radius:2px;margin-right:5px;vertical-align:3px}
+  .cmval{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin-top:6px;min-height:20px} .cmval b{font-weight:700}
+  .exnote{width:100%;min-height:64px;resize:vertical;font:inherit;font-size:14px;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--card-2);color:var(--ink)}
+  .exi .exnt,.lognote{color:var(--muted);font-style:italic}
+  .nwl{display:grid;gap:10px} .nwi{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;background:var(--card-2)} .nwi b{font-size:14px} .nwi p{margin:2px 0 0;font-size:13px;color:var(--muted)}
   .mthumb{background:var(--card-2);border-radius:12px;padding:8px 6px;aspect-ratio:16/11;display:grid;place-items:center}
   .mthumb.sm{width:72px;padding:4px;border-radius:10px;flex:none}
   .exc .mthumb{aspect-ratio:16/10}
@@ -1058,6 +1068,12 @@
       <div data-pt="aliskanlik" class="card" style="grid-column:1 / -1"><h2><i data-i="check"></i> Alışkanlıklar</h2><div class="sklist" id="pgHab"></div></div>
       <div data-pt="takviye" class="card" style="grid-column:1 / -1"><h2><i data-i="pill"></i> Takviyeler</h2><div class="sklist" id="pgSupp"></div></div>
       <div data-pt="vucut" class="card"><h2><i data-i="ruler"></i> Ölçüler</h2><div id="pgMeas"></div></div>
+      <div data-pt="genel vucut" class="card" style="grid-column:1 / -1">
+        <h2><i data-i="trend"></i> Kilo · kalori · adım (son 30 gün)</h2>
+        <div class="fig" id="cmFig" style="height:220px"></div>
+        <div class="cmleg"><span><i style="background:var(--ink)"></i>Kilo</span><span><i style="background:var(--accent)"></i>Alınan kalori</span><span><i style="background:#5b9cf5"></i>Adım</span></div>
+        <div class="cmval" id="cmVal"></div>
+      </div>
       <div data-pt="genel" class="card" style="grid-column:1 / -1">
         <h2><i data-i="chartbar"></i> Haftalık rapor</h2>
         <div class="rpgrid" id="rpGrid"></div>
@@ -1078,6 +1094,10 @@
           <div class="row" style="gap:4px"><button class="ghost small-btn" id="calPrev" aria-label="Önceki ay">‹</button><b id="calMon" style="min-width:110px;text-align:center;font-size:14px"></b><button class="ghost small-btn" id="calNext" aria-label="Sonraki ay">›</button></div></div>
         <div class="cal" id="calGrid"></div>
         <div class="rpgrid c3" id="calStats" style="margin-top:12px"></div>
+      </div>
+      <div data-pt="antrenman" class="card">
+        <h2><i data-i="zap"></i> Kas yorgunluğu</h2>
+        <div id="fgBox"></div>
       </div>
       <div data-pt="antrenman" class="card">
         <h2><i data-i="chartbar"></i> Haftada kaç gün gittin</h2>
@@ -1324,8 +1344,8 @@ const GEN_TIP = {"Göğüs":["İtişte nefes ver, inişte al.","İniş 2–3 sn,
 const MUS_TR = {ch:"Göğüs", sh:"Omuz", bi:"Biceps", tri:"Triceps", fa:"Ön kol", ab:"Karın", qu:"Ön bacak", ha:"Arka bacak", gl:"Kalça", ca:"Baldır", la:"Kanat", mb:"Orta sırt", lb:"Bel", tr:"Trapez", add:"İç bacak", abd:"Dış kalça"};
 const mir = (d, cx) => d.replace(/([ML]|Q| )(-?[\d.]+) (-?[\d.]+)/g, (m, c, x, y) => `${c}${(2 * cx - +x).toFixed(1)} ${y}`);
 function bodySvg(prim, sec, cls){
-  const P = new Set(prim || []), S = new Set(sec || []);
-  const f = k => P.has(k) ? "mp" : S.has(k) ? "ms" : "m0";
+  const P = new Set(typeof prim === "function" ? [] : prim || []), S = new Set(sec || []);
+  const f = typeof prim === "function" ? prim : k => P.has(k) ? "mp" : S.has(k) ? "ms" : "m0";
   const pair = (k, d, cx) => `<path class="${f(k)}" d="${d}"/><path class="${f(k)}" d="${mir(d, cx)}"/>`;
   const el = (k, x, y, rx, ry, cx) => `<ellipse class="${f(k)}" cx="${x}" cy="${y}" rx="${rx}" ry="${ry}"/><ellipse class="${f(k)}" cx="${2 * cx - x}" cy="${y}" rx="${rx}" ry="${ry}"/>`;
   const body = cx => `<circle class="mh" cx="${cx}" cy="15" r="9"/><rect class="mh" x="${cx-4}" y="23" width="8" height="6" rx="2"/>`;
@@ -1448,6 +1468,20 @@ const today = () => iso(new Date());
 const shift = (s, n) => { const d = new Date(s+"T12:00"); d.setDate(d.getDate()+n); return iso(d); };
 const dayName = (s, o) => new Date(s+"T12:00").toLocaleDateString("tr-TR", o);
 const blankDay = () => ({f:[], w:0, wo:"", ca:"", st:"", bu:"", kg:""});
+// Yenilikler: siteyi açınca bir kez çıkar, "Tamam"a basınca bir daha çıkmaz. Yeni yenilik eklerken NEWS.id'yi değiştir.
+const NEWS = {id:"2026-11-23", items:[
+  ["zap", "Kas yorgunluğu", "İlerleme → Antrenman: son günlerde çalıştırdığın kaslar vücut haritasında renkli görünür, hangisinin dinlendiğini görürsün."],
+  ["trend", "Kilo · kalori · adım grafiği", "İlerleme → Genel: üçü tek grafikte. Grafiğe dokununca o günün değerleri çıkar."],
+  ["edit", "Hareket notları", "Bir harekete dokun → Notun. Koltuk kademesi gibi notların kartta ve antrenmanda görünür."],
+  ["calendar", "Boş günler", "Boş gün artık antrenman sayılmıyor; antrenman serisi haftalık hedefe göre."]]};
+function maybeNews(){
+  let ls = null; try{ ls = localStorage.getItem("sd-news"); }catch(e){}
+  if(!root || root.newsSeen === NEWS.id || ls === NEWS.id || !$("modal").hidden) return;
+  openSheet(`<h2 style="margin:0 0 4px">${I("bell")} Yenilikler</h2><p class="small muted" style="margin:0 0 12px">Siteye eklenenler</p>
+    <div class="nwl">${NEWS.items.map(([ic, t, d]) => `<div class="nwi"><span class="hico sm">${I(ic)}</span><div><b>${esc(t)}</b><p>${esc(d)}</p></div></div>`).join("")}</div>
+    <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="small-btn" id="newsOk">Tamam</button></div>`);
+  $("newsOk").onclick = () => { root.newsSeen = NEWS.id; try{ localStorage.setItem("sd-news", NEWS.id); }catch(e){} save(); closeSheet(); };
+}
 const freshRoot = () => ({v:1, goals:{k:2100, p:130, w:12, st:8000, bu:2500}, days:{}, cards:defaultCards(), lifts:{}, session:null, _ver:0, _dirty:true});
 const FIELDS = ["wo","ca","st","bu","kg"];
 let CUR = "", root = null, cur = today(), tab = (() => { try{ return localStorage.getItem("sd-tab") || "ozet"; }catch(e){ return "ozet"; } })(), grp = "Tümü";
@@ -1458,6 +1492,7 @@ function lsDel(k){ try{ localStorage.removeItem(k); }catch(e){} }
 const storeKey = () => "sd-root-" + CUR;
 function fixRoot(r){
   const f = freshRoot();
+  if(!r) f.newsSeen = NEWS.id; // yeni hesap yenilikleri görmez
   r = Object.assign(f, r || {});
   r.goals = Object.assign({k:2100, p:130, w:12, st:8000, bu:2500, woW:3, caW:60, weW:2}, r.goals || {});
   r.days = r.days || {}; r.lifts = r.lifts || {}; r.cards = Array.isArray(r.cards) ? r.cards : [];
@@ -1523,6 +1558,7 @@ function startApp(code, r){
   applyPendingVeri();
   if(ONLINE()){ poll(); setInterval(() => { if(!document.hidden) poll(); }, 30000); document.addEventListener("visibilitychange", () => { if(!document.hidden) poll(); }); }
   else lsSet(storeKey(), JSON.stringify(root));
+  setTimeout(maybeNews, 800);
 }
 // Giriş yolları: kullanıcı adı + şifre, Google, eski kod. Hepsi sonunda hesabın koduna çıkar.
 let GID = null;
@@ -1679,7 +1715,8 @@ function bindProf(){
 
 // ================= PENCERE / BİLDİRİM =================
 function openSheet(html){ $("sheet").innerHTML = html; $("modal").hidden = false; document.body.style.overflow = "hidden"; const f = $("sheet").querySelector("button,input,select,a"); if(f) f.focus(); }
-function closeSheet(){ $("modal").hidden = true; document.body.style.overflow = ""; }
+let noteDirty = false;
+function closeSheet(){ $("modal").hidden = true; document.body.style.overflow = ""; if(noteDirty){ noteDirty = false; renderAll(); } }
 $("modal").addEventListener("click", e => { if(e.target === $("modal") || e.target.closest("[data-close]")) closeSheet(); });
 document.addEventListener("keydown", e => { if(e.key === "Escape" && !$("modal").hidden) closeSheet(); });
 let toastT = null;
@@ -2409,7 +2446,7 @@ function renderCards(){
     <div class="card"><div class="wbody" style="margin-top:0">
         ${c.ex.map((x, xi) => { const e = EXM[x.id]; if(!e) return ""; const l = lastLift(x.id);
           if(!ed) return `<button class="exv" data-info="${e.id}"><span class="exn">${xi + 1}</span><div class="mthumb sm">${muscSvg(e.id)}</div>
-            <div class="exi"><b>${esc(e.tr)}</b><small>${esc(muscTxt(e.id))}</small>${l ? `<small class="exl">Son: ${esc(liftText(l))}</small>` : ""}${(o => o && o.t !== "keep" ? `<small class="exo ${o.t}">${o.t === "up" ? "↑" : "↓"} ${esc(o.msg.split("→")[1].trim())}</small>` : "")(overload(x.id, +x.r || 10))}</div>
+            <div class="exi"><b>${esc(e.tr)}</b><small>${esc(muscTxt(e.id))}</small>${l ? `<small class="exl">Son: ${esc(liftText(l))}</small>` : ""}${(root.exNotes || {})[e.id] ? `<small class="exnt">${esc(root.exNotes[e.id])}</small>` : ""}${(o => o && o.t !== "keep" ? `<small class="exo ${o.t}">${o.t === "up" ? "↑" : "↓"} ${esc(o.msg.split("→")[1].trim())}</small>` : "")(overload(x.id, +x.r || 10))}</div>
             <span class="exs"><b>${x.s}×${x.r}</b><small>${unit(e)}</small></span></button>`;
           return `<div class="exrow">
             <div class="mthumb sm">${muscSvg(e.id)}</div>
@@ -2655,7 +2692,7 @@ function renderSession(){
   $("tCards").innerHTML = `<div class="card">
     <div class="row" style="justify-content:space-between;align-items:center"><div><h2 style="margin:0">${esc(S.card)}</h2><div class="small muted">${dayName(S.date, {weekday:"long", day:"numeric", month:"long"})}</div></div><div class="wotop" style="align-items:center"><span class="pill">${S.ex.reduce((a, x) => a + x.sets.filter(s => s.done).length, 0)} / ${S.ex.reduce((a, x) => a + x.sets.length, 0)} set</span><button class="ghost small-btn" id="sesEnd">Bitir ve kaydet ✓</button><button class="ghost small-btn" id="sesCancel">İptal et</button></div></div>
     ${S.ex.map((x, xi) => { const e = EXM[x.id], l = lastLift(x.id); return `<div class="logex">
-      <div class="row" style="align-items:center;flex-wrap:nowrap"><div style="width:72px;flex:none">${anim(e.id, e.tr)}</div><div style="flex:1"><h3><button data-info="${e.id}" style="all:unset;cursor:pointer">${esc(e.tr)}</button></h3><div class="small muted">${l ? "Geçen sefer: " + esc(liftText(l)) : "İlk sefer, rahat bir kiloyla başla"}</div>${(o => o ? `<div class="ovl ${o.t}">${I(o.t === "up" ? "trend" : o.t === "down" ? "trenddown" : "target")}<span>${esc(o.msg)}</span>${o.t !== "keep" ? `<button class="small-btn" data-ovl="${xi}:${o.kg}">Uygula</button>` : ""}</div>` : "")(overload(x.id, +((root.cards.find(c => c.id === S.cardId) || {ex: []}).ex.find(y => y.id === x.id) || {}).r || 10))}</div></div>
+      <div class="row" style="align-items:center;flex-wrap:nowrap"><div style="width:72px;flex:none">${anim(e.id, e.tr)}</div><div style="flex:1"><h3><button data-info="${e.id}" style="all:unset;cursor:pointer">${esc(e.tr)}</button></h3><div class="small muted">${l ? "Geçen sefer: " + esc(liftText(l)) : "İlk sefer, rahat bir kiloyla başla"}</div>${(root.exNotes || {})[e.id] ? `<div class="small lognote">${I("edit")} ${esc(root.exNotes[e.id])}</div>` : ""}${(o => o ? `<div class="ovl ${o.t}">${I(o.t === "up" ? "trend" : o.t === "down" ? "trenddown" : "target")}<span>${esc(o.msg)}</span>${o.t !== "keep" ? `<button class="small-btn" data-ovl="${xi}:${o.kg}">Uygula</button>` : ""}</div>` : "")(overload(x.id, +((root.cards.find(c => c.id === S.cardId) || {ex: []}).ex.find(y => y.id === x.id) || {}).r || 10))}</div></div>
       <div class="sets"><span class="h">Set</span><span class="h">${e.u ? "" : "kg"}</span><span class="h">${unit(e)}</span><span></span>
       ${x.sets.map((s, si) => `<span class="i">${si + 1}</span>${e.u ? "<span></span>" : `<input type="number" inputmode="decimal" step="0.5" min="0" value="${esc(s.kg)}" data-kg="${xi}:${si}" aria-label="${si+1}. set kg">`}<input type="number" inputmode="numeric" min="0" value="${esc(s.r)}" data-rp="${xi}:${si}" aria-label="${si+1}. set ${unit(e)}"><button class="${s.done ? "done" : "ghost"}" data-ok="${xi}:${si}" aria-label="${si+1}. set tamam">✓</button>`).join("")}
       </div><button class="ghost" data-addset="${xi}" style="margin-top:8px;min-height:36px">+ Set</button></div>`; }).join("")}
@@ -2765,6 +2802,8 @@ function showEx(id){
     <div class="mdet">${muscSvg(e.id, "big")}<div><b class="small">Çalışan kaslar</b><div class="small">${muscOf(e.id)[0].map(k => `<span class="mtag p">${MUS_TR[k]}</span>`).join("")}${muscOf(e.id)[1].map(k => `<span class="mtag">${MUS_TR[k]}</span>`).join("")}</div></div></div>
     ${FEEL[e.id] ? `<div class="feel"><div class="fl"><span>${I("pin")}</span><div><b>Nerede hissetmelisin</b><p>${esc(FEEL[e.id][0])}</p></div></div>
       <div class="fl"><span>${I("msg")}</span><div><b>Nasıl hissettirmeli</b><p>${esc(FEEL[e.id][1])}</p></div></div></div>` : ""}
+    <h3 class="sh3">${I("edit")} Notun</h3>
+    <textarea class="exnote" id="exNote" placeholder="Ör. koltuk 4. kademe, sağ omuzda hafif ağrı, dar tutuş daha iyi">${esc((root.exNotes || {})[e.id] || "")}</textarea>
     <h3 class="sh3">Nasıl yapılır</h3>
     <ol class="howl">${e.how.map(h => `<li>${esc(h)}</li>`).join("")}</ol>
     ${GEN_TIP[e.g] ? `<div class="feel"><div class="fl"><span>${I("wind")}</span><div><b>Nefes</b><p>${esc(GEN_TIP[e.g][0])}</p></div></div><div class="fl"><span>${I("clock")}</span><div><b>Tempo</b><p>${esc(GEN_TIP[e.g][1])}</p></div></div>
@@ -2773,6 +2812,7 @@ function showEx(id){
     ${(b => b && b.kg > 0 ? `<p class="small" style="margin:10px 0 0">${I("trophy")} Rekorun: <b>${num(b.kg)} kg × ${b.r}</b> · ${dayName(b.d, {day:"numeric", month:"short"})}</p>` : "")(bestOf(e.id))}
     <p style="margin:14px 0"><a class="yt" href="${yt(e)}" target="_blank" rel="noopener">▶ YouTube'da nasıl yapıldığını izle</a></p>
     ${root.cards.length ? `<div class="row"><label class="f" style="flex:2 1 160px">Karta ekle<select id="addSel">${opts}</select></label><button id="addGo" style="flex:1 1 100px">Ekle</button></div>` : `<p class="small muted">Karta eklemek için önce Kartlar sekmesinden bir kart oluştur.</p>`}`);
+  $("exNote").oninput = ev => { root.exNotes = root.exNotes || {}; const v = ev.target.value.trim(); if(v) root.exNotes[e.id] = ev.target.value; else delete root.exNotes[e.id]; save(); noteDirty = true; };
   const go = $("addGo");
   if(go) go.onclick = () => {
     const c = root.cards.find(x => x.id === $("addSel").value); if(!c) return;
@@ -2834,7 +2874,56 @@ function renderProg(){
       <div class="gbar"><i style="width:${Math.max(4, g.A / g.mx * 100)}%"></i><i class="z" style="width:${Math.max(4, g.Z / g.mx * 100)}%"></i></div>
       <div class="small muted">${num(g.A)} → <b style="color:var(--ink)">${num(g.Z)} ${g.u}</b> · ${g.n} antrenman · ${dayName(g.d0, {day:"numeric", month:"short"})}'den beri</div></div>`; }).join("");
   $("gainEmpty").hidden = gains.length > 0;
-  renderReport();
+  renderReport(); renderFatigue(); renderCombo();
+}
+// ============ Kas yorgunluğu (son 4 gün; birincil kas set başı 1, yardımcı 0,5; her gün %25 azalır) ============
+function fatigue(){
+  const F = {}, last = {};
+  for(const id in root.lifts){ const e = EXM[id]; if(!e || e.u === "dk") continue; const [P, S2] = muscOf(id);
+    for(const l of root.lifts[id]){ const age = Math.round((new Date(today() + "T12:00") - new Date(l.d + "T12:00")) / 864e5); if(age < 0 || age > 3) continue;
+      const w = (1 - age / 4) * l.s.length;
+      for(const k of P){ F[k] = (F[k] || 0) + w; if(last[k] == null || age < last[k]) last[k] = age; }
+      for(const k of S2){ F[k] = (F[k] || 0) + w * .5; if(last[k] == null || age < last[k]) last[k] = age; } } }
+  return {F, last};
+}
+const fgLv = v => !v ? 0 : v >= 6 ? 3 : v >= 3 ? 2 : 1;
+function renderFatigue(){
+  const {F, last} = fatigue(), ks = Object.keys(MUS_TR), ago = a => a === 0 ? "bugün" : a === 1 ? "dün" : `${a} gün önce`;
+  const tired = ks.filter(k => fgLv(F[k])).sort((a, b) => F[b] - F[a]), fresh = ks.filter(k => !fgLv(F[k]));
+  const LV = ["", "Hafif", "Orta", "Yorgun"];
+  $("fgBox").innerHTML = `<div class="fgwrap">${bodySvg(k => fgLv(F[k]) ? "f" + fgLv(F[k]) : "m0")}
+    <div class="fglist">${tired.length ? tired.map(k => `<div class="fgr"><span><span class="fgdot" style="opacity:${[0, .3, .65, 1][fgLv(F[k])]}"></span>${MUS_TR[k]}</span><small>${LV[fgLv(F[k])]} · ${ago(last[k])}</small></div>`).join("")
+      : `<p class="small muted" style="margin:0">Son 3 günde kaydedilmiş antrenman yok; bütün kaslar dinlenmiş.</p>`}
+    ${tired.length && fresh.length ? `<p class="small muted" style="margin:4px 0 0">Dinlenmiş: ${fresh.map(k => MUS_TR[k]).join(", ")}</p>` : ""}</div></div>
+    <div class="fgleg"><span><span class="fgdot" style="opacity:.3"></span>Hafif</span><span><span class="fgdot" style="opacity:.65"></span>Orta</span><span><span class="fgdot"></span>Yorgun (en az 48 saat dinlendir)</span></div>`;
+}
+// ============ Birleşik grafik: kilo + alınan kalori + adım ============
+function renderCombo(){
+  const box = $("cmFig"), days = Array.from({length: 30}, (_, i) => shift(today(), i - 29));
+  const S = [["kg", "var(--ink)", ds => +(root.days[ds] || {}).kg || null, v => num(v) + " kg"],
+             ["k", "var(--accent)", ds => { const d = root.days[ds]; return d && d.f && d.f.length ? sum(d).k : null; }, v => fmt(v) + " kcal"],
+             ["st", "#5b9cf5", ds => +(root.days[ds] || {}).st || null, v => fmt(v) + " adım"]].map(([key, col, get, f]) => ({key, col, f, v: days.map(get)}));
+  const has = S.some(s => s.v.filter(x => x != null).length > 1);
+  box.innerHTML = ""; box.style.height = has ? "220px" : "0";
+  if(!has){ $("cmVal").innerHTML = `<span class="small muted">Birkaç gün kilo, yemek ve adım girince üçü tek grafikte çıkar.</span>`; return; }
+  const svgNS = "http://www.w3.org/2000/svg", svg = document.createElementNS(svgNS, "svg"); box.appendChild(svg);
+  let sel = days.length - 1;
+  const show = i => { $("cmVal").innerHTML = `<span class="muted">${dayName(days[i], {day:"numeric", month:"short"})}</span>` + S.map(s => `<span style="color:${s.col}"><b>${s.v[i] == null ? "—" : s.f(s.v[i])}</b></span>`).join(""); };
+  const draw = () => {
+    const W = svg.clientWidth, H = svg.clientHeight; if(!W) return;
+    const L = 8, R = 8, T = 10, B = 22, x = i => L + (W - L - R) * i / (days.length - 1);
+    let out = [0, .5, 1].map(t => `<line x1="${L}" x2="${W - R}" y1="${T + (H - T - B) * t}" y2="${T + (H - T - B) * t}" stroke="var(--line)"/>`).join("");
+    for(const s of S){ const vs = s.v.filter(v => v != null); if(!vs.length) continue;
+      const lo = Math.min(...vs), hi = Math.max(...vs), y = v => T + (H - T - B) * (hi === lo ? .5 : 1 - (v - lo) / (hi - lo));
+      const pts = s.v.map((v, i) => v == null ? null : [x(i), y(v)]).filter(Boolean);
+      out += `<polyline fill="none" stroke="${s.col}" stroke-width="2.2" stroke-linejoin="round" points="${pts.map(p => p.join(",")).join(" ")}"/>` + pts.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="2.6" fill="${s.col}"/>`).join(""); }
+    out += `<line x1="${x(sel)}" x2="${x(sel)}" y1="${T}" y2="${H - B}" stroke="var(--muted)" stroke-dasharray="3 3"/>`;
+    out += [0, 14, 29].map(i => `<text x="${x(i)}" y="${H - 6}" text-anchor="${i === 0 ? "start" : i === 29 ? "end" : "middle"}" font-size="11" fill="var(--muted)">${dayName(days[i], {day:"numeric", month:"short"})}</text>`).join("");
+    svg.innerHTML = out;
+  };
+  const pick = e => { const r = svg.getBoundingClientRect(); sel = Math.max(0, Math.min(days.length - 1, Math.round((e.clientX - r.left - 8) / (r.width - 16) * (days.length - 1)))); draw(); show(sel); };
+  svg.addEventListener("pointerdown", pick); svg.addEventListener("pointermove", e => { if(e.buttons || e.pointerType === "mouse") pick(e); });
+  draw(); show(sel); new ResizeObserver(draw).observe(svg);
 }
 // ============ Haftalık rapor ============
 function weekStats(mon){
