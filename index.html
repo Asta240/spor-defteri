@@ -486,6 +486,24 @@
   .dpick:hover{background:var(--card-2)}
   .dpick svg.i{color:var(--accent);width:18px;height:18px}
   .dpick input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;min-height:0;padding:0;border:0}
+  .tcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+  .tcol{background:var(--card-2);border-radius:16px;padding:12px}
+  .tcol .tbar{background:var(--card)}
+  .tch{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .tch b{flex:1;font-size:14px}
+  .hico.sm{width:30px;height:30px;border-radius:9px;background:var(--card)} .hico.sm svg.i{width:16px;height:16px}
+  .tcn{font-size:12px;font-weight:800;color:var(--muted)}
+  .tall{font-size:12px;font-weight:800;color:var(--muted);background:var(--card-2);padding:4px 10px;border-radius:99px}
+  .tall.ok{color:var(--good);background:rgba(81,207,102,.12)}
+  .trows{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+  .trow{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:6px 12px 6px 8px;border-radius:12px;background:var(--card);border:1px solid transparent;text-align:left;font-size:14px;font-weight:600}
+  .trow:hover{background:var(--line)}
+  .trow .tck{width:26px;height:26px;border-radius:8px;border:2px solid var(--line);display:grid;place-items:center;color:#fff;flex:none}
+  .trow .tck svg.i{width:15px;height:15px}
+  .trow .tn{flex:1;display:flex;flex-direction:column} .trow .tn small{font-size:11px;color:var(--muted);font-weight:500}
+  .trow.on{border-color:rgba(81,207,102,.3)} .trow.on .tn{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+  .trow.on .tck{background:var(--good);border-color:var(--good)}
+  .tst{display:inline-flex;align-items:center;gap:2px;font-size:12px;font-weight:800;color:var(--accent)} .tst svg.i{width:13px;height:13px}
   .tbar{height:6px;border-radius:99px;background:var(--card-2);overflow:hidden;margin-bottom:4px}
   .tbar i{display:block;height:100%;background:var(--good);border-radius:99px;transition:width .3s}
   .tlab{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:12px 0 6px}
@@ -1775,11 +1793,13 @@ function renderTrack(){
   $("ozTrack").hidden = !(H.length || S.length);
   if($("ozTrack").hidden) return;
   const done = H.filter(x => hb[x.id]).length + S.filter(x => sp[x.id]).length, all = H.length + S.length;
-  const chip = (x, on, attr) => `<button class="tchip ${on ? "on" : ""}" ${attr}="${x.id}"><span class="tck">${on ? I("check") : ""}</span>${esc(x.name)}</button>`;
-  $("ozTrack").innerHTML = `<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:12px"><h2 style="margin:0">${I("check")} Bugünkü takip</h2><span class="small muted">${done} / ${all}</span></div>
-    <div class="tbar"><i style="width:${all ? done / all * 100 : 0}%"></i></div>
-    ${H.length ? `<div class="tlab">Alışkanlıklar</div><div class="tchips">${H.map(x => chip(x, hb[x.id], "data-hb")).join("")}</div>` : ""}
-    ${S.length ? `<div class="tlab">Takviyeler</div><div class="tchips">${S.map(x => chip(x, sp[x.id], "data-sp")).join("")}</div>` : ""}`;
+  const row = (x, on, attr, st) => `<button class="trow ${on ? "on" : ""}" ${attr}="${x.id}"><span class="tck">${on ? I("check") : ""}</span><span class="tn">${esc(x.name)}${x.dose ? `<small>${esc(x.dose)}</small>` : ""}</span>${st > 1 ? `<span class="tst">${I("flame")}${st}</span>` : ""}</button>`;
+  const col = (title, ic, L, map, attr, stf) => { const n = L.filter(x => map[x.id]).length;
+    return `<div class="tcol"><div class="tch"><span class="hico sm">${I(ic)}</span><b>${title}</b><span class="tcn">${n}/${L.length}</span></div>
+      <div class="tbar"><i style="width:${L.length ? n / L.length * 100 : 0}%"></i></div>
+      <div class="trows">${L.map(x => row(x, map[x.id], attr, stf(x.id))).join("")}</div></div>`; };
+  $("ozTrack").innerHTML = `<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:14px"><h2 style="margin:0">${I("check")} Bugünkü takip</h2><span class="tall ${done === all ? "ok" : ""}">${done === all ? "Hepsi tamam" : `${done} / ${all}`}</span></div>
+    <div class="tcols">${H.length ? col("Alışkanlıklar", "check", H, hb, "data-hb", habStreak) : ""}${S.length ? col("Takviyeler", "pill", S, sp, "data-sp", suppStreak) : ""}</div>`;
 }
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-hb],[data-hbrm],[data-hbadd]"); if(!b) return;
