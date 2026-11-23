@@ -820,7 +820,7 @@ function profForm(){
       <label class="f">Cinsiyet<select id="pfSex" required><option value="">Seç</option><option value="e" ${P.sex === "e" ? "selected" : ""}>Erkek</option><option value="k" ${P.sex === "k" ? "selected" : ""}>Kadın</option></select></label>
     </div>
     <button>Kaydet</button>
-    <p class="small muted" style="margin:0">${b ? `Bazal metabolizman (BMR) ~${fmt(b)} kcal. Yakılanı girmediğin günlerde bu yazılır.` : "Girince yakılanı girmediğin günler otomatik tahmin edilir."} Kilo olarak son tartın kullanılır.</p></form>`;
+    <p class="small muted" style="margin:0">${b ? `Bazal metabolizman (BMR) ~${fmt(b)} kcal. Yakılanı girmediğin günlerde BMR + adımın yaktığı (adım × kilo × 0,0005) yazılır.` : "Girince yakılanı girmediğin günler otomatik tahmin edilir."} Kilo olarak son tartın kullanılır.</p></form>`;
 }
 function bindProf(){
   const f = $("profForm"); if(!f) return;
@@ -895,7 +895,7 @@ function renderWeekSum(){
     return `<div class="wd ${x.ds === cur ? "cur" : ""}" ${x.fut ? "" : `data-day="${x.ds}" role="button" tabindex="0" aria-label="${dayName(x.ds, {weekday:"long", day:"numeric", month:"long"})} gününü aç"`}><span>${dayName(x.ds, {weekday:"short"})}</span><div class="col" title="${x.d.f.length ? fmt(x.s.k) + " kcal" : "kayıt yok"}"><i class="${x.s.k > g.k ? "over" : ""}" style="height:${h}%"></i></div><b>${x.fut ? "" : x.d.f.length ? fmt(x.s.k) : "—"}</b></div>`; }).join("");
 }
 // Yakılan kalori: Fitness değeri girildiyse o, yoksa tahmin (profil gerekir).
-// Tahmin = sadece BMR (Mifflin-St Jeor)
+// Tahmin = BMR (Mifflin-St Jeor) + adım kcal (adım × kilo × 0,0005)
 function weightOn(ds){
   const ks = Object.keys(root.days).filter(k => k <= ds && +root.days[k].kg > 0).sort();
   return ks.length ? +root.days[ks[ks.length - 1]].kg : (+(root.profile || {}).w || 0);
@@ -906,9 +906,13 @@ function bmrOn(ds){
   const age = new Date(ds + "T12:00").getFullYear() - by;
   return 10 * w + 6.25 * h - 5 * age + (P.sex === "k" ? -161 : 5);
 }
+function stepKcal(ds){
+  const d = root.days[ds] || blankDay(), w = weightOn(ds) || 70;
+  return Math.round((+d.st || 0) * w * 0.0005);
+}
 function estBurn(ds){
   const b = bmrOn(ds); if(!b) return 0;
-  return Math.round(b);
+  return Math.round(b + stepKcal(ds));
 }
 // {v, est}: girilen değer ya da tahmin; ikisi de yoksa v = 0
 function burnedOf(ds){
@@ -940,10 +944,10 @@ function renderDay(){
     $("bal").innerHTML = `<div>Kalan<strong>${fmt(Math.max(g.k - s.k, 0))}</strong></div><div>Yakılan${B.est ? ` <span class="estb">tahmini</span>` : ""}<strong>${burnTxt(B)}</strong></div><div>Açık<strong class="${net == null ? "" : net < 0 ? "neg" : "pos"}">${net == null ? "—" : (net > 0 ? "+" : "") + fmt(net)}</strong></div>`;
   }
   renderHomeWo();
-  $("ozStepsV").textContent = d.st ? fmt(d.st) : "—";
+  $("ozStepsV").innerHTML = d.st ? fmt(d.st) + ` <span class="small muted" style="font-weight:500">≈ ${fmt(stepKcal(cur))} kcal</span>` : "—";
   if(document.activeElement !== $("ozSteps")) $("ozSteps").value = d.st ?? "";
   if(document.activeElement !== $("ozBurn")) $("ozBurn").value = d.bu ?? "";
-  { const e = estBurn(cur); $("ozBurn").placeholder = e ? `BMR ~${fmt(e)}` : "Fitness'tan"; $("ozProf").hidden = !!bmrOn(cur);
+  { const e = estBurn(cur); $("ozBurn").placeholder = e ? `BMR+adım ~${fmt(e)}` : "Fitness'tan"; $("ozProf").hidden = !!bmrOn(cur);
     const y = shift(today(), -1), yd = root.days[y]; $("ozYest").hidden = !(cur === today() && yd && !(+yd.bu > 0)); }
   // yemek
   $("ymSum").innerHTML = `${fmt(s.k)} / ${fmt(g.k)} kcal <span>· ${fmt(s.p)} / ${fmt(g.p)} g protein</span>`;

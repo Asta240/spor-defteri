@@ -31,5 +31,5 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 
 ## Vücut bilgileri + BMR
 - `root.profile = {h, w, by, sex}` (kayıtta istenir; Hesap penceresi → Vücut bilgileri `profForm/bindProf`).
-- Yakılan girilmemiş günlerde `burnedOf(ds)` sadece BMR yazar (Mifflin-St Jeor, kilo = o güne kadarki son `d.kg`, yoksa profil). "tahmini" etiketi / "~". Girilen Fitness değeri her zaman önce gelir.
+- Yakılan girilmemiş günlerde `burnedOf(ds)` BMR + adım kcal (`stepKcal`: adım × kilo × 0,0005) yazar (Mifflin-St Jeor, kilo = o güne kadarki son `d.kg`, yoksa profil). "tahmini" etiketi / "~". Girilen Fitness değeri her zaman önce gelir.
 - Ana sayfada dün kayıt var ama yakılan yoksa "Dünün yakılan kalorisini girmedin" kutusu (`#ozYest`).
