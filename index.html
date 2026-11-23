@@ -268,6 +268,7 @@
   .prof{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   .bmrl{display:block;font-size:11px;color:var(--muted);margin-top:2px;font-weight:500}
   #dnav button{border-color:transparent}
+  #vHedef .stack .f{flex:none}
   .dlab{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:4px 12px 2px}
   .estb{font-size:10px;font-weight:700;color:var(--warn);background:var(--warn-soft);border-radius:99px;padding:1px 6px;margin-left:2px;vertical-align:1px}
   .err{color:var(--bad);margin:8px 0 0;min-height:0}
@@ -431,7 +432,6 @@
           <div class="bar"><i id="adBar"></i></div></div>
         <div class="row" style="margin-top:12px">
           <label class="f">Adım<input id="st" type="number" inputmode="numeric" min="0" placeholder="Örn. 8000"></label>
-          <label class="f">Yakılan toplam kcal (Fitness)<input id="bu" type="number" inputmode="numeric" min="0"></label>
         </div>
       </div>
     </section>
@@ -454,7 +454,7 @@
     <!-- HEDEFLER -->
     <section id="vHedef" hidden>
       <div class="card">
-        <div class="row">
+        <div class="stack">
           <label class="f">Kalori (kcal)<input id="gk" type="number" inputmode="numeric" min="0"></label>
           <label class="f">Protein (g)<input id="gp" type="number" inputmode="numeric" min="0"></label>
           <label class="f">Su (bardak)<input id="gw" type="number" inputmode="numeric" min="1"></label>
@@ -513,7 +513,7 @@
     <div class="dlab">Günlük giriş</div>
     <button data-v="yemek">🍽️ Yemek</button>
     <button data-v="su">💧 Su</button>
-    <button data-v="adim">👟 Adım ve yakılan</button>
+    <button data-v="adim">👟 Adım</button>
     <button data-v="hareket">🏃 Antrenman ve kilo</button>
     <div class="sep"></div>
     <div class="dlab">Antrenman</div>
@@ -913,7 +913,7 @@ function ask(text, yes, onYes){
 }
 
 // ================= MENÜ / SAYFALAR =================
-const VIEWS = {ozet:["vOzet","Günün özeti"], yemek:["vYemek","Yemek"], su:["vSu","Su"], adim:["vAdim","Adım ve yakılan"], hareket:["vHareket","Antrenman ve kilo"], hedef:["vHedef","Hedefler"], kalori:["vKalori","Kalori hesabı"], cards:["tCards","Antrenman kartları"], lib:["tLib","Hareketler"], prog:["tProg","İlerleme"]};
+const VIEWS = {ozet:["vOzet","Günün özeti"], yemek:["vYemek","Yemek"], su:["vSu","Su"], adim:["vAdim","Adım"], hareket:["vHareket","Antrenman ve kilo"], hedef:["vHedef","Hedefler"], kalori:["vKalori","Kalori hesabı"], cards:["tCards","Antrenman kartları"], lib:["tLib","Hareketler"], prog:["tProg","İlerleme"]};
 const DATED = ["ozet","kalori","yemek","su","adim","hareket"];
 function setTab(t){
   if(!VIEWS[t]) t = "ozet";
@@ -960,7 +960,7 @@ function renderWeekSum(){
   const avg = (a, f) => a.length ? a.reduce((t, x) => t + f(x), 0) / a.length : 0;
   const aK = avg(ate, x => x.s.k), aP = avg(ate, x => x.s.p), aW = avg(wat, x => x.d.w);
   $("sumRange").textContent = "";
-  $("rings").innerHTML = ring(aK, g.k, "var(--bad)", "Ort. kalori", "kcal", "prog") + ring(aP, g.p, "var(--good)", "Ort. protein", "g", "prog") + ring(aW, g.w, "var(--accent)", "Ort. su", "bardak", "prog") + ring(avg(past.filter(x => +x.d.st > 0), x => +x.d.st), g.st, "var(--warn)", "Ort. adım", "", "adim") + ring(avg(past.filter(x => burnedOf(x.ds).v > 0), x => burnedOf(x.ds).v), g.bu, "#ae3ec9", "Ort. yakılan", "kcal", "adim");
+  $("rings").innerHTML = ring(aK, g.k, "var(--bad)", "Ort. kalori", "kcal", "prog") + ring(aP, g.p, "var(--good)", "Ort. protein", "g", "prog") + ring(aW, g.w, "var(--accent)", "Ort. su", "bardak", "prog") + ring(avg(past.filter(x => +x.d.st > 0), x => +x.d.st), g.st, "var(--warn)", "Ort. adım", "", "adim") + ring(avg(past.filter(x => burnedOf(x.ds).v > 0), x => burnedOf(x.ds).v), g.bu, "#ae3ec9", "Ort. yakılan", "kcal", "kalori");
   const nets = past.filter(x => burnedOf(x.ds).v > 0 && x.d.f.length), net = nets.reduce((t, x) => t + x.s.k - burnedOf(x.ds).v, 0), anyEst = nets.some(x => burnedOf(x.ds).est);
   const wo = past.filter(x => x.d.wo).length, kgs = past.filter(x => +x.d.kg > 0), dk = kgs.length > 1 ? +kgs[kgs.length - 1].d.kg - +kgs[0].d.kg : null;
   $("bal").innerHTML = `<div>Toplam açık<strong class="${!nets.length ? "" : net < 0 ? "neg" : "pos"}">${nets.length ? (net > 0 ? "+" : "") + fmt(net) : "—"}</strong></div><div>Antrenman<strong>${wo} gün</strong></div><div>Kilo<strong class="${dk == null ? "" : dk <= 0 ? "neg" : "pos"}">${dk == null ? (kgs.length ? num(kgs[0].d.kg) : "—") : (dk > 0 ? "+" : "") + num(dk) + " kg"}</strong></div>`;
@@ -1019,7 +1019,7 @@ function renderDay(){
     $("sumRange").textContent = "";
     $("rings").innerHTML = ring(s.k, g.k, "var(--bad)", "Kalori", "kcal", "yemek") + ring(s.p, g.p, "var(--good)", "Protein", "g", "yemek") + ring(d.w, g.w, "var(--accent)", "Su", "bardak", "su");
     const B = burnedOf(cur), net = B.v ? s.k - B.v : null;
-    $("rings").innerHTML += ring(+d.st || 0, g.st, "var(--warn)", "Adım", "", "adim") + ring(B.v, g.bu, "#ae3ec9", "Yakılan", "kcal", "adim");
+    $("rings").innerHTML += ring(+d.st || 0, g.st, "var(--warn)", "Adım", "", "adim") + ring(B.v, g.bu, "#ae3ec9", "Yakılan", "kcal", "kalori");
     $("bal").innerHTML = `<div>Kalan<strong>${fmt(Math.max(g.k - s.k, 0))}</strong></div><div>Yakılan<strong>${burnTxt(B)}</strong>${bmrOn(cur) ? `<span class="bmrl">BMR ${fmt(bmrOn(cur))}${+d.st > 0 ? " + adım " + fmt(stepKcal(cur)) : ""}</span>` : ""}</div><div>Açık<strong class="${net == null ? "" : net < 0 ? "neg" : "pos"}">${net == null ? "—" : (net > 0 ? "+" : "") + fmt(net)}</strong></div>`;
   }
   renderHomeWo();
@@ -1047,7 +1047,7 @@ function renderDay(){
   const names = root.cards.map(c => c.name);
   if(d.wo && !names.includes(d.wo)) names.push(d.wo);
   $("wo").innerHTML = `<option value="">Dinlenme</option>` + names.map(n => `<option>${esc(n)}</option>`).join("");
-  for(const k of FIELDS){ const el = $(k); if(document.activeElement !== el) el.value = d[k] ?? ""; }
+  for(const k of FIELDS){ const el = $(k); if(el && document.activeElement !== el) el.value = d[k] ?? ""; }
   for(const [id, k] of [["gk","k"],["gp","p"],["gw","w"],["gst","st"],["gbu","bu"]]){ const el = $(id); if(document.activeElement !== el) el.value = g[k]; }
 }
 const renderToday = renderDay;
@@ -1071,7 +1071,7 @@ $("fl").onclick = e => { const b = e.target.closest("button[data-del]"); if(!b) 
 const addWater = () => { day(cur).w++; save(); renderDay(); };
 $("wp").onclick = addWater;
 $("wm").onclick = () => { const d = day(cur); if(d.w > 0){ d.w--; save(); renderDay(); } };
-for(const k of FIELDS) $(k).addEventListener(k === "wo" ? "change" : "input", e => { day(cur)[k] = e.target.value; save(); renderDay(); });
+for(const k of FIELDS) if($(k)) $(k).addEventListener(k === "wo" ? "change" : "input", e => { day(cur)[k] = e.target.value; save(); renderDay(); });
 for(const [id, k] of [["gk","k"],["gp","p"],["gw","w"],["gst","st"],["gbu","bu"]]) $(id).addEventListener("input", e => { const v = +e.target.value; if(v > 0){ root.goals[k] = v; save(); renderDay(); } });
 
 // Hazır yemek arama
