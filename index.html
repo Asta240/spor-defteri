@@ -486,6 +486,12 @@
   .dpick:hover{background:var(--card-2)}
   .dpick svg.i{color:var(--accent);width:18px;height:18px}
   .dpick input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;min-height:0;padding:0;border:0}
+  .tbadge{display:flex;align-items:center;gap:12px;margin-bottom:8px;padding:10px 12px;border-radius:14px;background:linear-gradient(135deg,rgba(255,159,28,.16),rgba(255,107,107,.08));border:1px solid rgba(255,159,28,.25)}
+  .tbadge .tbi{width:40px;height:40px;border-radius:12px;background:var(--card);display:grid;place-items:center;color:var(--accent);flex:none} .tbadge .tbi svg.i{width:22px;height:22px}
+  .tbadge small{display:block;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+  .tbadge b{display:block;font-size:14px} .tbadge span{font-size:12px;color:var(--muted)}
+  .tbadge .tbw{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:800;color:var(--accent)!important;white-space:nowrap}
+  .tbadge.on{opacity:.85}
   .tseg button{font-size:12px;padding:5px 10px;min-height:30px}
   .tklist{display:flex;flex-direction:column;gap:6px}
   .tk{display:flex;align-items:center;gap:10px;background:var(--card-2);border-radius:12px;padding:8px 12px 8px 8px;min-height:44px}
@@ -1711,13 +1717,22 @@ function weeklyTasks(mon){
 }
 const perfectWeek = mon => weeklyTasks(mon).every(t => t[2] >= t[3]);
 let taskTab = "gun";
+// Haftanın / günün hedef rozeti: henüz kazanılmamış, o sürede kazanılabilecek rozetlerden haftaya (güne) göre sabit seçim
+const WEEK_OK = ["wo1","wos7","w3","w7","p3","p7","st10","st15","pr","wk3","wk5","stw","log7","perf1","perfw","meas1","hb7","kg2"];
+const DAY_OK = ["wo1","st10","st15","st20","pr","perf1","meas1","vol5k"];
+function targetBadge(pool, seed){
+  const B = badgeList(), got = root.badges || {}, cand = B.filter(b => pool.includes(b[0]) && !got[b[0]]);
+  if(!cand.length) return null; let h = 0; for(const ch of seed) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return cand[h % cand.length];
+}
+const badgeCard = (b, since, label) => { if(!b) return ""; const won = (root.badges || {})[b[0]] >= since;
+  return `<div class="tbadge ${won ? "on" : ""}"><span class="tbi">${I(b[1])}</span><div style="flex:1;min-width:0"><small>${label}</small><b>${esc(b[2])}</b><span>${esc(b[3])}</span></div>${won ? `<span class="tbw">${I("check")} Kazanıldı</span>` : ""}</div>`; };
 function renderTasks(){
   const ds = cur, T = dailyTasks(ds), dn = T.filter(t => t[2]).length, mon = monOf(cur), W = weeklyTasks(mon), wdn = W.filter(t => t[2] >= t[3]).length;
-  const pd = Object.keys(root.days).filter(perfectDay).length;
+  const pd = Object.keys(root.days).filter(perfectDay).length, tbW = targetBadge(WEEK_OK, "w" + mon), tbD = targetBadge(DAY_OK, "d" + ds);
   const body = taskTab === "gun"
-    ? `<div class="tklist">${T.map(([ic, t, ok, v]) => `<div class="tk ${ok ? "on" : ""}"><span class="tki">${ok ? I("check") : I(ic)}</span><span class="tkt">${esc(t)}</span><small>${esc(String(v))}</small></div>`).join("")}</div>
+    ? badgeCard(tbD, ds, "Bugünün rozeti") + `<div class="tklist">${T.map(([ic, t, ok, v]) => `<div class="tk ${ok ? "on" : ""}"><span class="tki">${ok ? I("check") : I(ic)}</span><span class="tkt">${esc(t)}</span><small>${esc(String(v))}</small></div>`).join("")}</div>
        <p class="small muted" style="margin:10px 0 0">${dn === T.length ? `<b style="color:var(--accent)">Mükemmel gün!</b> ` : `${T.length - dn} görev kaldı. `}Toplam ${pd} mükemmel gün.</p>`
-    : `<div class="tklist">${W.map(([ic, t, v, goal]) => { const ok = v >= goal; return `<div class="tk wk ${ok ? "on" : ""}"><span class="tki">${ok ? I("check") : I(ic)}</span><span class="tkt">${esc(t)}<span class="tkb"><i style="width:${Math.min(100, v / goal * 100)}%"></i></span></span><small>${fmt(Math.min(v, goal))}/${fmt(goal)}</small></div>`; }).join("")}</div>
+    : badgeCard(tbW, mon, "Haftanın rozeti") + `<div class="tklist">${W.map(([ic, t, v, goal]) => { const ok = v >= goal; return `<div class="tk wk ${ok ? "on" : ""}"><span class="tki">${ok ? I("check") : I(ic)}</span><span class="tkt">${esc(t)}<span class="tkb"><i style="width:${Math.min(100, v / goal * 100)}%"></i></span></span><small>${fmt(Math.min(v, goal))}/${fmt(goal)}</small></div>`; }).join("")}</div>
        <p class="small muted" style="margin:10px 0 0">${wdn === W.length ? `<b style="color:var(--accent)">Mükemmel hafta!</b>` : `${W.length - wdn} haftalık hedef kaldı · ${dayName(shift(mon, 6), {weekday:"long"})} akşamına kadar.`}</p>`;
   $("ozTasks").innerHTML = `<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:12px"><h2 style="margin:0">${I("target")} Görevler</h2>
     <div class="seg tseg"><button data-tt="gun" class="${taskTab === "gun" ? "on" : ""}">Günlük ${dn}/${T.length}</button><button data-tt="hafta" class="${taskTab === "hafta" ? "on" : ""}">Haftalık ${wdn}/${W.length}</button></div></div>` + body;
