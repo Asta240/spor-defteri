@@ -486,6 +486,18 @@
   .dpick:hover{background:var(--card-2)}
   .dpick svg.i{color:var(--accent);width:18px;height:18px}
   .dpick input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;min-height:0;padding:0;border:0}
+  .tseg button{font-size:12px;padding:5px 10px;min-height:30px}
+  .tklist{display:flex;flex-direction:column;gap:6px}
+  .tk{display:flex;align-items:center;gap:10px;background:var(--card-2);border-radius:12px;padding:8px 12px 8px 8px;min-height:44px}
+  .tki{width:28px;height:28px;border-radius:9px;background:var(--card);display:grid;place-items:center;color:var(--accent);flex:none}
+  .tki svg.i{width:15px;height:15px}
+  .tk.on .tki{background:var(--good);color:#fff}
+  .tkt{flex:1;font-size:14px;font-weight:600;display:flex;flex-direction:column;gap:5px}
+  .tk.on .tkt{color:var(--muted)}
+  .tk small{font-size:12px;font-weight:800;color:var(--muted);white-space:nowrap}
+  .tk.on small{color:var(--good)}
+  .tkb{display:block;height:5px;border-radius:99px;background:var(--card);overflow:hidden} .tkb i{display:block;height:100%;background:var(--accent);border-radius:99px}
+  .tk.on .tkb i{background:var(--good)}
   .tcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
   .tcol{background:var(--card-2);border-radius:16px;padding:12px}
   .tcol .tbar{background:var(--card)}
@@ -573,7 +585,10 @@
     #ozStreak{grid-column:2;grid-row:2}
     #ozWo,#ozStreak{align-self:stretch;display:flex;flex-direction:column}
     #ozStreak .bdrow{margin-top:auto;padding-top:12px}
-    #ozTrack{grid-column:1 / -1;grid-row:3}
+    #ozTasks{grid-column:1;grid-row:3;align-self:stretch}
+    #ozTrack{grid-column:2;grid-row:3;align-self:stretch}
+    #vOzet:has(#ozTrack[hidden]) #ozTasks{grid-column:1 / -1}
+    #ozTrack .tcols{grid-template-columns:1fr}
     #ozMove{grid-column:1 / -1;grid-row:4}
   }
 </style>
@@ -650,6 +665,7 @@
       </div>
       <div class="card" id="ozWo"></div>
       <div class="card" id="ozStreak"></div>
+      <div class="card" id="ozTasks"></div>
       <div class="card" id="ozTrack" hidden></div>
       <div class="card" id="ozMove">
         <div class="tip" id="ozYest" hidden style="margin-top:0">Dünün adım sayısını girmedin.
@@ -1531,6 +1547,14 @@ function badgeList(){
   const kgs = Object.keys(root.days).sort().filter(k => +root.days[k].kg > 0).map(k => +root.days[k].kg), lost = kgs.length > 1 ? kgs[0] - Math.min(...kgs) : 0;
   const T = +root.goals.kgT || 0, lastKg = kgs[kgs.length - 1] || 0;
   const cre = (root.supp || []).find(x => /kreatin/i.test(x.name)), creS = cre ? bestStreak(ds => !!((root.days[ds] || {}).sp || {})[cre.id]) : 0;
+  const mons = [...new Set(Object.keys(root.days).map(monOf))].sort();
+  const wkN = mons.map(m => Array.from({length: 7}, (_, i) => shift(m, i)).filter(woDay).length), wkMax = Math.max(0, ...wkN);
+  let wkRow = 0, run = 0, prevM = ""; for(let i = 0; i < mons.length; i++){ if(wkN[i] >= 3){ run = prevM && shift(prevM, 7) === mons[i] ? run + 1 : 1; prevM = mons[i]; wkRow = Math.max(wkRow, run); } else { run = 0; prevM = ""; } }
+  const wkSt = Math.max(0, ...mons.map(m => Array.from({length: 7}, (_, i) => +((root.days[shift(m, i)] || {}).st) || 0).reduce((a, b) => a + b, 0)));
+  const bl = bestStreak(ds => (root.days[ds] || {}).f?.length > 0), pdN = Object.keys(root.days).filter(perfectDay).length;
+  const pwN = mons.filter(m => shift(m, 6) <= today() && perfectWeek(m)).length, caT = days.reduce((a, d) => a + (+d.ca || 0), 0);
+  const volBy = {}; for(const id in root.lifts) for(const l of root.lifts[id]) volBy[l.d] = (volBy[l.d] || 0) + l.s.reduce((a, [kg, r]) => a + kg * r, 0);
+  const maxVol = Math.max(0, ...Object.values(volBy));
   const pr = Object.keys(root.lifts).some(id => (root.lifts[id] || []).length > 1 && bestOf(id) && bestOf(id).d !== root.lifts[id][0].d);
   return [
     ["wo1","dumbbell","İlk antrenman","1 antrenman bitir", woN >= 1],
@@ -1550,9 +1574,67 @@ function badgeList(){
     ["kg5","target","−5 kg","İlk tartından 5 kg ver", lost >= 5],
     ["goal","medal","Hedef kilo","Hedef kilona ulaş", !!(T && lastKg && Math.abs(lastKg - T) < .3)],
     ["hb7","check","Düzenli 7 gün","Bir alışkanlığı 7 gün üst üste yap", (root.habits || []).some(x => bestStreak(ds => !!((root.days[ds] || {}).hb || {})[x.id]) >= 7)],
+    ["wo100","trophy","100 antrenman","Toplam 100 antrenman", woN >= 100],
+    ["wos30","calendar","30 gün düzen","30 gün üst üste antrenman ya da boş gün", bo >= 30],
+    ["wk3","dumbbell","3'lü hafta","Bir haftada 3 antrenman", wkMax >= 3],
+    ["wk5","flame","Canavar hafta","Bir haftada 5 antrenman", wkMax >= 5],
+    ["wkrow4","medal","4 hafta istikrar","4 hafta üst üste 3+ antrenman", wkRow >= 4],
+    ["w14","droplet","Su 14 gün","14 gün üst üste su hedefi", bw >= 14],
+    ["p14","egg","Protein 14 gün","14 gün üst üste protein hedefi", bp >= 14],
+    ["st15","shoe","15 bin adım","Bir günde 15.000 adım", maxSt >= 15000],
+    ["stw","run","Haftada 70 bin","Bir haftada 70.000 adım", wkSt >= 70000],
+    ["log7","utensils","7 gün kayıt","7 gün üst üste yemek kaydı", bl >= 7],
+    ["log30","utensils","30 gün kayıt","30 gün üst üste yemek kaydı", bl >= 30],
+    ["perf1","target","Mükemmel gün","Bir günde bütün günlük görevler", pdN >= 1],
+    ["perf7","target","7 mükemmel gün","Toplam 7 mükemmel gün", pdN >= 7],
+    ["perfw","medal","Mükemmel hafta","Bir haftada bütün haftalık hedefler", pwN >= 1],
+    ["cardio","heart","Kardiyo 300 dk","Toplam 300 dk kardiyo", caT >= 300],
+    ["vol5k","dumbbell","5 ton","Bir antrenmanda toplam 5.000 kg", maxVol >= 5000],
+    ["meas1","ruler","İlk ölçüm","Vücut ölçülerini ilk kez gir", !!lastMeasDay()],
+    ["kg10","trenddown","−10 kg","İlk tartından 10 kg ver", lost >= 10],
+    ["hb30","check","Alışkanlık 30 gün","Bir alışkanlığı 30 gün üst üste yap", (root.habits || []).some(x => bestStreak(ds => !!((root.days[ds] || {}).hb || {})[x.id]) >= 30)],
     ["cr30","zap","Kreatin 30 gün","30 gün üst üste kreatin", creS >= 30],
   ];
 }
+// ================= GÜNLÜK / HAFTALIK GÖREVLER =================
+function dailyTasks(ds){
+  const d = root.days[ds] || blankDay(), g = root.goals, sm = sum(d), H = root.habits || [], hb = d.hb || {};
+  const t = [
+    ["droplet", `Su hedefi (${g.w} bardak)`, d.w >= g.w, `${d.w}/${g.w}`],
+    ["egg", `Protein ${g.p} g`, d.f.length > 0 && sm.p >= g.p, `${Math.round(sm.p)}/${g.p}`],
+    ["utensils", "Kalori hedefinde kal (±%10)", sm.k >= g.k * .9 && sm.k <= g.k * 1.1, `${fmt(sm.k)}`],
+    ["shoe", `${fmt(g.st)} adım`, +d.st >= g.st, `${fmt(+d.st || 0)}`],
+    ["dumbbell", "Antrenman ya da boş gün", !!(d.wo || d.rest), d.wo ? "✓" : d.rest ? "boş" : ""],
+  ];
+  if(H.length) t.push(["check", "Bütün alışkanlıklar", H.every(x => hb[x.id]), `${H.filter(x => hb[x.id]).length}/${H.length}`]);
+  return t;
+}
+const perfectDay = ds => { const t = dailyTasks(ds); return (root.days[ds] || {}).f?.length > 0 && t.every(x => x[2]); };
+function weeklyTasks(mon){
+  const ds = Array.from({length: 7}, (_, i) => shift(mon, i)), D = ds.map(x => root.days[x] || blankDay()), g = root.goals;
+  const cnt = f => D.filter(f).length, steps = D.reduce((a, d) => a + (+d.st || 0), 0);
+  return [
+    ["dumbbell", "3 antrenman", cnt(d => d.wo), 3],
+    ["droplet", "5 gün su hedefi", cnt(d => d.w >= g.w), 5],
+    ["egg", "5 gün protein hedefi", cnt(d => d.f.length && sum(d).p >= g.p), 5],
+    ["shoe", `${fmt(g.st * 7)} adım (haftalık)`, steps, g.st * 7],
+    ["scale", "2 kez tartıl", cnt(d => +d.kg > 0), 2],
+  ];
+}
+const perfectWeek = mon => weeklyTasks(mon).every(t => t[2] >= t[3]);
+let taskTab = "gun";
+function renderTasks(){
+  const ds = cur, T = dailyTasks(ds), dn = T.filter(t => t[2]).length, mon = monOf(cur), W = weeklyTasks(mon), wdn = W.filter(t => t[2] >= t[3]).length;
+  const pd = Object.keys(root.days).filter(perfectDay).length;
+  const body = taskTab === "gun"
+    ? `<div class="tklist">${T.map(([ic, t, ok, v]) => `<div class="tk ${ok ? "on" : ""}"><span class="tki">${ok ? I("check") : I(ic)}</span><span class="tkt">${esc(t)}</span><small>${esc(String(v))}</small></div>`).join("")}</div>
+       <p class="small muted" style="margin:10px 0 0">${dn === T.length ? `<b style="color:var(--good)">Mükemmel gün!</b> ` : `${T.length - dn} görev kaldı. `}Toplam ${pd} mükemmel gün.</p>`
+    : `<div class="tklist">${W.map(([ic, t, v, goal]) => { const ok = v >= goal; return `<div class="tk wk ${ok ? "on" : ""}"><span class="tki">${ok ? I("check") : I(ic)}</span><span class="tkt">${esc(t)}<span class="tkb"><i style="width:${Math.min(100, v / goal * 100)}%"></i></span></span><small>${fmt(Math.min(v, goal))}/${fmt(goal)}</small></div>`; }).join("")}</div>
+       <p class="small muted" style="margin:10px 0 0">${wdn === W.length ? `<b style="color:var(--good)">Mükemmel hafta!</b>` : `${W.length - wdn} haftalık hedef kaldı · ${dayName(shift(mon, 6), {weekday:"long"})} akşamına kadar.`}</p>`;
+  $("ozTasks").innerHTML = `<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:12px"><h2 style="margin:0">${I("target")} Görevler</h2>
+    <div class="seg tseg"><button data-tt="gun" class="${taskTab === "gun" ? "on" : ""}">Günlük ${dn}/${T.length}</button><button data-tt="hafta" class="${taskTab === "hafta" ? "on" : ""}">Haftalık ${wdn}/${W.length}</button></div></div>` + body;
+}
+document.addEventListener("click", e => { const b = e.target.closest("[data-tt]"); if(b){ taskTab = b.dataset.tt; renderTasks(); } });
 function checkBadges(){
   root.badges = root.badges || {}; const fresh = [];
   for(const [id, ic, name, , ok] of badgeList()) if(ok && !root.badges[id]){ root.badges[id] = today(); fresh.push(name); }
@@ -1828,7 +1910,7 @@ document.addEventListener("click", e => {
 });
 $("spForm").onsubmit = e => { e.preventDefault(); const n = $("spName").value.trim(); if(!n) return; root.supp = root.supp || []; root.supp.push({id: Math.random().toString(36).slice(2, 8), name: n, dose: $("spDose").value.trim()}); $("spName").value = $("spDose").value = ""; save(); renderSupp(); };
 function renderHareket(d){
-  checkBadges(); if(tab === "ozet") renderStreaks();
+  checkBadges(); if(tab === "ozet"){ renderStreaks(); renderTasks(); }
   renderSupp(); renderHab(); renderTrack();
   renderMeas();
   if($("hWoS")) $("hWoS").innerHTML = d.wo ? `<span style="color:var(--good);font-weight:700">✓ ${esc(d.wo)}</span>${+d.ca > 0 ? ` · ${fmt(+d.ca)} dk kardiyo` : ""}` : (+d.ca > 0 ? `${fmt(+d.ca)} dk kardiyo` : "Bu gün antrenman yok");
