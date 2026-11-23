@@ -55,7 +55,8 @@
   label.f{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:600;color:var(--muted);flex:1 1 130px}
   input,select{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 11px;width:100%;min-height:44px}
   input:focus,select:focus{outline:2px solid var(--accent);outline-offset:-1px}
-  button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:10px 16px;cursor:pointer;background:var(--accent);color:#fff;min-height:44px}
+  button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:10px 16px;cursor:pointer;background:transparent;color:var(--ink);border:1px solid var(--line);min-height:44px}
+  button:hover{background:var(--bg)}
   button.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
   button.ghost:hover{color:var(--ink)}
   button.icon{background:transparent;color:var(--muted);padding:6px 10px;min-width:40px;min-height:40px}
@@ -151,7 +152,7 @@
   .fres li button b{font-weight:600}
   .fres li button small{color:var(--muted);font-weight:500;text-align:right;max-width:58%}
   .fres li button:hover{background:var(--bg)}
-  .camBtn{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--accent);color:#fff;text-decoration:none;font-weight:700;border-radius:10px;min-height:48px;padding:0 16px}
+  .camBtn{display:flex;align-items:center;justify-content:center;gap:8px;background:transparent;color:var(--ink);border:1px solid var(--line);text-decoration:none;font-weight:700;border-radius:10px;min-height:48px;padding:0 16px}
   /* sekmeler */
   .tabs{display:flex;gap:4px;padding:4px;margin:0 0 16px;background:var(--card);border:1px solid var(--line);border-radius:99px;position:sticky;top:8px;z-index:5}
   .tabs button{flex:1;background:transparent;color:var(--muted);border-radius:99px;padding:8px 6px;font-size:14px;font-weight:700;min-height:40px}
