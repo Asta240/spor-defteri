@@ -324,6 +324,7 @@
         <h2>Bu gün yediklerin</h2>
         <ul class="list" id="fl"></ul>
         <p class="empty" id="fe">Bu gün için henüz bir şey eklemedin.</p>
+        <button class="ghost" id="fReset" style="width:100%;margin-top:12px;color:var(--bad)">Günün yemeklerini sıfırla</button>
       </div>
     </section>
 
@@ -766,6 +767,7 @@ function renderDay(){
   $("ymBar").style.width = Math.min(100, s.k / (g.k || 1) * 100) + "%";
   $("fl").innerHTML = d.f.map((x, i) => `<li><span class="n">${esc(x.n)}</span><span class="k">${fmt(x.k)} kcal · ${fmt(x.p)} g</span><button class="icon" data-del="${i}" aria-label="${esc(x.n)} sil">✕</button></li>`).join("");
   $("fe").hidden = d.f.length > 0;
+  $("fReset").hidden = !d.f.length;
   // su
   $("wv").textContent = liters(d.w);
   $("cups").innerHTML = Array.from({length: Math.max(g.w, d.w)}, (_, i) => `<span class="cup${i < d.w ? " f" : ""}"></span>`).join("");
@@ -787,6 +789,10 @@ $("ff").onsubmit = e => {
   day(cur).f.push({n, k, p: +$("fp").value || 0});
   $("fn").value = $("fk").value = $("fp").value = ""; $("fn").focus();
   save(); renderDay(); toast("+ " + n);
+};
+$("fReset").onclick = () => {
+  const ds = cur, d = day(ds), n = d.f.length, k = sum(d).k; if(!n) return;
+  ask(`${ds === today() ? "Bugünün" : dayName(ds, {day:"numeric", month:"long"}) + " gününün"} ${n} yemeği (${fmt(k)} kcal) silinsin mi?`, "Sıfırla", () => { day(ds).f = []; save(); renderDay(); toast("Yemekler sıfırlandı"); });
 };
 $("fl").onclick = e => { const b = e.target.closest("button[data-del]"); if(!b) return; day(cur).f.splice(+b.dataset.del, 1); save(); renderDay(); };
 const addWater = () => { day(cur).w++; save(); renderDay(); };
@@ -830,15 +836,16 @@ function decodeYmk(c){
   if(!Array.isArray(a)) throw "Kod okunamadı.";
   return a.filter(x => Array.isArray(x) && x[0]).map(x => ({n: String(x[0]).slice(0, 80), k: Math.max(0, Math.round(+x[1] || 0)), p: Math.max(0, Math.round(+x[2] || 0))}));
 }
-function importYmk(c){
+// ds verilmezse (fotoğraf sayfasındaki link) bugüne, Kod yapıştır'da seçili güne ekler
+function importYmk(c, ds){
   const items = decodeYmk(c);
   if(!items.length) throw "Kodda yemek yok.";
-  cur = today();
+  cur = ds || today();
   day(cur).f.push(...items.map(x => ({...x, n: "📷 " + x.n})));
   save(); setTab("yemek");
-  toast(`📷 ${items.length} yemek eklendi · ${fmt(items.reduce((a, x) => a + x.k, 0))} kcal`);
+  toast(`📷 ${items.length} yemek eklendi (${cur === today() ? "bugün" : dayName(cur, {day:"numeric", month:"long"})}) · ${fmt(items.reduce((a, x) => a + x.k, 0))} kcal`);
 }
-$("ymkForm").onsubmit = e => { e.preventDefault(); try{ importYmk($("ymkIn").value); $("ymkIn").value = ""; }catch(err){ toast(typeof err === "string" ? err : "Kod okunamadı."); } };
+$("ymkForm").onsubmit = e => { e.preventDefault(); try{ importYmk($("ymkIn").value, cur); $("ymkIn").value = ""; }catch(err){ toast(typeof err === "string" ? err : "Kod okunamadı."); } };
 function applyPendingYmk(){ const c = lsGet("sd-pending-ymk"); if(!c || !root) return; lsDel("sd-pending-ymk"); try{ importYmk(c); }catch(err){ toast(typeof err === "string" ? err : "Fotoğraf kodu okunamadı."); } }
 
 // Veri aktarma linki: #veri=VRI1.<base64url JSON {days:{tarih:{f,w,wo,ca,st,bu,kg}}}>
