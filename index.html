@@ -32,7 +32,6 @@
     #vOzet>*{margin:0}
     #vOzet>.card:first-child{grid-column:1;grid-row:1 / span 2}
     #ozWo{grid-column:2;grid-row:1}
-    #vOzet>details{grid-column:1;grid-row:3}
     #ozMove{grid-column:2;grid-row:2}
     #ozWo .hxl{grid-template-columns:repeat(2,minmax(0,1fr))}
     #vYemek{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
@@ -151,12 +150,16 @@
   .tabs button{flex:1;background:transparent;color:var(--muted);border-radius:99px;padding:8px 6px;font-size:14px;font-weight:700;min-height:40px}
   .tabs button.on{background:var(--accent);color:#fff}
   /* halkalar */
-  .rings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;text-align:center}
-  .rw{position:relative;max-width:150px;margin:0 auto}
+  .rings{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;text-align:center}
+  .stepbig .v{font-size:34px;font-weight:800;letter-spacing:-.02em}
+  .stepbig .k{font-size:13px;color:var(--muted);font-weight:600}
+  .stepbig .bar{margin-top:10px}
+  #adBar{background:var(--warn)}
+  .rw{position:relative;max-width:150px;margin:0 auto;container-type:inline-size}
   .rw svg{width:100%;display:block}
-  .rv{position:absolute;inset:0;display:grid;place-content:center;font-weight:800;font-size:clamp(18px,5.4vw,26px);line-height:1;letter-spacing:-.02em}
-  .rv small{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-top:4px;white-space:nowrap;letter-spacing:0}
-  .ring b{display:block;font-size:14px;margin-top:6px}
+  .rv{position:absolute;inset:0;display:grid;place-content:center;font-weight:800;font-size:21cqw;line-height:1;letter-spacing:-.02em}
+  .rv small{display:block;font-size:max(9px,13cqw);font-weight:500;color:var(--muted);margin-top:4px;white-space:nowrap;letter-spacing:0}
+  .ring b{display:block;font-size:clamp(11px,3vw,13px);margin-top:6px}
   .sumtop{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
   .seg{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:3px}
   .seg button{background:transparent;color:var(--muted);border-radius:99px;min-height:34px;padding:0 16px;font-size:14px}
@@ -344,27 +347,12 @@
       </div>
       <div class="card" id="ozWo"></div>
       <div class="card" id="ozMove">
-        <div class="stepbox">
-          <div><div class="k">Adım</div><div class="v" id="ozStepsV">—</div></div>
-          <label class="f" style="flex:0 1 170px">Adım gir<input id="ozSteps" type="number" inputmode="numeric" min="0" placeholder="Örn. 8000"></label>
-          <label class="f" style="flex:0 1 170px">Yakılan toplam kcal<input id="ozBurn" type="number" inputmode="numeric" min="0" placeholder="Fitness'tan"></label>
-        </div>
-        <div class="tip" id="ozYest" hidden style="margin-top:8px">Dünün adım sayısını girmedin.
+        <div class="tip" id="ozYest" hidden style="margin-top:0">Dünün adım sayısını girmedin.
           <div class="row" style="margin-top:6px;gap:8px"><input id="ozYestIn" type="number" inputmode="numeric" min="0" placeholder="Dün kaç adım attın?" style="flex:1"><button id="ozYestOk">Kaydet</button></div></div>
         <div class="tip" id="ozKg" hidden style="margin-top:8px">Son tartından 3 gün geçti, bugün kaç kilosun?
           <div class="row" style="margin-top:6px;gap:8px"><input id="ozKgIn" type="number" inputmode="decimal" step="0.1" min="30" max="300" placeholder="Kilo (kg)" style="flex:1"><button id="ozKgOk">Kaydet</button></div></div>
-        <button class="linkish" id="ozProf" hidden>Yakılanı girmediğin günler otomatik hesaplansın: <b>vücut bilgilerini gir →</b></button>
+        <button class="linkish" id="ozProf" hidden>Yakılan otomatik hesaplansın: <b>vücut bilgilerini gir →</b></button>
       </div>
-      <details class="card">
-        <summary><b>Hedefler</b></summary>
-        <div class="row" style="margin-top:12px">
-          <label class="f">Kalori (kcal)<input id="gk" type="number" inputmode="numeric" min="0"></label>
-          <label class="f">Protein (g)<input id="gp" type="number" inputmode="numeric" min="0"></label>
-          <label class="f">Su (bardak)<input id="gw" type="number" inputmode="numeric" min="1"></label>
-          <label class="f">Adım<input id="gst" type="number" inputmode="numeric" min="0"></label>
-          <label class="f">Yakılan (kcal)<input id="gbu" type="number" inputmode="numeric" min="0"></label>
-        </div>
-      </details>
     </section>
 
     <!-- YEMEK -->
@@ -421,11 +409,35 @@
         <div class="row">
           <label class="f">Antrenman<select id="wo"></select></label>
           <label class="f">Kardiyo (dk)<input id="ca" type="number" inputmode="numeric" min="0"></label>
-          <label class="f">Adım<input id="st" type="number" inputmode="numeric" min="0"></label>
-          <label class="f">Yakılan toplam kcal<input id="bu" type="number" inputmode="numeric" min="0"></label>
           <label class="f">Kilo (sabah, kg)<input id="kg" type="number" inputmode="decimal" step="0.05" min="0"></label>
         </div>
-        <p class="small muted" style="margin:10px 0 0">Yakılanı telefonundaki Fitness/Sağlık uygulamasının TOPLAM değerinden yaz. Telefon ağırlık antrenmanını ve cepte olmayan kardiyoyu saymaz, o günler ~150–300 ekle.</p>
+      </div>
+    </section>
+
+    <!-- ADIM VE YAKILAN -->
+    <section id="vAdim" hidden>
+      <div class="card">
+        <div class="stepbig"><div class="k">Adım</div><div class="v" id="adV">—</div><div class="small muted" id="adK"></div>
+          <div class="bar"><i id="adBar"></i></div></div>
+        <div class="row" style="margin-top:12px">
+          <label class="f">Adım<input id="st" type="number" inputmode="numeric" min="0" placeholder="Örn. 8000"></label>
+          <label class="f">Yakılan toplam kcal (Fitness)<input id="bu" type="number" inputmode="numeric" min="0"></label>
+        </div>
+        <p class="small muted" id="adNote" style="margin:10px 0 0"></p>
+      </div>
+    </section>
+
+    <!-- HEDEFLER -->
+    <section id="vHedef" hidden>
+      <div class="card">
+        <div class="row">
+          <label class="f">Kalori (kcal)<input id="gk" type="number" inputmode="numeric" min="0"></label>
+          <label class="f">Protein (g)<input id="gp" type="number" inputmode="numeric" min="0"></label>
+          <label class="f">Su (bardak)<input id="gw" type="number" inputmode="numeric" min="1"></label>
+          <label class="f">Adım<input id="gst" type="number" inputmode="numeric" min="0"></label>
+          <label class="f">Yakılan (kcal)<input id="gbu" type="number" inputmode="numeric" min="0"></label>
+        </div>
+        <p class="small muted" style="margin:10px 0 0">Ana sayfadaki halkalar bu hedeflere göre dolar.</p>
       </div>
     </section>
 
@@ -473,11 +485,13 @@
     <button data-v="ozet">🏠 Günün özeti</button>
     <button data-v="yemek">🍽️ Yemek</button>
     <button data-v="su">💧 Su</button>
-    <button data-v="hareket">🚶 Hareket ve kilo</button>
+    <button data-v="adim">👟 Adım ve yakılan</button>
+    <button data-v="hareket">🏃 Antrenman ve kilo</button>
     <div class="sep"></div>
     <button data-v="cards">🗂️ Antrenman kartları</button>
     <button data-v="lib">🏋️ Hareketler</button>
     <button data-v="prog">📈 İlerleme</button>
+    <button data-v="hedef">🎯 Hedefler</button>
     <div class="sep"></div>
     <a id="camLink2" target="_blank" rel="noopener">📷 Fotoğraftan kalori</a>
     <button id="dAcc">👤 Hesap</button>
@@ -845,8 +859,8 @@ function ask(text, yes, onYes){
 }
 
 // ================= MENÜ / SAYFALAR =================
-const VIEWS = {ozet:["vOzet","Günün özeti"], yemek:["vYemek","Yemek"], su:["vSu","Su"], hareket:["vHareket","Hareket ve kilo"], cards:["tCards","Antrenman kartları"], lib:["tLib","Hareketler"], prog:["tProg","İlerleme"]};
-const DATED = ["ozet","yemek","su","hareket"];
+const VIEWS = {ozet:["vOzet","Günün özeti"], yemek:["vYemek","Yemek"], su:["vSu","Su"], adim:["vAdim","Adım ve yakılan"], hareket:["vHareket","Antrenman ve kilo"], hedef:["vHedef","Hedefler"], cards:["tCards","Antrenman kartları"], lib:["tLib","Hareketler"], prog:["tProg","İlerleme"]};
+const DATED = ["ozet","yemek","su","adim","hareket"];
 function setTab(t){
   if(!VIEWS[t]) t = "ozet";
   tab = t;
@@ -876,7 +890,7 @@ document.addEventListener("click", e => { const a = e.target.closest(".anim"); i
 // ================= GÜNLÜK SAYFALAR (özet, yemek, su, hareket) =================
 function ring(val, goal, col, label, u, go){
   const r = 50, C = 2*Math.PI*r, pc = Math.min(val/(goal||1), 1);
-  return `<div class="ring"${go ? ` data-go="${go}" role="button" tabindex="0" aria-label="${label}: ${fmt(val)} / ${fmt(goal)} ${u}, aç"` : ""}><div class="rw"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--line)" stroke-width="13"/><circle class="p" cx="60" cy="60" r="${r}" fill="none" stroke="${col}" stroke-width="13" stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C*(1-pc)).toFixed(1)}" transform="rotate(-90 60 60)"/></svg><div class="rv">${fmt(val)}<small>/ ${fmt(goal)} ${u}</small></div></div><b>${label}</b></div>`;
+  return `<div class="ring"${go ? ` data-go="${go}" role="button" tabindex="0" aria-label="${label}: ${fmt(val)} / ${fmt(goal)} ${u}, aç"` : ""}><div class="rw"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--line)" stroke-width="11"/><circle class="p" cx="60" cy="60" r="${r}" fill="none" stroke="${col}" stroke-width="11" stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C*(1-pc)).toFixed(1)}" transform="rotate(-90 60 60)"/></svg><div class="rv">${fmt(val)}<small>/ ${fmt(goal)}</small></div></div><b>${label}</b></div>`;
 }
 // Haftanın özeti (seçili günün haftası, Pazartesi–Pazar; gelecek günler sayılmaz)
 let sumMode = lsGet("sd-sum") === "hafta" ? "hafta" : "gun";
@@ -892,7 +906,7 @@ function renderWeekSum(){
   const avg = (a, f) => a.length ? a.reduce((t, x) => t + f(x), 0) / a.length : 0;
   const aK = avg(ate, x => x.s.k), aP = avg(ate, x => x.s.p), aW = avg(wat, x => x.d.w);
   $("sumRange").textContent = "";
-  $("rings").innerHTML = ring(aK, g.k, "var(--bad)", "Ort. kalori", "kcal", "prog") + ring(aP, g.p, "var(--good)", "Ort. protein", "g", "prog") + ring(aW, g.w, "var(--accent)", "Ort. su", "bardak", "prog") + ring(avg(past.filter(x => +x.d.st > 0), x => +x.d.st), g.st, "var(--warn)", "Ort. adım", "", "") + ring(avg(past.filter(x => burnedOf(x.ds).v > 0), x => burnedOf(x.ds).v), g.bu, "#ae3ec9", "Ort. yakılan", "kcal", "");
+  $("rings").innerHTML = ring(aK, g.k, "var(--bad)", "Ort. kalori", "kcal", "prog") + ring(aP, g.p, "var(--good)", "Ort. protein", "g", "prog") + ring(aW, g.w, "var(--accent)", "Ort. su", "bardak", "prog") + ring(avg(past.filter(x => +x.d.st > 0), x => +x.d.st), g.st, "var(--warn)", "Ort. adım", "", "adim") + ring(avg(past.filter(x => burnedOf(x.ds).v > 0), x => burnedOf(x.ds).v), g.bu, "#ae3ec9", "Ort. yakılan", "kcal", "adim");
   const nets = past.filter(x => burnedOf(x.ds).v > 0 && x.d.f.length), net = nets.reduce((t, x) => t + x.s.k - burnedOf(x.ds).v, 0), anyEst = nets.some(x => burnedOf(x.ds).est);
   const wo = past.filter(x => x.d.wo).length, kgs = past.filter(x => +x.d.kg > 0), dk = kgs.length > 1 ? +kgs[kgs.length - 1].d.kg - +kgs[0].d.kg : null;
   $("bal").innerHTML = `<div>Toplam açık<strong class="${!nets.length ? "" : net < 0 ? "neg" : "pos"}">${nets.length ? (net > 0 ? "+" : "") + fmt(net) : "—"}</strong></div><div>Antrenman<strong>${wo} gün</strong></div><div>Kilo<strong class="${dk == null ? "" : dk <= 0 ? "neg" : "pos"}">${dk == null ? (kgs.length ? num(kgs[0].d.kg) : "—") : (dk > 0 ? "+" : "") + num(dk) + " kg"}</strong></div>`;
@@ -951,17 +965,20 @@ function renderDay(){
     $("sumRange").textContent = "";
     $("rings").innerHTML = ring(s.k, g.k, "var(--bad)", "Kalori", "kcal", "yemek") + ring(s.p, g.p, "var(--good)", "Protein", "g", "yemek") + ring(d.w, g.w, "var(--accent)", "Su", "bardak", "su");
     const B = burnedOf(cur), net = B.v ? s.k - B.v : null;
-    $("rings").innerHTML += ring(+d.st || 0, g.st, "var(--warn)", "Adım", "", "") + ring(B.v, g.bu, "#ae3ec9", "Yakılan", "kcal", "");
+    $("rings").innerHTML += ring(+d.st || 0, g.st, "var(--warn)", "Adım", "", "adim") + ring(B.v, g.bu, "#ae3ec9", "Yakılan", "kcal", "adim");
     $("bal").innerHTML = `<div>Kalan<strong>${fmt(Math.max(g.k - s.k, 0))}</strong></div><div>Yakılan<strong>${burnTxt(B)}</strong>${bmrOn(cur) ? `<span class="bmrl">BMR ${fmt(bmrOn(cur))}${+d.st > 0 ? " + adım " + fmt(stepKcal(cur)) : ""}</span>` : ""}</div><div>Açık<strong class="${net == null ? "" : net < 0 ? "neg" : "pos"}">${net == null ? "—" : (net > 0 ? "+" : "") + fmt(net)}</strong></div>`;
   }
   renderHomeWo();
-  $("ozStepsV").innerHTML = d.st ? fmt(d.st) + ` <span class="small muted" style="font-weight:500">≈ ${fmt(stepKcal(cur))} kcal</span>` : "—";
-  if(document.activeElement !== $("ozSteps")) $("ozSteps").value = d.st ?? "";
-  if(document.activeElement !== $("ozBurn")) $("ozBurn").value = d.bu ?? "";
-  { const e = estBurn(cur); $("ozBurn").placeholder = e ? `Boşsa ${fmt(e)}` : "Fitness'tan"; $("ozProf").hidden = !!bmrOn(cur);
+  $("adV").textContent = d.st ? fmt(d.st) + " / " + fmt(g.st) : "— / " + fmt(g.st);
+  $("adK").textContent = d.st ? `≈ ${fmt(stepKcal(cur))} kcal yaktı` : "";
+  $("adBar").style.width = Math.min(100, (+d.st || 0) / (g.st || 1) * 100) + "%";
+  { const e = estBurn(cur), b0 = bmrOn(cur); $("bu").placeholder = e ? `Boşsa ${fmt(e)}` : "";
+    $("adNote").textContent = b0 ? `Yakılanı girmezsen: BMR ${fmt(b0)} + adım ${fmt(stepKcal(cur))} = ${fmt(e)} kcal yazılır. Fitness/Sağlık'taki TOPLAM değeri girersen o kullanılır.` : "Fitness/Sağlık uygulamasındaki TOPLAM yakılanı yaz. Vücut bilgilerini (👤 Hesap) girersen boş günler BMR + adımla hesaplanır.";
+    $("ozProf").hidden = !!bmrOn(cur);
     const y = shift(today(), -1), yd = root.days[y], old = Object.keys(root.days).some(k => k < today());
     $("ozYest").hidden = !(cur === today() && old && !(yd && +yd.st > 0));
-    const lk = lastWeighDay(); $("ozKg").hidden = !(cur === today() && bmrOn(cur) && (!lk || shift(lk, 3) <= today())); }
+    const lk = lastWeighDay(); $("ozKg").hidden = !(cur === today() && bmrOn(cur) && (!lk || shift(lk, 3) <= today()));
+    $("ozMove").hidden = $("ozYest").hidden && $("ozKg").hidden && $("ozProf").hidden; }
   // yemek
   $("ymSum").innerHTML = `${fmt(s.k)} / ${fmt(g.k)} kcal <span>· ${fmt(s.p)} / ${fmt(g.p)} g protein</span>`;
   $("ymLeft").textContent = s.k <= g.k ? `${fmt(g.k - s.k)} kcal kaldı` : `${fmt(s.k - g.k)} kcal fazla`;
@@ -1261,11 +1278,9 @@ $("ozWo").addEventListener("click", e => {
   }
   if(b.id === "woCancel") return ask("Aktif antrenman kaydedilmeden kapatılsın mı?", "Kapat", () => { root.session = null; save(); renderDay(); });
 });
-$("ozSteps").addEventListener("input", e => { day(cur).st = e.target.value; save(); renderDay(); });
 $("ozProf").onclick = () => $("codeBtn").click();
 $("ozYestOk").onclick = () => { const v = +$("ozYestIn").value; if(!(v > 0)) return; const y = shift(today(), -1); root.days[y] = root.days[y] || blankDay(); root.days[y].st = String(Math.round(v)); $("ozYestIn").value = ""; save(); renderAll(); toast("Dünün adımı kaydedildi"); };
 $("ozKgOk").onclick = () => { const v = +$("ozKgIn").value; if(!(v >= 30 && v <= 300)) return; day(today()).kg = String(v); root.profile = Object.assign({}, root.profile, {w: v, wd: today()}); $("ozKgIn").value = ""; save(); renderAll(); toast("Kilo kaydedildi"); };
-$("ozBurn").addEventListener("input", e => { day(cur).bu = e.target.value; save(); renderDay(); });
 // Kart kısayolu: Kartlar sayfasında o kartı açar (aktif antrenmanın kartıysa antrenmanı)
 let listOverride = false;
 function goCard(id){
