@@ -448,6 +448,17 @@
   .dav{width:44px;height:44px;border-radius:99px;background:linear-gradient(135deg,var(--accent),#ae3ec9);color:#fff;display:grid;place-items:center;font-weight:800;font-size:20px;flex:none}
   .dprof b{display:block;font-size:15px} .dprof small{font-size:12px;color:var(--muted)}
   .dlab{color:var(--accent)!important;padding:10px 12px 4px!important;font-size:11px!important}
+  .stks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .stk{position:relative;background:var(--card-2);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;opacity:.6}
+  .stk.on{opacity:1;background:linear-gradient(135deg,rgba(255,146,43,.18),rgba(255,107,107,.10))}
+  .stk .ic{font-size:18px} .stk b{font-size:24px;font-weight:800;line-height:1.1} .stk small{font-size:12px;color:var(--muted)}
+  .stk i{position:absolute;top:8px;right:10px;font-style:normal;color:var(--good);font-weight:800}
+  .bdrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;align-items:center}
+  .bd{width:36px;height:36px;border-radius:99px;background:var(--card-2);display:grid;place-items:center;font-size:18px}
+  .bdgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+  .bdc{background:var(--card-2);border-radius:14px;padding:12px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;filter:grayscale(1);opacity:.45}
+  .bdc.on{filter:none;opacity:1;background:linear-gradient(135deg,rgba(255,212,59,.16),rgba(255,146,43,.08))}
+  .bdc span{font-size:30px} .bdc b{font-size:13px} .bdc small{font-size:11px;color:var(--muted)}
   .hkSteps{padding-left:20px;margin:12px 0;font-size:14px;display:flex;flex-direction:column;gap:6px}
   #hkUrl{font-size:13px}
   .kgoal{margin-top:10px;background:var(--card-2);border-radius:12px;padding:10px 12px;font-size:14px}
@@ -482,8 +493,8 @@
     #vOzet .rings{gap:14px;margin-top:6px}
     #vOzet .rw{max-width:132px}
     #ozWo{grid-column:1;grid-row:2}
-    #ozMove{grid-column:2;grid-row:2}
-    #vOzet:has(#ozMove[hidden]) #ozWo{grid-column:1 / -1}
+    #ozStreak{grid-column:2;grid-row:2}
+    #ozMove{grid-column:1 / -1;grid-row:3}
   }
 </style>
 </head>
@@ -558,6 +569,7 @@
         <div class="wstrip" id="wStrip" hidden></div>
       </div>
       <div class="card" id="ozWo"></div>
+      <div class="card" id="ozStreak"></div>
       <div class="card" id="ozMove">
         <div class="tip" id="ozYest" hidden style="margin-top:0">Dünün adım sayısını girmedin.
           <div class="row" style="margin-top:6px;gap:8px"><input id="ozYestIn" type="number" inputmode="numeric" min="0" placeholder="Dün kaç adım attın?" style="flex:1"><button id="ozYestOk">Kaydet</button></div></div>
@@ -743,6 +755,10 @@
         <h2>Kilo</h2>
         <div class="fig" id="kgFig"></div>
         <p class="small muted" id="kgNote"></p>
+      </div>
+      <div class="card" style="grid-column:1 / -1">
+        <h2>🏅 Rozetler</h2>
+        <div class="bdgrid" id="bdGrid"></div>
       </div>
       <div class="card">
         <h2>📈 Hareketlerde gelişim</h2>
@@ -1364,7 +1380,57 @@ $("dnav").onclick = e => { const b = e.target.closest("button[data-v]"); if(b){ 
 $("camLink").href = FOTO_URL;
 document.addEventListener("click", e => { const g = e.target.closest("[data-go]"); if(g) setTab(g.dataset.go); });
 document.addEventListener("keydown", e => { const g = e.target.closest && e.target.closest("[data-go][role=button]"); if(g && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); setTab(g.dataset.go); } });
-function renderAll(){ if(!root) return; if(DATED.includes(tab)) renderDay(); if(tab === "cards") renderCards(); if(tab === "lib") renderLib(); if(tab === "prog") renderProg(); }
+// ================= SERİLER + ROZETLER =================
+// Seri: bugün tuttuysa bugünden, tutmadıysa dünden geriye sayılır (bugün henüz bozulmuş sayılmaz)
+function streak(ok){ let n = 0, ds = today(); if(!ok(ds)) ds = shift(ds, -1); while(n < 3650 && ok(ds)){ n++; ds = shift(ds, -1); } return n; }
+function bestStreak(ok){ const ks = Object.keys(root.days).sort(); let best = 0, run = 0, prev = ""; for(const k of ks){ if(ok(k)){ run = prev && shift(prev, 1) === k ? run + 1 : 1; prev = k; best = Math.max(best, run); } else { run = 0; prev = ""; } } return best; }
+const okWo = ds => { const d = root.days[ds]; return !!(d && (d.wo || d.rest)); };
+const okWater = ds => { const d = root.days[ds]; return !!(d && d.w >= root.goals.w); };
+const okProt = ds => { const d = root.days[ds]; return !!(d && d.f.length && sum(d).p >= root.goals.p); };
+function badgeList(){
+  const days = Object.values(root.days), woN = days.filter(d => d.wo).length, maxSt = Math.max(0, ...days.map(d => +d.st || 0));
+  const bw = bestStreak(okWater), bp = bestStreak(okProt), bo = bestStreak(okWo);
+  const kgs = Object.keys(root.days).sort().filter(k => +root.days[k].kg > 0).map(k => +root.days[k].kg), lost = kgs.length > 1 ? kgs[0] - Math.min(...kgs) : 0;
+  const T = +root.goals.kgT || 0, lastKg = kgs[kgs.length - 1] || 0;
+  const cre = (root.supp || []).find(x => /kreatin/i.test(x.name)), creS = cre ? bestStreak(ds => !!((root.days[ds] || {}).sp || {})[cre.id]) : 0;
+  const pr = Object.keys(root.lifts).some(id => (root.lifts[id] || []).length > 1 && bestOf(id) && bestOf(id).d !== root.lifts[id][0].d);
+  return [
+    ["wo1","🏋️","İlk antrenman","1 antrenman bitir", woN >= 1],
+    ["wo10","💪","10 antrenman","Toplam 10 antrenman", woN >= 10],
+    ["wo50","🦾","50 antrenman","Toplam 50 antrenman", woN >= 50],
+    ["wos7","📅","7 gün düzen","7 gün üst üste antrenman ya da planlı boş gün", bo >= 7],
+    ["w3","💧","Su 3 gün","3 gün üst üste su hedefi", bw >= 3],
+    ["w7","🌊","Su 7 gün","7 gün üst üste su hedefi", bw >= 7],
+    ["w30","🐳","Su 30 gün","30 gün üst üste su hedefi", bw >= 30],
+    ["p3","🥚","Protein 3 gün","3 gün üst üste protein hedefi", bp >= 3],
+    ["p7","🍗","Protein 7 gün","7 gün üst üste protein hedefi", bp >= 7],
+    ["p30","🥩","Protein 30 gün","30 gün üst üste protein hedefi", bp >= 30],
+    ["st10","👟","10 bin adım","Bir günde 10.000 adım", maxSt >= 10000],
+    ["st20","🏃","20 bin adım","Bir günde 20.000 adım", maxSt >= 20000],
+    ["pr","🏆","Rekor kırıcı","Bir harekette rekorunu geliştir", pr],
+    ["kg2","📉","−2 kg","İlk tartından 2 kg ver", lost >= 2],
+    ["kg5","🎯","−5 kg","İlk tartından 5 kg ver", lost >= 5],
+    ["goal","🥇","Hedef kilo","Hedef kilona ulaş", !!(T && lastKg && Math.abs(lastKg - T) < .3)],
+    ["cr30","⚡","Kreatin 30 gün","30 gün üst üste kreatin", creS >= 30],
+  ];
+}
+function checkBadges(){
+  root.badges = root.badges || {}; const fresh = [];
+  for(const [id, ic, name, , ok] of badgeList()) if(ok && !root.badges[id]){ root.badges[id] = today(); fresh.push(ic + " " + name); }
+  if(fresh.length){ save(); setTimeout(() => toast("🏅 Yeni rozet: " + fresh.join(", ")), 400); }
+}
+function renderStreaks(){
+  const W = streak(okWo), A = streak(okWater), P = streak(okProt), B = badgeList(), got = B.filter(b => b[4]);
+  const chip = (ic, n, t, ok) => `<div class="stk ${n ? "on" : ""}"><span class="ic">${ic}</span><b>${n}</b><small>${t}</small>${ok ? `<i title="Bugün tamam">✓</i>` : ""}</div>`;
+  $("ozStreak").innerHTML = `<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:12px"><h2 style="margin:0">🔥 Seriler</h2><button class="linkish small" id="bdGo">${got.length}/${B.length} rozet →</button></div>
+    <div class="stks">${chip("🏋️", W, "gün antrenman", okWo(today()))}${chip("💧", A, "gün su", okWater(today()))}${chip("🥚", P, "gün protein", okProt(today()))}</div>
+    <div class="bdrow">${got.slice(-6).map(b => `<span class="bd on" title="${esc(b[2])}">${b[1]}</span>`).join("") || `<span class="small muted">İlk rozet için bugün su ya da protein hedefini tuttur.</span>`}</div>`;
+  $("bdGo").onclick = () => setTab("prog");
+}
+function renderBadges(){
+  $("bdGrid").innerHTML = badgeList().map(([id, ic, name, desc, ok]) => `<div class="bdc ${ok ? "on" : ""}"><span>${ic}</span><b>${esc(name)}</b><small>${ok && root.badges?.[id] ? dayName(root.badges[id], {day:"numeric", month:"short"}) : esc(desc)}</small></div>`).join("");
+}
+function renderAll(){ if(!root) return; checkBadges(); if(tab === "prog") renderBadges(); if(DATED.includes(tab)) renderDay(); if(tab === "cards") renderCards(); if(tab === "lib") renderLib(); if(tab === "prog") renderProg(); }
 
 // Hareket görselleri: tıklayınca oynar, tekrar tıklayınca durur (kütüphane kartında tıklama detayı açar)
 document.addEventListener("click", e => { const a = e.target.closest(".anim"); if(a && !a.closest(".exc")){ e.preventDefault(); a.classList.toggle("play"); } }, true);
@@ -1537,6 +1603,7 @@ document.addEventListener("click", e => {
 });
 $("spForm").onsubmit = e => { e.preventDefault(); const n = $("spName").value.trim(); if(!n) return; root.supp = root.supp || []; root.supp.push({id: Math.random().toString(36).slice(2, 8), name: n, dose: $("spDose").value.trim()}); $("spName").value = $("spDose").value = ""; save(); renderSupp(); };
 function renderHareket(d){
+  checkBadges(); if(tab === "ozet") renderStreaks();
   renderSupp();
   renderMeas();
   if($("hWoS")) $("hWoS").innerHTML = d.wo ? `<span style="color:var(--good);font-weight:700">✓ ${esc(d.wo)}</span>${+d.ca > 0 ? ` · ${fmt(+d.ca)} dk kardiyo` : ""}` : (+d.ca > 0 ? `${fmt(+d.ca)} dk kardiyo` : "Bu gün antrenman yok");

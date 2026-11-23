@@ -55,3 +55,4 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Hareket detayı: `FEEL[id]` = [nerede hissetmeli, nasıl hissettirmeli, yaygın hata] + `GEN_TIP[grup]` nefes/tempo.
 - Su sayfası: bardak görseli (`wFill`), son 7 gün çubukları, su hatırlatması burada (`gwr`).
 - Menü üstünde profil (`dProf`: baş harf, ad, boy·kilo) → Hesap. Hesap sayfası PC'de iki sütun.
+- Seriler + rozetler: `streak(ok)` (bugün tutmadıysa dünden sayar), `okWo` (antrenman ya da boş gün) / `okWater` / `okProt`; ana sayfa `#ozStreak` (`renderStreaks`), İlerleme `#bdGrid` (`renderBadges`), 17 rozet `badgeList()`, kazanılan tarih `root.badges`, yeni rozette toast (`checkBadges`).
