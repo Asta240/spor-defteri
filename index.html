@@ -735,6 +735,7 @@
   .hsc .tbar{margin-top:6px;background:var(--card)} .hsc small.muted{font-size:12px}
   .hgrp .tch{margin-bottom:12px}
   .hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px}
+  .dbh{display:flex;gap:6px;align-items:flex-start;margin-top:8px;line-height:1.4} .dbh svg.i{flex:none;width:15px;height:15px;margin-top:1px;color:var(--accent)} .dbh b{color:var(--ink)}
   .hfq{margin-top:6px;min-height:0;height:28px;padding:2px 8px;font-size:12px;width:auto;max-width:100%;background:var(--card-2);border:1px solid var(--line);border-radius:8px;color:var(--muted)}
   .htile{display:flex;align-items:center;gap:12px;background:var(--card-2);border-radius:14px;padding:10px 6px 10px 10px;border:1px solid transparent}
   .htile.on{border-color:rgba(255,159,28,.3)}
@@ -1202,6 +1203,17 @@ const num = n => (+n || 0).toLocaleString("tr-TR", {maximumFractionDigits: 2});
 
 // ================= HAREKET KÜTÜPHANESİ =================
 // id = img/ klasörü. en = YouTube araması için. u = birim (yoksa tekrar).
+// Dambıllı hareketlerde hangi kilo yazılır: p = her elde bir dambıl, b = tek dambıl iki elle, o = tek kol
+const DB_KIND = {Dumbbell_Flyes:"p", Dumbbell_Shoulder_Press:"p", Side_Lateral_Raise:"p", Hammer_Curls:"p", Incline_Dumbbell_Curl:"p", Incline_Dumbbell_Press:"p", Dumbbell_Bench_Press:"p", Arnold_Dumbbell_Press:"p", Front_Dumbbell_Raise:"p", Reverse_Flyes:"p", Dumbbell_Shrug:"p", Dumbbell_Lunges:"p",
+  Standing_Dumbbell_Triceps_Extension:"b", Goblet_Squat:"b", "One-Arm_Dumbbell_Row":"o", Concentration_Curls:"o"};
+function dbHint(id, kg, xi){
+  const k = DB_KIND[id]; if(!k) return "";
+  const v = +kg > 0 ? num(+kg) : null;
+  const t = k === "p" ? `Tek dambılın kilosunu yaz: iki elinde 5'er kg varsa <b>5</b> yaz.${v ? ` Şu an her elde ${v} kg, toplam ${num(+kg * 2)} kg.` : ""}`
+    : k === "b" ? `Tek dambılı iki elle tutuyorsun: dambılın kilosunu yaz (10 kg'lık dambıl → <b>10</b>).`
+    : `Tek kolla: dambılın kilosunu yaz (8 kg'lık dambıl → <b>8</b>); tekrar her kol için ayrı.`;
+  return `<div class="small muted dbh" id="dbh${xi}">${I("bulb")}<span>${t}</span></div>`;
+}
 const EX = [
   {id:"Leverage_Incline_Chest_Press", tr:"Incline Machine Press", en:"incline machine chest press", g:"Göğüs", s:4, r:10,
    how:["Koltuğu, tutamaklar göğsünün üst hizasına gelecek şekilde ayarla.","Sırtını yasla, kürek kemiklerini geriye sık.","Tutamakları öne-yukarı it, dirseği kilitlemeden yavaşça geri getir."], tip:"Üst göğsü çalıştırır. Omuzların kulağa doğru kalkmasın."},
@@ -2616,7 +2628,7 @@ $("tCards").addEventListener("change", e => {
   const t = e.target;
   if(t.id === "woT" || t.id === "caT"){ const d = day(today()); if(t.id === "woT") d.wo = t.value; else d.ca = t.value; save(); renderCards(); return; }
   if(t.dataset.set){ const [ci, xi, k] = t.dataset.set.split(":"); const v = Math.max(1, Math.round(+t.value || 1)); root.cards[ci].ex[xi][k] = v; t.value = v; save(); }
-  if(t.dataset.kg || t.dataset.rp){ const [xi, si] = (t.dataset.kg || t.dataset.rp).split(":"); const st = root.session.ex[xi].sets[si]; if(t.dataset.kg){ st.kg = t.value; kgSrc[xi] = +si; } else st.r = t.value; save(); }
+  if(t.dataset.kg || t.dataset.rp){ const [xi, si] = (t.dataset.kg || t.dataset.rp).split(":"); const st = root.session.ex[xi].sets[si]; if(t.dataset.kg){ st.kg = t.value; kgSrc[xi] = +si; const h = $("dbh" + xi), x = root.session.ex[xi]; if(h) h.outerHTML = dbHint(x.id, t.value, xi); } else st.r = t.value; save(); }
 });
 $("tCards").addEventListener("click", e => {
   const b = e.target.closest("button"); if(!b) return;
@@ -2833,9 +2845,9 @@ function renderSession(){
     <div class="row" style="justify-content:space-between;align-items:center"><div><h2 style="margin:0">${esc(S.card)}</h2><div class="small muted">${dayName(S.date, {weekday:"long", day:"numeric", month:"long"})}</div></div><div class="wotop" style="align-items:center"><span class="pill">${S.ex.reduce((a, x) => a + x.sets.filter(s => s.done).length, 0)} / ${S.ex.reduce((a, x) => a + x.sets.length, 0)} set</span><button class="ghost small-btn" id="sesEnd">Bitir ve kaydet ✓</button><button class="ghost small-btn" id="sesCancel">İptal et</button></div></div>
     ${S.ex.map((x, xi) => { const e = EXM[x.id], l = lastLift(x.id); return `<div class="logex">
       <div class="row" style="align-items:center;flex-wrap:nowrap"><div style="width:72px;flex:none">${anim(e.id, e.tr)}</div><div style="flex:1"><h3><button data-info="${e.id}" style="all:unset;cursor:pointer">${esc(e.tr)}</button></h3><div class="small muted">${l ? "Geçen sefer: " + esc(liftText(l)) : "İlk sefer, rahat bir kiloyla başla"}</div>${(root.exNotes || {})[e.id] ? `<div class="small lognote">${I("edit")} ${esc(root.exNotes[e.id])}</div>` : ""}${(o => o ? `<div class="ovl ${o.t}">${I(o.t === "up" ? "trend" : o.t === "down" ? "trenddown" : "target")}<span>${esc(o.msg)}</span>${o.t !== "keep" ? `<button class="small-btn" data-ovl="${xi}:${o.kg}">Uygula</button>` : ""}</div>` : "")(overload(x.id, +((root.cards.find(c => c.id === S.cardId) || {ex: []}).ex.find(y => y.id === x.id) || {}).r || 10))}</div></div>
-      <div class="sets"><span class="h">Set</span><span class="h">${e.u ? "" : "kg"}</span><span class="h">${unit(e)}</span><span></span>
+      <div class="sets"><span class="h">Set</span><span class="h">${e.u ? "" : DB_KIND[e.id] === "p" ? "kg (tek el)" : "kg"}</span><span class="h">${unit(e)}</span><span></span>
       ${x.sets.map((s, si) => `<span class="i">${si + 1}</span>${e.u ? "<span></span>" : `<input type="number" inputmode="decimal" step="0.5" min="0" value="${esc(s.kg)}" data-kg="${xi}:${si}" aria-label="${si+1}. set kg">`}<input type="number" inputmode="numeric" min="0" value="${esc(s.r)}" data-rp="${xi}:${si}" aria-label="${si+1}. set ${unit(e)}"><button class="${s.done ? "done" : "ghost"}" data-ok="${xi}:${si}" aria-label="${si+1}. set tamam">✓</button>`).join("")}
-      </div><div class="row" style="margin-top:8px;gap:6px"><button class="ghost" data-addset="${xi}" style="min-height:36px">+ Set</button>${!e.u && x.sets.length > 1 ? `<button class="ghost small-btn" data-samekg="${xi}" style="min-height:36px">Tüm setlere aynı kilo</button>` : ""}</div></div>`; }).join("")}
+      </div>${dbHint(e.id, (x.sets.find(z => +z.kg > 0) || {}).kg, xi)}<div class="row" style="margin-top:8px;gap:6px"><button class="ghost" data-addset="${xi}" style="min-height:36px">+ Set</button>${!e.u && x.sets.length > 1 ? `<button class="ghost small-btn" data-samekg="${xi}" style="min-height:36px">Tüm setlere aynı kilo</button>` : ""}</div></div>`; }).join("")}
   </div>`;
 }
 function bestOf(id){ let b = null; for(const l of root.lifts[id] || []) for(const [kg, r] of l.s){ if(!b || kg > b.kg || (kg === b.kg && r > b.r)) b = {kg, r, d: l.d}; } return b; }
