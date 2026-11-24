@@ -735,6 +735,7 @@
   .hsc .tbar{margin-top:6px;background:var(--card)} .hsc small.muted{font-size:12px}
   .hgrp .tch{margin-bottom:12px}
   .hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px}
+  .hfq{margin-top:6px;min-height:0;height:28px;padding:2px 8px;font-size:12px;width:auto;max-width:100%;background:var(--card-2);border:1px solid var(--line);border-radius:8px;color:var(--muted)}
   .htile{display:flex;align-items:center;gap:12px;background:var(--card-2);border-radius:14px;padding:10px 6px 10px 10px;border:1px solid transparent}
   .htile.on{border-color:rgba(255,159,28,.3)}
   .htile.on .spck{background:var(--accent)!important;border-color:var(--accent)!important;color:#1a1205!important}
@@ -997,6 +998,7 @@
         <form id="hbForm" class="row" style="margin-top:10px">
           <input id="hbName" placeholder="Ad (örn. Kitap oku)" maxlength="30" required style="flex:1 1 180px">
           <select id="hbSeg" style="flex:0 1 140px"><option value="s">Sabah</option><option value="g" selected>Gün içi</option><option value="a">Akşam</option></select>
+          <select id="hbFreq" style="flex:0 1 150px" aria-label="Sıklık"><option value="0">Her gün</option><option value="1">Haftada 1 gün</option><option value="2">Haftada 2 gün</option><option value="3">Haftada 3 gün</option><option value="4">Haftada 4 gün</option><option value="5">Haftada 5 gün</option><option value="6">Haftada 6 gün</option></select>
           <button class="small-btn">Ekle</button>
         </form>
       </div>
@@ -1788,8 +1790,14 @@ function bestStreak(ok){ const ks = Object.keys(root.days).sort(); let best = 0,
 const okWo = ds => { const d = root.days[ds]; return !!(d && d.wo); }; // sadece gerçek antrenman (boş gün sayılmaz)
 // Antrenman serisi haftalık: haftalık antrenman hedefini (goals.woW) üst üste tutturduğun hafta sayısı
 const woWeekOk = mon => Array.from({length: 7}, (_, i) => shift(mon, i)).filter(ds => (root.days[ds] || {}).wo).length >= (+root.goals.woW || 3);
-function woWeekStreak(){ let m = monOf(today()), n = 0; if(!woWeekOk(m)) m = shift(m, -7); while(n < 520 && woWeekOk(m)){ n++; m = shift(m, -7); } return n; }
-function woWeekBest(){ const ms = [...new Set(Object.keys(root.days).map(monOf))].sort(); let best = 0, run = 0, prev = ""; for(const m of ms){ if(woWeekOk(m)){ run = prev && shift(prev, 7) === m ? run + 1 : 1; prev = m; best = Math.max(best, run); } else { run = 0; prev = ""; } } return best; }
+function wkStreakOf(ok){ let m = monOf(today()), n = 0; if(!ok(m)) m = shift(m, -7); while(n < 520 && ok(m)){ n++; m = shift(m, -7); } return n; }
+function wkBestOf(ok){ const ms = [...new Set(Object.keys(root.days).map(monOf))].sort(); let best = 0, run = 0, prev = ""; for(const m of ms){ if(ok(m)){ run = prev && shift(prev, 7) === m ? run + 1 : 1; prev = m; best = Math.max(best, run); } else { run = 0; prev = ""; } } return best; }
+const woWeekStreak = () => wkStreakOf(woWeekOk), woWeekBest = () => wkBestOf(woWeekOk);
+// Alışkanlık sıklığı: x.f boş = her gün, 1–6 = haftada x.f gün
+const habW = x => +x.f > 0 && +x.f < 7;
+const habWeekN = (id, mon) => Array.from({length: 7}, (_, i) => shift(mon, i)).filter(ds => ((root.days[ds] || {}).hb || {})[id]).length;
+const habWeekOk = x => mon => habWeekN(x.id, mon) >= +x.f;
+const habFreqTxt = x => habW(x) ? `haftada ${x.f}` : "her gün";
 const okWater = ds => { const d = root.days[ds]; return !!(d && d.w >= root.goals.w); };
 const okProt = ds => { const d = root.days[ds]; return !!(d && d.f.length && sum(d).p >= root.goals.p); };
 function badgeList(){
@@ -1824,7 +1832,7 @@ function badgeList(){
     ["kg2","trenddown","−2 kg","İlk tartından 2 kg ver", lost >= 2],
     ["kg5","target","−5 kg","İlk tartından 5 kg ver", lost >= 5],
     ["goal","medal","Hedef kilo","Hedef kilona ulaş", !!(T && lastKg && Math.abs(lastKg - T) < .3)],
-    ["hb7","check","Düzenli 7 gün","Bir alışkanlığı 7 gün üst üste yap", (root.habits || []).some(x => bestStreak(ds => !!((root.days[ds] || {}).hb || {})[x.id]) >= 7)],
+    ["hb7","check","Düzenli 7 gün","Bir alışkanlığı 7 gün (haftalıksa 4 hafta) üst üste yap", (root.habits || []).some(x => (habW(x) ? wkBestOf(habWeekOk(x)) >= 4 : bestStreak(ds => !!((root.days[ds] || {}).hb || {})[x.id]) >= 7))],
     ["wo100","trophy","100 antrenman","Toplam 100 antrenman", woN >= 100],
     ["wos30","calendar","8 hafta düzen","8 hafta üst üste haftalık antrenman hedefi", bo >= 8],
     ["wk3","dumbbell","3'lü hafta","Bir haftada 3 antrenman", wkMax >= 3],
@@ -1843,7 +1851,7 @@ function badgeList(){
     ["vol5k","dumbbell","5 ton","Bir antrenmanda toplam 5.000 kg", maxVol >= 5000],
     ["meas1","ruler","İlk ölçüm","Vücut ölçülerini ilk kez gir", !!lastMeasDay()],
     ["kg10","trenddown","−10 kg","İlk tartından 10 kg ver", lost >= 10],
-    ["hb30","check","Alışkanlık 30 gün","Bir alışkanlığı 30 gün üst üste yap", (root.habits || []).some(x => bestStreak(ds => !!((root.days[ds] || {}).hb || {})[x.id]) >= 30)],
+    ["hb30","check","Alışkanlık 30 gün","Bir alışkanlığı 30 gün (haftalıksa 12 hafta) üst üste yap", (root.habits || []).some(x => (habW(x) ? wkBestOf(habWeekOk(x)) >= 12 : bestStreak(ds => !!((root.days[ds] || {}).hb || {})[x.id]) >= 30))],
     ["cr30","zap","Kreatin 30 gün","30 gün üst üste kreatin", creS >= 30],
   ];
 }
@@ -1857,7 +1865,8 @@ function dailyTasks(ds){
     ["shoe", `${fmt(g.st)} adım`, +d.st >= g.st, `${fmt(+d.st || 0)}`],
     ["dumbbell", d.rest ? "Dinlenme günü (planlı)" : "Antrenman yap ya da boş gün seç", !!(d.wo || d.rest), d.wo ? "yapıldı" : d.rest ? "dinlenme" : ""],
   ];
-  if(H.length) t.push(["check", "Bütün alışkanlıklar", H.every(x => hb[x.id]), `${H.filter(x => hb[x.id]).length}/${H.length}`]);
+  const HD = H.filter(x => !habW(x));
+  if(HD.length) t.push(["check", "Günlük alışkanlıklar", HD.every(x => hb[x.id]), `${HD.filter(x => hb[x.id]).length}/${HD.length}`]);
   return t;
 }
 const perfectDay = ds => { const t = dailyTasks(ds); return (root.days[ds] || {}).f?.length > 0 && t.every(x => x[2]); };
@@ -1871,6 +1880,7 @@ function weeklyTasks(mon){
     ["egg", "5 gün protein hedefi", cnt(d => d.f.length && sum(d).p >= g.p), 5],
     ["shoe", `${fmt(g.st * 7)} adım (haftalık)`, steps, g.st * 7],
     ...(+(g.weW ?? 2) > 0 ? [["scale", `${g.weW ?? 2} kez tartıl`, cnt(d => +d.kg > 0), g.weW ?? 2]] : []),
+    ...(root.habits || []).filter(habW).map(x => ["check", `${x.name} (haftada ${x.f})`, habWeekN(x.id, mon), +x.f]),
   ];
 }
 const perfectWeek = mon => weeklyTasks(mon).every(t => t[2] >= t[3]);
@@ -1958,11 +1968,14 @@ function renderProgTabs(){
   const okSt = ds => +((root.days[ds] || {}).st) >= root.goals.st, okLog = ds => (root.days[ds] || {}).f?.length > 0, okPerf = ds => perfectDay(ds);
   const nut = [skItem("droplet", "Su hedefi", okWater, `${root.goals.w} bardak`), skItem("egg", "Protein hedefi", okProt, `${root.goals.p} g`), skItem("utensils", "Yemek kaydı", okLog, "her gün kayıt")];
   const wkMons = Array.from({length: 12}, (_, i) => shift(monOf(today()), -7 * (11 - i)));
+  const wkCard = (ic, title, sub, ok) => `<div class="ski"><div class="skh"><span class="hico sm">${I(ic)}</span><div style="flex:1;min-width:0"><b>${esc(title)}</b><small>${sub}</small></div><div class="skn"><b>${wkStreakOf(ok)}</b><small>hafta seri</small></div></div>
+    <div class="skheat wk">${wkMons.map(m => `<i class="${ok(m) ? "on" : ""} ${m === monOf(today()) ? "t" : ""}" title="${dayName(m, {day:"numeric", month:"short"})} haftası"></i>`).join("")}</div>
+    <div class="skf"><span>En uzun <b>${wkBestOf(ok)} hafta</b></span><span>Son 12 hafta <b>${wkMons.filter(ok).length}/12</b></span></div></div>`;
   const woCard = `<div class="ski"><div class="skh"><span class="hico sm">${I("dumbbell")}</span><div style="flex:1;min-width:0"><b>Antrenman</b><small>haftada ${+root.goals.woW || 3} gün hedefi</small></div><div class="skn"><b>${woWeekStreak()}</b><small>hafta seri</small></div></div>
     <div class="skheat wk">${wkMons.map(m => `<i class="${woWeekOk(m) ? "on" : ""} ${m === monOf(today()) ? "t" : ""}" title="${dayName(m, {day:"numeric", month:"short"})} haftası"></i>`).join("")}</div>
     <div class="skf"><span>En uzun <b>${woWeekBest()} hafta</b></span><span>Son 12 hafta <b>${wkMons.filter(woWeekOk).length}/12</b></span></div></div>`;
   const wo = [woCard, skItem("shoe", "Adım hedefi", okSt, `${fmt(root.goals.st)} adım`)];
-  const hb = H.map(x => skItem(HSEG.find(z => z[0] === habSeg(x))?.[2] || "check", x.name, hOk(x.id), HSEG.find(z => z[0] === habSeg(x))?.[1]));
+  const hb = H.map(x => habW(x) ? wkCard(HSEG.find(z => z[0] === habSeg(x))?.[2] || "check", x.name, `haftada ${x.f} gün hedefi`, habWeekOk(x)) : skItem(HSEG.find(z => z[0] === habSeg(x))?.[2] || "check", x.name, hOk(x.id), HSEG.find(z => z[0] === habSeg(x))?.[1]));
   const sp = S.map(x => skItem("pill", x.name, sOk(x.id), x.dose));
   $("pgNut").innerHTML = nut.join(""); $("pgWo").innerHTML = wo.join("");
   $("pgHab").innerHTML = hb.join("") || `<p class="small muted" style="margin:0">Alışkanlık ekleyince her birinin serisi burada çıkar.</p>`;
@@ -2305,25 +2318,29 @@ function renderMeas(){
 }
 document.addEventListener("input", e => { const k = e.target.dataset?.meas; if(!k) return; root.meas = root.meas || {}; const m = root.meas[cur] = root.meas[cur] || {}; m[k] = e.target.value; const w = weightOn(cur); if(w) m._kg = w; save(); renderMeas(); });
 const HAB_PRE = ["Sabah diş fırçala","Akşam diş fırçala","Duş / banyo","Cilt bakımı","Esneme (10 dk)","Kitap oku","Erken yat (00:00 öncesi)","Telefonsuz 1 saat","Yürüyüş","Diş ipi"];
-const habStreak = id => streak(ds => !!((root.days[ds] || {}).hb || {})[id]);
+const habStreak = id => { const x = (root.habits || []).find(y => y.id === id); return x && habW(x) ? wkStreakOf(habWeekOk(x)) : streak(ds => !!((root.days[ds] || {}).hb || {})[id]); };
+const habUnit = x => habW(x) ? "hafta" : "gün";
 const HSEG = [["s","Sabah","zap"],["g","Gün içi","clock"],["a","Akşam","moon"]];
 const habSeg = x => x.t || (/sabah|kahvalt/i.test(x.name) ? "s" : /akşam|yat|gece|uyku/i.test(x.name) ? "a" : "g");
 function renderHab(){
   const L = root.habits || [], d = root.days[cur] || blankDay(), hb = d.hb || {}, done = L.filter(x => hb[x.id]).length;
   const mon = monOf(cur), wk = Array.from({length: 7}, (_, i) => shift(mon, i)).filter(x => x <= today());
-  const wkPct = L.length && wk.length ? Math.round(wk.reduce((a, ds) => a + L.filter(x => ((root.days[ds] || {}).hb || {})[x.id]).length, 0) / (L.length * wk.length) * 100) : 0;
-  const best = L.map(x => [x, habStreak(x.id)]).sort((a, b) => b[1] - a[1])[0];
+  const LD = L.filter(x => !habW(x)), LW = L.filter(habW);
+  const wkTot = LD.length * wk.length + LW.reduce((a, x) => a + +x.f, 0), wkDone = wk.reduce((a, ds) => a + LD.filter(x => ((root.days[ds] || {}).hb || {})[x.id]).length, 0) + LW.reduce((a, x) => a + Math.min(+x.f, habWeekN(x.id, mon)), 0);
+  const wkPct = wkTot ? Math.round(wkDone / wkTot * 100) : 0;
+  const best = L.map(x => [x, habStreak(x.id) * (habW(x) ? 7 : 1)]).sort((a, b) => b[1] - a[1])[0];
   $("hbSum").innerHTML = !L.length ? `<div class="hhead"><span class="hico"><i data-i="check"></i></span><div><h2 style="margin:0">Alışkanlıklar</h2><div class="small muted">Henüz alışkanlık eklemedin. Aşağıdan başla.</div></div></div>`
     : `<div class="hsg"><div class="hsc"><span class="rgh">Bugün</span><b>${done}<small> / ${L.length}</small></b><div class="tbar"><i style="width:${done / L.length * 100}%"></i></div></div>
       <div class="hsc"><span class="rgh">Bu hafta</span><b>%${wkPct}</b><small class="muted">tamamlanma</small></div>
-      <div class="hsc"><span class="rgh">En uzun seri</span><b>${best && best[1] ? best[1] + " gün" : "—"}</b><small class="muted">${best && best[1] ? esc(best[0].name) : "Bugün başla"}</small></div></div>`;
+      <div class="hsc"><span class="rgh">En uzun seri</span><b>${best && best[1] ? habStreak(best[0].id) + " " + habUnit(best[0]) : "—"}</b><small class="muted">${best && best[1] ? esc(best[0].name) : "Bugün başla"}</small></div></div>`;
   fillIcons($("hbSum"));
   $("hbGroups").innerHTML = HSEG.map(([k, t, ic]) => { const G = L.filter(x => habSeg(x) === k); if(!G.length) return "";
     const n = G.filter(x => hb[x.id]).length;
     return `<div class="card hgrp"><div class="tch"><span class="hico sm">${I(ic)}</span><b>${t}</b><span class="tcn">${n}/${G.length}</span></div>
       <div class="hgrid">${G.map(x => { const on = !!hb[x.id], st = habStreak(x.id), dots = Array.from({length: 7}, (_, i) => { const ds = shift(cur, i - 6); return `<i class="${((root.days[ds] || {}).hb || {})[x.id] ? "on" : ""}"></i>`; }).join("");
         return `<div class="htile ${on ? "on" : ""}"><button class="spck" data-hb="${x.id}" aria-label="${esc(x.name)} yaptım">${on ? I("check") : ""}</button>
-          <div class="spi"><b>${esc(x.name)}</b><small>${st > 1 ? `${I("flame", "sm")} ${st} gün seri` : on ? "Bugün tamam" : "Bugün yapılmadı"}</small><div class="spdots">${dots}</div></div>
+          <div class="spi"><b>${esc(x.name)}</b><small>${habW(x) ? `Bu hafta ${habWeekN(x.id, mon)}/${x.f}${st > 0 ? ` · ${I("flame", "sm")} ${st} hafta seri` : ""}` : st > 1 ? `${I("flame", "sm")} ${st} gün seri` : on ? "Bugün tamam" : "Bugün yapılmadı"}</small><div class="spdots">${dots}</div>
+            <select class="hfq" data-hbf="${x.id}" aria-label="${esc(x.name)} sıklığı">${[0, 1, 2, 3, 4, 5, 6].map(n => `<option value="${n}" ${(+x.f || 0) === n ? "selected" : ""}>${n ? `Haftada ${n} gün` : "Her gün"}</option>`).join("")}</select></div>
           <button class="icon" data-hbrm="${x.id}" aria-label="${esc(x.name)} kaldır">✕</button></div>`; }).join("")}</div></div>`; }).join("");
   $("hbPre").innerHTML = HAB_PRE.filter(n => !L.some(x => x.name === n)).map(n => `<button type="button" data-hbadd="${esc(n)}">+ ${esc(n)}</button>`).join("");
 }
@@ -2333,7 +2350,7 @@ function renderTrack(){
   $("ozTrack").hidden = !(H.length || S.length);
   if($("ozTrack").hidden) return;
   const done = H.filter(x => hb[x.id]).length + S.filter(x => sp[x.id]).length, all = H.length + S.length;
-  const row = (x, on, attr, st) => `<button class="trow ${on ? "on" : ""}" ${attr}="${x.id}"><span class="tck">${on ? I("check") : ""}</span><span class="tn">${esc(x.name)}${x.dose ? `<small>${esc(x.dose)}</small>` : ""}</span>${st > 1 ? `<span class="tst">${I("flame")}${st}</span>` : ""}</button>`;
+  const row = (x, on, attr, st) => `<button class="trow ${on ? "on" : ""}" ${attr}="${x.id}"><span class="tck">${on ? I("check") : ""}</span><span class="tn">${esc(x.name)}${x.dose ? `<small>${esc(x.dose)}</small>` : attr === "data-hb" && habW(x) ? `<small>Bu hafta ${habWeekN(x.id, monOf(cur))}/${x.f}</small>` : ""}</span>${st > 1 ? `<span class="tst">${I("flame")}${st}</span>` : ""}</button>`;
   const col = (title, ic, L, map, attr, stf) => { const n = L.filter(x => map[x.id]).length;
     return `<div class="tcol"><div class="tch"><span class="hico sm">${I(ic)}</span><b>${title}</b><span class="tcn">${n}/${L.length}</span></div>
       <div class="tbar"><i style="width:${L.length ? n / L.length * 100 : 0}%"></i></div>
@@ -2347,7 +2364,8 @@ document.addEventListener("click", e => {
   if(b.dataset.hbrm){ const x = (root.habits || []).find(x => x.id === b.dataset.hbrm); return ask(`“${x?.name}” listeden kaldırılsın mı?`, "Kaldır", () => { root.habits = root.habits.filter(y => y.id !== b.dataset.hbrm); save(); renderHab(); renderTrack(); }); }
   if(b.dataset.hbadd){ root.habits = root.habits || []; root.habits.push({id: Math.random().toString(36).slice(2, 8), name: b.dataset.hbadd}); save(); renderHab(); renderTrack(); }
 });
-$("hbForm").onsubmit = e => { e.preventDefault(); const n = $("hbName").value.trim(); if(!n) return; root.habits = root.habits || []; root.habits.push({id: Math.random().toString(36).slice(2, 8), name: n, t: $("hbSeg").value}); $("hbName").value = ""; save(); renderHab(); };
+document.addEventListener("change", e => { const id = e.target.dataset?.hbf; if(!id) return; const x = (root.habits || []).find(y => y.id === id); if(!x) return; const v = +e.target.value; if(v) x.f = v; else delete x.f; save(); renderHab(); renderTrack(); toast(`${x.name}: ${habFreqTxt(x)}`); });
+$("hbForm").onsubmit = e => { e.preventDefault(); const n = $("hbName").value.trim(); if(!n) return; root.habits = root.habits || []; root.habits.push({id: Math.random().toString(36).slice(2, 8), name: n, t: $("hbSeg").value, ...(+$("hbFreq").value ? {f: +$("hbFreq").value} : {})}); $("hbName").value = ""; $("hbFreq").value = "0"; save(); renderHab(); };
 const SUPP_PRE = [["Kreatin","5 g"],["Balık yağı (Omega-3)","1 kapsül"],["D vitamini","1000 IU"],["Magnezyum","200 mg"],["Multivitamin","1 tablet"],["Çinko","15 mg"],["B12","1 tablet"],["Protein tozu","1 ölçek"]];
 function suppStreak(id){ let n = 0, ds = today(); if(!((root.days[ds] || {}).sp || {})[id]) ds = shift(ds, -1); while(((root.days[ds] || {}).sp || {})[id]){ n++; ds = shift(ds, -1); } return n; }
 function renderSupp(){
