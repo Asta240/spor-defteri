@@ -1573,11 +1573,16 @@ const shift = (s, n) => { const d = new Date(s+"T12:00"); d.setDate(d.getDate()+
 const dayName = (s, o) => new Date(s+"T12:00").toLocaleDateString("tr-TR", o);
 const blankDay = () => ({f:[], w:0, wo:"", ca:"", st:"", bu:"", kg:""});
 // Yenilikler: siteyi açınca bir kez çıkar, "Tamam"a basınca bir daha çıkmaz. Yeni yenilik eklerken NEWS.id'yi değiştir.
-const NEWS = {id:"2026-11-23", items:[
-  ["zap", "Kas yorgunluğu", "İlerleme → Antrenman: son günlerde çalıştırdığın kaslar vücut haritasında renkli görünür, hangisinin dinlendiğini görürsün."],
-  ["trend", "Kilo · kalori · adım grafiği", "İlerleme → Genel: üçü tek grafikte. Grafiğe dokununca o günün değerleri çıkar."],
-  ["edit", "Hareket notları", "Bir harekete dokun → Notun. Koltuk kademesi gibi notların kartta ve antrenmanda görünür."],
-  ["calendar", "Boş günler", "Boş gün artık antrenman sayılmıyor; antrenman serisi haftalık hedefe göre."]]};
+const NEWS = {id:"2026-11-24", items:[
+  ["camera", "Fotoğraftan kalori yenilendi", "Claude önce yemekleri tanıyor, sen her birinin yağını, kaç kişilik olduğunu ve ne kadarını yediğini seçiyorsun, sonra hesaplıyor. Yanlış satırı “Düzelt” ile tek tek yeniden hesaplatabilirsin."],
+  ["utensils", "Yemek danışma", "Kalori alımı → Yemek ekle → Danış: yemeden önce seçeneklerin fotoğrafını at, Claude neyi ne kadar yemeni söylesin."],
+  ["pill", "Vitamin ve mineraller", "Kalori alımının altında: lif, C, D, B12, demir, kalsiyum, magnezyum, potasyum, çinko ve tuz; ihtiyacının ne kadarını aldığın."],
+  ["dumbbell", "Antrenman sayfası", "Kardiyo ve Dinlenme günü kart olarak burada; antrenmanda + Kardiyo ekle, set silme, tüm setlere aynı kilo, “Makinede yaptım”, dambıl kilosu açıklaması, kartlara dönüş."],
+  ["trend", "Gelişmeyen hareketler", "Kilosu artmayan hareket için olası zayıf kas, nedenler ve odak önerileri; kas yorgunluğu da yanında."],
+  ["flame", "Daha doğru antrenman kalorisi", "Süre yaptığın setten hesaplanıyor (soyunma, bekleme sayılmaz); Normal 3,5 / Yoğun 5 MET seçebilirsin. Eski kayıtlar da düzeltildi."],
+  ["flask", "Kan tahlili", "Kilo ve ölçüler sayfasında: değerlerini gir, durumları ve vitamin / beslenme önerilerini gör."],
+  ["check", "Alışkanlıklar", "Haftada X gün seçeneği (banyo, tıraş, kitap gibi her gün olmayanlar mükemmel günü bozmaz) ve yeni hazır alışkanlıklar."],
+  ["target", "Görevler ve su", "Görevler kendi sayfasında (ana sayfada sağ üstteki hedef). Su: çay bardağı, büyük bardak, yarım / 1 / 1,5 L şişe."]]};
 function maybeNews(){
   let ls = null; try{ ls = localStorage.getItem("sd-news"); }catch(e){}
   if(!root || root.newsSeen === NEWS.id || ls === NEWS.id || !$("modal").hidden) return;
