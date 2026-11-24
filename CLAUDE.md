@@ -85,3 +85,4 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Foto kalori prompt: fotoğraflar numaralı (Foto 1, 2…); "kalan/artan" notu ya da önce/sonra fotoğrafında yenen = başlangıç − kalan yazılır.
 - Foto/veri linki (#ymk=, #veri=) artık ilk poll() bittikten sonra eklenir; önceden eski önbelleğe eklenip sunucudaki hal tarafından eziliyordu (iki kere basmak gerekiyordu).
 - Alışkanlık sıklığı: `habit.f` boş = her gün, 1–6 = haftada X gün (`habW`, `habWeekN`, `habWeekOk`). Günlük görev "Günlük alışkanlıklar" sadece her günküler; haftalıklar `weeklyTasks`a girer; seri hafta cinsinden (`wkStreakOf/wkBestOf`, genel haftalık seri yardımcıları). Kartta `.hfq` seçici, ekleme formunda `#hbFreq`.
+- Antrenmanda "Tüm setlere aynı kilo" (data-samekg): en son kilosu değiştirilen setin (kgSrc) ya da ilk dolu setin kilosunu bütün setlere yazar.

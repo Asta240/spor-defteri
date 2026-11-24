@@ -2611,11 +2611,12 @@ function renderCards(){
         <small class="ctags">${P.slice(0, 4).map(k => MUS_TR[k]).join(" · ")}</small></div><span class="chev">›</span></button>`; }).join("")}</div>`
       : `<div class="card emptycards"><h2>Henüz kartın yok</h2><p class="muted" style="margin:0">Yukarıdan hazır kartlardan birini seç ya da kendi kartını oluştur.</p></div>`);
 }
+const kgSrc = {}; // antrenmanda en son kilosu değiştirilen set (hareket sırasına göre)
 $("tCards").addEventListener("change", e => {
   const t = e.target;
   if(t.id === "woT" || t.id === "caT"){ const d = day(today()); if(t.id === "woT") d.wo = t.value; else d.ca = t.value; save(); renderCards(); return; }
   if(t.dataset.set){ const [ci, xi, k] = t.dataset.set.split(":"); const v = Math.max(1, Math.round(+t.value || 1)); root.cards[ci].ex[xi][k] = v; t.value = v; save(); }
-  if(t.dataset.kg || t.dataset.rp){ const [xi, si] = (t.dataset.kg || t.dataset.rp).split(":"); const st = root.session.ex[xi].sets[si]; if(t.dataset.kg) st.kg = t.value; else st.r = t.value; save(); }
+  if(t.dataset.kg || t.dataset.rp){ const [xi, si] = (t.dataset.kg || t.dataset.rp).split(":"); const st = root.session.ex[xi].sets[si]; if(t.dataset.kg){ st.kg = t.value; kgSrc[xi] = +si; } else st.r = t.value; save(); }
 });
 $("tCards").addEventListener("click", e => {
   const b = e.target.closest("button"); if(!b) return;
@@ -2636,6 +2637,8 @@ $("tCards").addEventListener("click", e => {
   // antrenman modu
   if(d.ok){ const [xi, si] = d.ok.split(":").map(Number); const st = root.session.ex[xi].sets[si]; st.done = !st.done; save(); renderSession(); return; }
   if(d.ovl){ const [xi, kg] = d.ovl.split(":"); for(const st of root.session.ex[+xi].sets) if(!st.done) st.kg = kg; save(); renderSession(); toast(`${String(kg).replace(".", ",")} kg uygulandı`); return; }
+  if(d.samekg){ const xi = +d.samekg, x = root.session.ex[xi], src = x.sets[kgSrc[xi]] && x.sets[kgSrc[xi]].kg !== "" ? x.sets[kgSrc[xi]] : x.sets.find(z => z.kg !== "" && z.kg != null);
+    if(!src) return toast("Önce bir sete kilo yaz"); x.sets.forEach(z => z.kg = src.kg); save(); renderSession(); toast(`Tüm setler ${num(+src.kg)} kg`); return; }
   if(d.addset){ const x = root.session.ex[+d.addset]; const last = x.sets[x.sets.length - 1] || {kg:"", r:""}; x.sets.push({kg:last.kg, r:last.r, done:false}); save(); renderSession(); return; }
   if(b.id === "sesEnd") return finishSession();
   if(b.id === "sesCancel") return ask("Antrenman kaydedilmeden kapatılsın mı?", "Kapat", () => { root.session = null; save(); renderCards(); });
@@ -2832,7 +2835,7 @@ function renderSession(){
       <div class="row" style="align-items:center;flex-wrap:nowrap"><div style="width:72px;flex:none">${anim(e.id, e.tr)}</div><div style="flex:1"><h3><button data-info="${e.id}" style="all:unset;cursor:pointer">${esc(e.tr)}</button></h3><div class="small muted">${l ? "Geçen sefer: " + esc(liftText(l)) : "İlk sefer, rahat bir kiloyla başla"}</div>${(root.exNotes || {})[e.id] ? `<div class="small lognote">${I("edit")} ${esc(root.exNotes[e.id])}</div>` : ""}${(o => o ? `<div class="ovl ${o.t}">${I(o.t === "up" ? "trend" : o.t === "down" ? "trenddown" : "target")}<span>${esc(o.msg)}</span>${o.t !== "keep" ? `<button class="small-btn" data-ovl="${xi}:${o.kg}">Uygula</button>` : ""}</div>` : "")(overload(x.id, +((root.cards.find(c => c.id === S.cardId) || {ex: []}).ex.find(y => y.id === x.id) || {}).r || 10))}</div></div>
       <div class="sets"><span class="h">Set</span><span class="h">${e.u ? "" : "kg"}</span><span class="h">${unit(e)}</span><span></span>
       ${x.sets.map((s, si) => `<span class="i">${si + 1}</span>${e.u ? "<span></span>" : `<input type="number" inputmode="decimal" step="0.5" min="0" value="${esc(s.kg)}" data-kg="${xi}:${si}" aria-label="${si+1}. set kg">`}<input type="number" inputmode="numeric" min="0" value="${esc(s.r)}" data-rp="${xi}:${si}" aria-label="${si+1}. set ${unit(e)}"><button class="${s.done ? "done" : "ghost"}" data-ok="${xi}:${si}" aria-label="${si+1}. set tamam">✓</button>`).join("")}
-      </div><button class="ghost" data-addset="${xi}" style="margin-top:8px;min-height:36px">+ Set</button></div>`; }).join("")}
+      </div><div class="row" style="margin-top:8px;gap:6px"><button class="ghost" data-addset="${xi}" style="min-height:36px">+ Set</button>${!e.u && x.sets.length > 1 ? `<button class="ghost small-btn" data-samekg="${xi}" style="min-height:36px">Tüm setlere aynı kilo</button>` : ""}</div></div>`; }).join("")}
   </div>`;
 }
 function bestOf(id){ let b = null; for(const l of root.lifts[id] || []) for(const [kg, r] of l.s){ if(!b || kg > b.kg || (kg === b.kg && r > b.r)) b = {kg, r, d: l.d}; } return b; }
