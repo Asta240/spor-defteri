@@ -104,6 +104,12 @@
     <div class="row end"><button class="pri" id="idBtn" disabled>Yemekleri tanı</button></div>
     <p class="muted" id="st1" style="margin:8px 0 0"></p>
   </section>
+  <section class="card" id="pm" hidden>
+    <h2><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5M12 17h0"/></svg> Önce bir şey sorayım</h2>
+    <p class="muted" style="margin:0">Aynı yemeği birden fazla fotoğrafta gördüm. Hangisi olduğunu seç, ona göre hesaplayayım.</p>
+    <div id="pmList"></div>
+    <div class="row end"><button class="ghost" data-go="p1">Geri</button><button class="pri" id="pmGo" disabled>Devam</button></div>
+  </section>
   <section class="card" id="p2" hidden>
     <h2><svg class="i" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/></svg> Detaylar</h2>
     <p class="muted" style="margin:0">Claude bunları gördü. Miktarı düzelt, bildiklerini seç. Bilmediğini boş bırak, Claude tahmin eder.</p>
@@ -159,13 +165,13 @@ const SPOR_URL = "https://spor-defteri-v1.vercel.app";
 const $ = id => document.getElementById(id);
 const esc = t => String(t ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let page = "p1";
-const avail = g => g === "p2" ? foods.length > 0 : g === "p3" ? items.length > 0 : g === "dres" ? !!dDone : true;
-function go(g){ if(!avail(g)) return; page = g; const kal = ["p1","p2","p3"].includes(g);
+const avail = g => g === "p2" ? foods.length > 0 && !foods.some(x => x.es != null) : g === "pm" ? foods.some(x => x.es != null) : g === "p3" ? items.length > 0 : g === "dres" ? !!dDone : true;
+function go(g){ if(!avail(g)) return; page = g; const kal = ["p1","pm","p2","p3"].includes(g);
   $("vKal").hidden = !kal; $("vDan").hidden = kal;
-  $("p1").hidden = g !== "p1"; $("p2").hidden = g !== "p2"; $("p3").hidden = $("p4").hidden = g !== "p3";
+  $("p1").hidden = g !== "p1"; $("p2").hidden = g !== "p2"; $("pm").hidden = g !== "pm"; $("p3").hidden = $("p4").hidden = g !== "p3";
   $("dForm").hidden = g !== "dan"; $("dRes").hidden = g !== "dres";
   $("ttl").innerHTML = kal ? "Fotoğraftan <span>Kalori</span>" : "Yemek <span>Danışma</span>";
-  for(const b of document.querySelectorAll("[data-go]")){ b.classList.toggle("on", b.dataset.go === g); b.disabled = !avail(b.dataset.go); }
+  for(const b of document.querySelectorAll("[data-go]")){ b.classList.toggle("on", b.dataset.go === g || (g === "pm" && b.dataset.go === "p2")); b.disabled = !avail(b.dataset.go); }
   $("drawer").hidden = true; try{ localStorage.setItem("fk-view", kal ? "p1" : "dan"); }catch(e){} window.scrollTo({top: 0}); }
 const step = n => go("p" + n);
 let dDone = false;
@@ -209,25 +215,42 @@ ${userNote() ? `KULLANICININ NOTU (kesin bilgi, fotoğraf yorumundan önce gelir
 Kurallar:
 - Ayrı görünen her yiyecek ayrı satır (köfte, patates, pilav, yoğurt, içecek...). Türkçe kısa ad, miktarı ada yazma.
 - "foto": yiyeceğin göründüğü fotoğraf numaraları.
-- "miktar": kullanıcının yediği miktar; tane sayılabiliyorsa tek tek dikkatle say (ör. "5 adet köfte"), değilse gram ya da kase (ör. "≈250 g", "1 kase").
-- Kullanıcı aksini söylemedikçe farklı fotoğraflardaki aynı tabağı tekrar sayma; emin değilsen ayrı yaz ve soruda belirt.
+- "miktar": o fotoğrafta görünen miktar. Tane sayılabiliyorsa tek tek dikkatle say (ör. "5 adet"). Değilse ASLA sadece "1 kase" / "1 porsiyon" yazma: kabın büyüklüğüne ve ne kadar dolu olduğuna bakıp gram tahmin et ve doluluğu yaz (ör. "≈180 g (kase ~⅔ dolu)", "≈300 g (kase ağzına kadar dolu)", "≈120 g (tabağın yarısı)").
+- AYNI YA DA BENZER YEMEK BİRDEN FAZLA FOTOĞRAFTA görünüyorsa (ör. iki fotoğrafta yoğurt kasesi) bunların aynı tabak mı, ikinci porsiyon mu, yoksa biri diğerinin kalanı mı olduğuna KENDİN KARAR VERME: her fotoğraftakini ayrı satır yaz, sonraki satırda "es" alanına eşleştiği önceki satırın sıra numarasını (0'dan başlar) yaz. Kullanıcının notu bunu açıkça söylüyorsa nota uy ve "es" yazma.
 - "yag": yağla pişen ya da yağ eklenen bir yemekse true (kızartma, fırın, sote, salata); yoğurt, ayran, meyve, ekmek gibi ise false.
 - "tepsi": tencere/tepsiden paylaşılan ev yemeğiyse true (kaç kişilik olduğu yağ payını değiştirir); paket ürün, içecek, tek porsiyon ise false.
 - "pis": pişirme şekli tahminin, şunlardan biri: "Fırın / tepsi", "Tava (az yağ)", "Kızartma (bol yağ)", "Haşlama / su", "Izgara", "Çiğ / pişmemiş"; yağ ile ilgisi yoksa boş.
 - "soru": hesabı en çok değiştirecek, fotoğraftan anlaşılmayan tek kısa soru ya da boş.
-Sadece şu JSON'u döndür: {"items":[{"n":"Köfte","foto":[1],"miktar":"5 adet","yag":true,"tepsi":true,"pis":"Fırın / tepsi","soru":""}],"not":"kısa genel yorum ya da boş"}`;
+Sadece şu JSON'u döndür: {"items":[{"n":"Köfte","foto":[1],"miktar":"5 adet","yag":true,"tepsi":true,"pis":"Fırın / tepsi","soru":""},{"n":"Yoğurt","foto":[1],"miktar":"≈300 g (kase ağzına kadar dolu)","yag":false,"tepsi":false,"pis":"","soru":""},{"n":"Yoğurt","foto":[2],"miktar":"≈180 g (kase ~⅔ dolu)","yag":false,"tepsi":false,"pis":"","soru":"","es":1}],"not":"kısa genel yorum ya da boş"}`;
 $("idBtn").onclick = async () => {
   if(!files.length || !sample) return;
   const b = $("idBtn"); b.disabled = true; b.innerHTML = '<span class="spin"></span> Claude bakıyor…'; $("st1").textContent = "";
   try{
     const r = await sample.json(ID_PROMPT(), {images: await getImgs(), modelTier: "default"});
-    foods = (Array.isArray(r && r.items) ? r.items : []).map(x => ({n: String(x.n || "Yemek").slice(0, 60), foto: Array.isArray(x.foto) ? x.foto.filter(n => +n > 0).map(Number) : [], miktar: String(x.miktar || "").slice(0, 60), yag: !!x.yag, tepsi: !!x.tepsi, soru: String(x.soru || "").slice(0, 160), pis: PIS.includes(x.pis) ? x.pis : "", pisG: PIS.includes(x.pis), oil: "", oilT: "", kisi: "", pay: "", ek: ""}));
+    foods = (Array.isArray(r && r.items) ? r.items : []).map(x => ({n: String(x.n || "Yemek").slice(0, 60), foto: Array.isArray(x.foto) ? x.foto.filter(n => +n > 0).map(Number) : [], miktar: String(x.miktar || "").slice(0, 60), yag: !!x.yag, tepsi: !!x.tepsi, es: Number.isInteger(x.es) ? x.es : null, soru: String(x.soru || "").slice(0, 160), pis: PIS.includes(x.pis) ? x.pis : "", pisG: PIS.includes(x.pis), oil: "", oilT: "", kisi: "", pay: "", ek: ""}));
     $("idNote").hidden = !(r && r.not); $("idNote").textContent = (r && r.not) || "";
     if(!foods.length) $("st1").textContent = (r && r.not) || "Fotoğrafta yemek bulunamadı.";
-    else { items = []; drawFoods(); go("p2"); }
+    else { items = []; foods.forEach((x, i) => { if(x.es != null && !(x.es >= 0 && x.es < i)) x.es = null; x.esA = ""; }); if(foods.some(x => x.es != null)){ drawPairs(); go("pm"); } else { drawFoods(); go("p2"); } }
   }catch(e){ $("st1").textContent = errTxt(e); }
   b.innerHTML = "Yemekleri tanı"; b.disabled = !files.length;
 };
+
+// 1,5) Aynı yemek birden fazla fotoğrafta: önce kullanıcıya sor
+const ES = [["ayri", "Ayrı porsiyon, ikisini de yedim"], ["kalan", "Sonraki foto kalanı (yenen = fark)"], ["ayni", "Aynı tabak, bir kez say"]];
+function drawPairs(){
+  $("pmList").innerHTML = foods.map((x, i) => x.es == null ? "" : `<div class="fd"><div class="hd"><b style="flex:1">${esc(x.n)}</b>${x.foto.map(n => `<span class="ph">Foto ${n}</span>`).join("")}</div>
+    <p class="muted" style="margin:6px 0 0">Foto ${esc(foods[x.es].foto.join(", ") || "?")}: ${esc(foods[x.es].miktar)}<br>Foto ${esc(x.foto.join(", ") || "?")}: ${esc(x.miktar)}<br>İkisi arasındaki ilişki ne?</p>
+    <div class="chips">${ES.map(([k, t]) => `<button type="button" data-es="${i}" data-ev="${k}" class="${x.esA === k ? "on" : ""}">${t}</button>`).join("")}</div></div>`).join("");
+  $("pmGo").disabled = foods.some(x => x.es != null && !x.esA);
+}
+$("pmList").onclick = e => { const b = e.target.closest("[data-es]"); if(!b) return; foods[+b.dataset.es].esA = b.dataset.ev; drawPairs(); };
+$("pmGo").onclick = () => {
+  const drop = new Set();
+  foods.forEach((x, i) => { if(x.es == null) return; const a = foods[x.es];
+    if(x.esA === "ayni") drop.add(i);
+    else if(x.esA === "kalan"){ a.ek = [a.ek, `Foto ${x.foto.join(", ")}'deki (${x.miktar}) bunun yedikten sonra kalanı; yediği = ${a.miktar} − ${x.miktar}`].filter(Boolean).join("; "); a.foto = [...new Set([...a.foto, ...x.foto])]; drop.add(i); }
+    else x.n = /ikinci|2\./i.test(x.n) ? x.n : x.n + " (2. porsiyon)"; x.es = null; });
+  foods = foods.filter((_, i) => !drop.has(i)); drawFoods(); go("p2"); };
 
 // 2) Detaylar
 const PIS = ["Fırın / tepsi", "Tava (az yağ)", "Kızartma (bol yağ)", "Haşlama / su", "Izgara", "Çiğ / pişmemiş"];
@@ -237,7 +260,7 @@ function drawFoods(){
   $("fds").innerHTML = foods.map((x, i) => `<div class="fd">
     <div class="hd"><input value="${esc(x.n)}" data-fi="${i}" data-ft="n" aria-label="Yemek adı" placeholder="Yemek adı">${x.foto.map(n => `<span class="ph">Foto ${n}</span>`).join("")}<button class="x" data-rmf="${i}" aria-label="Kaldır">✕</button></div>
     ${x.soru ? `<div class="q">${Q}<span>${esc(x.soru)}</span></div>` : ""}
-    <label class="f">Yediğin miktar<input value="${esc(x.miktar)}" data-fi="${i}" data-ft="miktar" placeholder="ör. 4 adet, ≈200 g, 1 kase"></label>
+    <label class="f">Yediğin miktar<input value="${esc(x.miktar)}" data-fi="${i}" data-ft="miktar" placeholder="ör. 4 adet, ≈200 g, kase yarım dolu"></label>
     ${x.yag ? `<label class="f">Nasıl pişti?${x.pisG ? ' <span style="font-weight:500">(Claude tahmini, değiştirebilirsin)</span>' : ""}</label>${chips(i, "pis", PIS)}` : ""}
     ${x.yag ? `<label class="f">${x.pis === "Kızartma (bol yağ)" ? "Kızartma yağı (bilmiyorsan boş bırak; emilen yağ hesaplanır)" : "Yemeğe konan toplam yağ" + (x.tepsi ? " (tepsinin / tencerenin tamamına)" : "")}</label>${chips(i, "oil", OILS)}<label class="f">Yağ türü</label>${chips(i, "oilT", OILT)}` : ""}
     ${x.tepsi ? `<label class="f">Tepsi / tencere kaç kişilikti?</label>${chips(i, "kisi", KISI)}` : ""}
@@ -267,7 +290,7 @@ const CALC_PROMPT = () => `Sen bir diyetisyen asistanısın. Kullanıcı fotoğr
 ${photoLine()}${userNote() ? `\nKullanıcının genel notu: "${userNote()}"` : ""}
 Yemekler:
 ${foods.map(foodLine).join("\n")}
-Her yemek için ayrı satır döndür, sırayı koru. Ad kısa, sonunda parantez içinde miktar (ör. "Köfte (4 adet)").
+Her yemek için ayrı satır döndür, sırayı koru. Ad kısa, sonunda parantez içinde miktar; adetle sayılmayanlarda gram yaz (ör. "Köfte (4 adet)", "Yoğurt (≈180 g)"), "1 kase / 1 porsiyon" yazma.
 ${ITEM_RULES}
 Sadece şu JSON'u döndür: {"items":[{"n":"Ad (miktar)","k":0,"p":0,"y":0,"c":0,"mi":[0,0,0,0,0,0,0,0,0,0],"v":"gerekçe"}],"not":"kısa yorum ya da boş"}`;
 const toItem = x => ({n: String(x.n || "Yemek").slice(0, 80), k: Math.max(0, Math.round(+x.k || 0)), p: Math.max(0, Math.round(+x.p || 0)), y: Math.max(0, Math.round(+x.y || 0)), c: Math.max(0, Math.round(+x.c || 0)), k0: Math.max(0, Math.round(+x.k || 0)), mi: Array.isArray(x.mi) && x.mi.length === 10 ? x.mi.map(v => Math.max(0, +v || 0)) : null, v: String(x.v || "").slice(0, 220)});
