@@ -1541,12 +1541,16 @@ function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; 
 function lsSet(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
 function lsDel(k){ try{ localStorage.removeItem(k); }catch(e){} }
 const storeKey = () => "sd-root-" + CUR;
+let migDirty = false;
 function fixRoot(r){
   const f = freshRoot();
   if(!r) f.newsSeen = NEWS.id; // yeni hesap yenilikleri görmez
   r = Object.assign(f, r || {});
   r.goals = Object.assign({k:2100, p:130, w:12, st:8000, bu:2500, woW:3, caW:60, weW:2}, r.goals || {});
   r.days = r.days || {}; r.lifts = r.lifts || {}; r.cards = Array.isArray(r.cards) ? r.cards : [];
+  // Bir kerelik: kardiyo artık ayrı (Kardiyo kartı / antrenmanda + Kardiyo ekle), kartlardaki incline yürüyüş çıkarılır
+  r.mig = r.mig || {};
+  if(!r.mig.tread){ r.cards.forEach(c => { if(Array.isArray(c.ex)) c.ex = c.ex.filter(x => x.id !== "Walking_Treadmill"); }); r.mig.tread = 1; migDirty = true; }
   return r;
 }
 const day = s => root.days[s] || (root.days[s] = blankDay());
@@ -1582,6 +1586,7 @@ function applyRemote(j, note){
   let r = null; try{ r = JSON.parse(j.json); }catch(e){}
   if(!r) return;
   root = fixRoot(r); root._ver = j.updatedAt; root._dirty = false;
+  if(migDirty){ migDirty = false; setTimeout(() => save(), 0); }
   lsSet(storeKey(), JSON.stringify(root)); renderAll(); if(note) setSync(note);
 }
 async function poll(){
@@ -1601,6 +1606,7 @@ async function poll(){
 function startApp(code, r){
   CUR = code; lsSet("sd-code", code);
   root = fixRoot(r);
+  if(migDirty){ migDirty = false; setTimeout(() => save(), 0); }
   $("vLogin").hidden = true; $("vApp").hidden = false; $("syncBox").hidden = false; $("menuBtn").hidden = false;
   $("codeBtn").textContent = label();
   setSync(ONLINE() ? "" : "Sadece bu cihazda");

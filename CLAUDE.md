@@ -95,3 +95,4 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - İlerleme sekmeleri: antrenman, beslenme, vucut, aliskanlik, takviye, rozet, haftalik (eski "genel" kartları: haftanın özeti, haftalık rapor, bütün seriler → haftalik).
 - Antrenman sayfası "Bugün" kartı sadece gösterir (seçim/kardiyo kutusu yok). Kart listesinin en üstünde "Dinlenme günü" kartı (data-restday, `restCardBtn`): dokununca d.rest; tekrar dokununca kalkar; o gün antrenman kaydı varsa onay ister ve kaydı siler.
 - "Makinede/Kabloda yaptım" (data-mach, `MACH` eşlemesi): antrenmanda dambıllı hareketi makine karşılığına çevirir (sadece bugün ya da kartta da); kilolar yeni hareketin son kaydından gelir.
+- Bir kerelik geçiş `root.mig.tread`: kartlardan Walking_Treadmill çıkarıldı (kardiyo artık ayrı). Yeni geçişler için `root.mig` + `migDirty` kullan.
