@@ -672,7 +672,7 @@
     #vOzet>.card:first-child>.wstrip{grid-column:1 / -1}
     #vOzet .rings{gap:14px;margin-top:6px}
     #vOzet .rw{max-width:132px}
-    #ozWo{grid-column:1;grid-row:2}
+    #ozWo{grid-column:1 / span 2;grid-row:2}
     #ozCardio{grid-column:2;grid-row:2;align-self:stretch}
     #ozWeek{grid-column:1 / -1;grid-row:1;margin-bottom:0}
     #vOzet:has(#ozWeek:not([hidden])){grid-template-rows:auto auto auto auto}
@@ -737,6 +737,10 @@
   .hgrp .tch{margin-bottom:12px}
   .hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px}
   .trd{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px} .trd .f{margin:0}
+  .cdc .cdico{display:grid;place-items:center} .cdc .cdico svg.i{width:34px;height:34px;color:var(--accent)}
+  .scd{display:grid;grid-template-columns:minmax(0,1.6fr) repeat(3,minmax(0,1fr)) 26px;gap:6px;align-items:end;padding:8px 0;border-top:1px solid var(--line)} .scd .f{margin:0;font-size:11px} .scd .f select,.scd .f input{min-height:38px;padding:4px 8px;font-size:14px} .scd .setx{border:0;background:none;color:var(--muted);padding:0;min-height:0;height:38px}
+  @media (max-width:560px){ .scd{grid-template-columns:repeat(3,minmax(0,1fr)) 26px} .scd .f:first-child{grid-column:1 / -1} }
+  .scdk{font-size:12px;color:var(--muted);grid-column:1 / -1;margin-top:-2px}
   .cextra{display:grid;gap:14px} @media (min-width:900px){ .cextra{grid-template-columns:1fr 1fr;align-items:start} }
   .plx{padding:12px;border-radius:12px;background:var(--card-2)} .plx+.plx{margin-top:10px} .plx h3{margin:0;font-size:15px} .plx .pls{font-size:12px;color:var(--muted);margin:2px 0 8px}
   .plx .rgh{margin:10px 0 4px} .plx .tipl{font-size:13px;line-height:1.45;margin-top:4px} .plx .tipl svg.i{flex:none;width:15px;height:15px;margin-top:2px;color:var(--accent)}
@@ -853,7 +857,6 @@
       </div>
       <div class="card" id="ozWo"></div>
       <div class="card" id="ozWeek" hidden></div>
-      <div class="card" id="ozCardio"></div>
       <div class="card" id="ozStreak"></div>
       <div class="card" id="ozTrack" hidden></div>
       <div class="card" id="ozMove">
@@ -2400,7 +2403,7 @@ document.addEventListener("click", e => {
 });
 $("spForm").onsubmit = e => { e.preventDefault(); const n = $("spName").value.trim(); if(!n) return; root.supp = root.supp || []; root.supp.push({id: Math.random().toString(36).slice(2, 8), name: n, dose: $("spDose").value.trim()}); $("spName").value = $("spDose").value = ""; save(); renderSupp(); };
 function renderHareket(d){
-  checkBadges(); if(tab === "gorev") renderTasks(); if(tab === "ozet"){ renderStreaks(); renderCardio(); renderWeekCard(); }
+  checkBadges(); if(tab === "gorev") renderTasks(); if(tab === "ozet"){ renderStreaks(); renderWeekCard(); }
   renderSupp(); renderHab(); renderTrack();
   renderMeas();
   if($("hWoS")) $("hWoS").innerHTML = d.wo ? `<span style="color:var(--good);font-weight:700">✓ ${esc(d.wo)}</span>${+d.ca > 0 ? ` · ${fmt(+d.ca)} dk kardiyo` : ""}` : (+d.ca > 0 ? `${fmt(+d.ca)} dk kardiyo` : "Bu gün antrenman yok");
@@ -2587,6 +2590,10 @@ function renderCards(){
   const lastOf = c => Object.keys(root.days).filter(k => root.days[k].wo === c.name).sort().pop() || "";
   const ci = root.cards.findIndex(c => c.id === cardPage), c = root.cards[ci];
   el.classList.toggle("cflow", true);
+  if(cardPage === "__cardio"){ // ---- kardiyo sayfası ----
+    el.innerHTML = resume + `<button class="backbtn" data-back>‹ Antrenman</button><div class="card"><div id="cdBox"></div><p class="small muted" style="margin:12px 0 0">Sadece kardiyo yaptığın günler için. Ağırlık antrenmanının içinde kardiyo yaptıysan antrenman ekranındaki “+ Kardiyo ekle”yi kullan, kalori toplu hesaplansın.</p></div>`;
+    renderCardio($("cdBox"), today()); return;
+  }
   if(c){ // ---- kart sayfası ----
     const [P, S2] = musc(c), sets = c.ex.reduce((a, x) => a + (+x.s || 0), 0), last = lastOf(c), ed = editCard === c.id;
     el.innerHTML = resume + `<button class="backbtn" data-back>‹ Kartlar</button>
@@ -2622,16 +2629,19 @@ function renderCards(){
       const act = root.session && root.session.cardId === c.id ? woProgress(c) : null;
       return `<button class="ccard ${act ? "act" : ""}" data-open="${c.id}">${act ? `<span class="abadge">Aktif · %${act.all ? Math.round(act.sets / act.all * 100) : 0}</span>` : ""}<div class="wcm">${bodySvg(P, [])}</div><div class="wct"><b>${esc(c.name)}</b>
         <small>${c.ex.length} hareket${last ? ` · son ${dayName(last, {day:"numeric", month:"short"})}` : ""}</small>
-        <small class="ctags">${P.slice(0, 4).map(k => MUS_TR[k]).join(" · ")}</small></div><span class="chev">›</span></button>`; }).join("")}</div>`
-      : `<div class="card emptycards"><h2>Henüz kartın yok</h2><p class="muted" style="margin:0">Yukarıdan hazır kartlardan birini seç ya da kendi kartını oluştur.</p></div>`)
+        <small class="ctags">${P.slice(0, 4).map(k => MUS_TR[k]).join(" · ")}</small></div><span class="chev">›</span></button>`; }).join("")}${cdCardBtn()}</div>`
+      : `<div class="clist">${cdCardBtn()}</div><div class="card emptycards"><h2>Henüz kartın yok</h2><p class="muted" style="margin:0">Yukarıdan hazır kartlardan birini seç ya da kendi kartını oluştur.</p></div>`)
     + `<div class="cextra"><div class="card"><h2>${I("zap")} Kas yorgunluğu</h2><div id="fgBox"></div></div><div class="card"><h2>${I("trend")} Gelişmeyen hareketler</h2><div id="plBox"></div></div></div>`;
   renderFatigue(); renderPlateau();
 }
+function cdCardBtn(){ const L = (root.days[today()] || {}).cardio || [], m = L.reduce((a, x) => a + (+x.min || 0), 0), k = L.reduce((a, x) => a + (+x.kcal || 0), 0);
+  return `<button class="ccard cdc" data-open="__cardio"><div class="wcm cdico">${I("heart")}</div><div class="wct"><b>Kardiyo</b><small>${m ? `Bugün ${fmt(m)} dk · ~${fmt(k)} kcal` : "Sadece kardiyo yaptığın günler"}</small><small class="ctags">Bant · bisiklet · eliptik · koşu</small></div><span class="chev">›</span></button>`; }
 const kgSrc = {}; // antrenmanda en son kilosu değiştirilen set (hareket sırasına göre)
 $("tCards").addEventListener("change", e => {
   const t = e.target;
   if(t.id === "woT" || t.id === "caT"){ const d = day(today()); if(t.id === "woT") d.wo = t.value; else d.ca = t.value; save(); renderCards(); return; }
   if(t.dataset.set){ const [ci, xi, k] = t.dataset.set.split(":"); const v = Math.max(1, Math.round(+t.value || 1)); root.cards[ci].ex[xi][k] = v; t.value = v; save(); }
+  if(t.dataset.scd){ const [ci, k] = t.dataset.scd.split(":"); root.session.cardio[ci][k] = k === "t" ? t.value : t.value; save(); renderSession(); return; }
   if(t.dataset.trd){ const [xi, k] = t.dataset.trd.split(":"); root.session.ex[xi][k] = t.value; save(); return; }
   if(t.dataset.kg || t.dataset.rp){ const [xi, si] = (t.dataset.kg || t.dataset.rp).split(":"); const st = root.session.ex[xi].sets[si]; if(t.dataset.kg){ st.kg = t.value; kgSrc[xi] = +si; const h = $("dbh" + xi), x = root.session.ex[xi]; if(h) h.outerHTML = dbHint(x.id, t.value, xi); } else st.r = t.value; save(); }
 });
@@ -2655,6 +2665,8 @@ $("tCards").addEventListener("click", e => {
   if(b.id === "resumeBtn"){ listOverride = false; renderCards(); window.scrollTo({top: 0}); return; }
   if(b.id === "newCard"){ openSheet(`<h2>Yeni kart</h2><input id="ncIn" placeholder="Örn. Pazartesi – İtiş" maxlength="40"><div class="row" style="margin-top:12px"><button class="ghost" data-close style="flex:1">Vazgeç</button><button id="ncOk" style="flex:1">Oluştur</button></div>`); $("ncOk").onclick = () => { const v = $("ncIn").value.trim(); if(!v) return; const c = card(v, []); root.cards.push(c); openCard = cardPage = c.id; editCard = c.id; save(); closeSheet(); renderCards(); }; return; }
   // antrenman modu
+  if("scdadd" in d){ const S = root.session; S.cardio = S.cardio || []; const lc = ((root.days[today()] || {}).cardio || []).slice(-1)[0] || {}; S.cardio.push({t: lc.t || "tread", min: "", spd: lc.spd || "", inc: lc.inc || ""}); save(); renderSession(); return; }
+  if(d.scdx != null && d.scdx !== undefined && b.matches("[data-scdx]")){ root.session.cardio.splice(+d.scdx, 1); save(); renderSession(); return; }
   if(d.setx){ const [xi, si] = d.setx.split(":").map(Number), x = root.session.ex[xi]; if(x.sets.length < 2) return; x.sets.splice(si, 1); delete kgSrc[xi]; save(); renderSession();
     toast(`${si + 1}. set silindi`); return; }
   if(d.ok){ const [xi, si] = d.ok.split(":").map(Number); const st = root.session.ex[xi].sets[si]; st.done = !st.done; save(); renderSession(); return; }
@@ -2859,6 +2871,13 @@ function renderSession(){
       <div class="sets"><span class="h">Set</span><span class="h">${e.u ? "" : DB_KIND[e.id] === "p" ? "kg (tek el)" : "kg"}</span><span class="h">${unit(e)}</span><span></span><span></span>
       ${x.sets.map((s, si) => `<span class="i">${si + 1}</span>${e.u ? "<span></span>" : `<input type="number" inputmode="decimal" step="0.5" min="0" value="${esc(s.kg)}" data-kg="${xi}:${si}" aria-label="${si+1}. set kg">`}<input type="number" inputmode="numeric" min="0" value="${esc(s.r)}" data-rp="${xi}:${si}" aria-label="${si+1}. set ${unit(e)}"><button class="${s.done ? "done" : "ghost"}" data-ok="${xi}:${si}" aria-label="${si+1}. set tamam">✓</button><button class="setx" data-setx="${xi}:${si}" aria-label="${si+1}. seti sil" ${x.sets.length > 1 ? "" : "disabled"}>✕</button>`).join("")}
       </div>${x.id === "Walking_Treadmill" ? `<div class="trd"><label class="f">Eğim (%)<input type="number" inputmode="decimal" step="0.5" min="0" max="30" value="${esc(x.inc ?? "")}" data-trd="${xi}:inc" placeholder="ör. 12"></label><label class="f">Hız (km/s)<input type="number" inputmode="decimal" step="0.1" min="0" max="25" value="${esc(x.spd ?? "")}" data-trd="${xi}:spd" placeholder="ör. 5"></label></div>` : ""}${dbHint(e.id, (x.sets.find(z => +z.kg > 0) || {}).kg, xi)}<div class="row" style="margin-top:8px;gap:6px"><button class="ghost" data-addset="${xi}" style="min-height:36px">+ Set</button>${!e.u && x.sets.length > 1 ? `<button class="ghost small-btn" data-samekg="${xi}" style="min-height:36px">Tüm setlere aynı kilo</button>` : ""}</div></div>`; }).join("")}
+    <div class="logex"><div class="row" style="justify-content:space-between;align-items:center"><h3 style="margin:0">${I("heart")} Kardiyo</h3>${(S.cardio || []).length ? `<span class="small muted">~${fmt(sesCardioKcal())} kcal</span>` : ""}</div>
+      ${(S.cardio || []).map((c, ci) => `<div class="scd"><label class="f">Tür<select data-scd="${ci}:t">${CT.map(([k, t]) => `<option value="${k}" ${k === c.t ? "selected" : ""}>${t}</option>`).join("")}</select></label>
+        <label class="f">Süre (dk)<input type="number" inputmode="numeric" min="0" value="${esc(c.min ?? "")}" data-scd="${ci}:min" placeholder="20"></label>
+        ${c.t === "tread" || c.t === "outrun" || c.t === "outwalk" ? `<label class="f">Hız (km/s)<input type="number" inputmode="decimal" step="0.1" min="0" value="${esc(c.spd ?? "")}" data-scd="${ci}:spd" placeholder="5"></label>` : "<span></span>"}
+        ${c.t === "tread" ? `<label class="f">Eğim (%)<input type="number" inputmode="decimal" step="0.5" min="0" value="${esc(c.inc ?? "")}" data-scd="${ci}:inc" placeholder="10"></label>` : "<span></span>"}
+        <button class="setx" data-scdx="${ci}" aria-label="Kardiyoyu sil">✕</button></div>`).join("")}
+      <button class="ghost small-btn" data-scdadd style="margin-top:8px">+ Kardiyo ekle</button></div>
   </div>`;
 }
 function bestOf(id){ let b = null; for(const l of root.lifts[id] || []) for(const [kg, r] of l.s){ if(!b || kg > b.kg || (kg === b.kg && r > b.r)) b = {kg, r, d: l.d}; } return b; }
@@ -2875,10 +2894,11 @@ function cardioKcal(t, min, spd, inc, kg){
   }
   return Math.round(((CT_MET[t] || 6) - 1) * kg * min / 60);
 }
-function renderCardio(){
-  const d = root.days[cur] || blankDay(), L = d.cardio || [], tot = L.reduce((a, x) => a + (+x.kcal || 0), 0), mins = L.reduce((a, x) => a + (+x.min || 0), 0);
-  $("ozCardio").innerHTML = `<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px"><h2 style="margin:0">${I("heart")} Kardiyo</h2><span class="small muted">${mins ? `${fmt(mins)} dk · ~${fmt(tot)} kcal` : ""}</span></div>
-    ${L.length ? `<div class="cdl">${L.map((x, i) => `<div class="cdi"><span class="hico sm">${I("run")}</span><div style="flex:1"><b>${esc((CT.find(c => c[0] === x.t) || [0, "Kardiyo"])[1])}</b><small>${x.min} dk${x.spd ? ` · ${String(x.spd).replace(".", ",")} km/s` : ""}${x.inc ? ` · %${x.inc} eğim` : ""}</small></div><b class="cdk">~${fmt(x.kcal)} kcal</b><button class="icon" data-cdel="${i}" aria-label="Sil">✕</button></div>`).join("")}</div>` : ""}
+function renderCardio(box, ds){
+  ds = ds || today();
+  const d = root.days[ds] || blankDay(), L = d.cardio || [], tot = L.reduce((a, x) => a + (+x.kcal || 0), 0), mins = L.reduce((a, x) => a + (+x.min || 0), 0);
+  box.innerHTML = `<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px"><h2 style="margin:0">${I("heart")} Kardiyo</h2><span class="small muted">${mins ? `${fmt(mins)} dk · ~${fmt(tot)} kcal` : ""}</span></div>
+    ${L.length ? `<div class="cdl">${L.map((x, i) => `<div class="cdi"><span class="hico sm">${I("run")}</span><div style="flex:1"><b>${esc((CT.find(c => c[0] === x.t) || [0, "Kardiyo"])[1])}</b><small>${x.min} dk${x.spd ? ` · ${String(x.spd).replace(".", ",")} km/s` : ""}${x.inc ? ` · %${x.inc} eğim` : ""}</small></div><b class="cdk">~${fmt(x.kcal)} kcal</b><button class="icon" data-cdel="${i}" data-cdd="${ds}" aria-label="Sil">✕</button></div>`).join("")}</div>` : ""}
     <form id="cdForm" class="cdf">
       <label class="f" style="grid-column:1 / -1">Tür<select id="cdT">${CT.map(([k, t]) => `<option value="${k}">${t}</option>`).join("")}</select></label>
       <label class="f">Süre (dk)<input id="cdMin" type="number" inputmode="numeric" min="1" required placeholder="20"></label>
@@ -2888,15 +2908,15 @@ function renderCardio(){
       <button class="small-btn">+ Ekle</button>
     </form>`;
   const upd = () => { const t = $("cdT").value, isT = t === "tread", isO = t === "outrun" || t === "outwalk";
-    $("ozCardio").querySelector(".cdspd").hidden = !(isT || isO); $("ozCardio").querySelector(".cdinc").hidden = !isT;
-    const k = cardioKcal(t, $("cdMin").value, $("cdSpd").value, $("cdInc").value, weightOn(cur)); $("cdPrev").textContent = k ? `≈ ${fmt(k)} kcal` : ""; };
+    box.querySelector(".cdspd").hidden = !(isT || isO); box.querySelector(".cdinc").hidden = !isT;
+    const k = cardioKcal(t, $("cdMin").value, $("cdSpd").value, $("cdInc").value, weightOn(ds)); $("cdPrev").textContent = k ? `≈ ${fmt(k)} kcal` : ""; };
   for(const id of ["cdT","cdMin","cdSpd","cdInc"]) $(id).addEventListener("input", upd); upd();
   $("cdForm").onsubmit = e => { e.preventDefault(); const t = $("cdT").value, min = +$("cdMin").value; if(!(min > 0)) return;
-    const x = {t, min, spd: +$("cdSpd").value || 0, inc: t === "tread" ? +$("cdInc").value || 0 : 0}; x.kcal = cardioKcal(t, x.min, x.spd, x.inc, weightOn(cur));
-    const dd = day(cur); dd.cardio = dd.cardio || []; dd.cardio.push(x); syncCardio(dd); save(); renderAll(); toast(`Kardiyo eklendi · ~${fmt(x.kcal)} kcal`); };
+    const x = {t, min, spd: +$("cdSpd").value || 0, inc: t === "tread" ? +$("cdInc").value || 0 : 0}; x.kcal = cardioKcal(t, x.min, x.spd, x.inc, weightOn(ds));
+    const dd = day(ds); dd.cardio = dd.cardio || []; dd.cardio.push(x); syncCardio(dd); save(); renderAll(); toast(`Kardiyo eklendi · ~${fmt(x.kcal)} kcal`); };
 }
 function syncCardio(d){ const L = d.cardio || []; d.ck = String(L.reduce((a, x) => a + (+x.kcal || 0), 0)); d.ca = String(L.reduce((a, x) => a + (+x.min || 0), 0) || ""); }
-document.addEventListener("click", e => { const b = e.target.closest("[data-cdel]"); if(!b) return; const d = day(cur); d.cardio.splice(+b.dataset.cdel, 1); syncCardio(d); save(); renderAll(); });
+document.addEventListener("click", e => { const b = e.target.closest("[data-cdel]"); if(!b) return; const d = day(b.dataset.cdd || cur); d.cardio.splice(+b.dataset.cdel, 1); syncCardio(d); save(); renderAll(); });
 // Antrenman kalorisi (net, BMR hariç): (MET − 1) × kilo × saat
 const CARDIO_MET = {Walking_Treadmill:6, Air_Bike:8, Rowing_Stationary:7, Bicycling_Stationary:7, Elliptical_Trainer:5, Stairmaster:9};
 const CARDIO_OPTS = [["Walking_Treadmill","Incline yürüyüş"],["Bicycling_Stationary","Bisiklet"],["Elliptical_Trainer","Eliptik"],["Rowing_Stationary","Kürek"],["Stairmaster","Merdiven"],["Air_Bike","Air bike"],["run","Koşu"]];
@@ -2906,6 +2926,7 @@ function workoutKcal(liftMin, cardio, kg){
   const c = cardio.reduce((a, [id, m]) => a + (Math.max(0, m) / 60) * ((CARDIO_MET[id] || 6) - 1) * w, 0);
   return {lift: Math.round(lift), cardio: Math.round(c), total: Math.round(lift + c)};
 }
+const sesCardioKcal = () => ((root.session || {}).cardio || []).reduce((a, c) => a + cardioKcal(c.t, c.min, c.spd, c.t === "tread" ? c.inc : 0, weightOn(today())), 0);
 function finishSession(){
   const S = root.session; if(!S) return;
   const doneSets = S.ex.filter(x => EXM[x.id]?.u !== "dk").reduce((a, x) => a + x.sets.filter(s => s.done).length, 0);
@@ -2926,13 +2947,14 @@ function finishSession(){
     <div class="row" style="margin-top:12px"><button class="ghost" data-close style="flex:1">Geri dön</button><button id="fwOk" style="flex:2">Bitir ve kaydet ✓</button></div>`);
   const calc = () => { const t = $("fwCt").value, m = +$("fwCm").value || 0, r = workoutKcal(+$("fwLift").value || 0, m > 0 ? [[t, m]] : [], kg);
     if(t === "Walking_Treadmill" && m > 0 && +$("fwSpd").value > 0){ r.cardio = cardioKcal("tread", m, +$("fwSpd").value, +$("fwInc").value || 0, kg); r.total = r.lift + r.cardio; }
+    const sc = sesCardioKcal(); r.cardio += sc; r.total += sc; r.sc = sc;
     return r; };
   const trShow = () => { for(const el of document.querySelectorAll(".fwtr")) el.hidden = $("fwCt").value !== "Walking_Treadmill"; };
   $("fwCt").addEventListener("change", trShow); trShow();
   const upd = () => { const r = calc(); $("fwRes").innerHTML = `<b>~${fmt(r.total)} kcal</b><span>ağırlık ${fmt(r.lift)} + kardiyo ${fmt(r.cardio)} · ${String(kg || 70).replace(".", ",")} kg'a göre</span>`; };
   for(const id of ["fwLift","fwCt","fwCm","fwInc","fwSpd"]) $(id).addEventListener("input", upd);
   upd();
-  $("fwOk").onclick = () => { const r = calc(); closeSheet(); commitSession(r.total, +$("fwCm").value || 0); };
+  $("fwOk").onclick = () => { const r = calc(); closeSheet(); commitSession(r.total - r.sc, +$("fwCm").value || 0); };
 }
 function commitSession(kcal, cardioMin){
   const S = root.session; let n = 0; const prs = [];
@@ -2947,7 +2969,9 @@ function commitSession(kcal, cardioMin){
     a.sort((p, q) => p.d < q.d ? -1 : 1); n++;
   }
   const d = day(S.date); d.wo = S.card; d.wk = String(kcal || 0);
-  if(cardioMin) d.ca = String(cardioMin);
+  const sc = (S.cardio || []).filter(c => +c.min > 0).map(c => { const x = {t: c.t, min: +c.min, spd: +c.spd || 0, inc: c.t === "tread" ? +c.inc || 0 : 0}; x.kcal = cardioKcal(x.t, x.min, x.spd, x.inc, weightOn(S.date)); return x; });
+  if(sc.length){ d.cardio = (d.cardio || []).concat(sc); syncCardio(d); kcal += sc.reduce((a, x) => a + x.kcal, 0); }
+  if(cardioMin) d.ca = String((+d.ca || 0) + cardioMin);
   root.prevLast = root.lastCard ?? null; root.prevPick = S.cardId ? {d: today(), id: S.cardId} : null; root.lastCard = S.card; root.pick = null;
   root.session = null; save(); renderAll(); toast((kcal ? `~${fmt(kcal)} kcal yaktın` : "Antrenman kaydedildi") + (prs.length ? ` · Yeni rekor: ${prs.join(", ")}` : n ? ` · ${n} hareket deftere yazıldı` : ""));
 }
