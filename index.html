@@ -2361,7 +2361,9 @@ function renderMeas(){
   $("mNote").innerHTML = head + `<div class="mcmp"><div class="small muted" style="margin-bottom:6px">Önceki ölçüm (${dayName(pd, {day:"numeric", month:"short"})}) → bu ölçüm</div>${rows}${kgRow}</div>` + T.map(t => `<div class="tipl" style="margin-top:8px">${I("bulb")}<span>${t}</span></div>`).join("");
 }
 document.addEventListener("input", e => { const k = e.target.dataset?.meas; if(!k) return; root.meas = root.meas || {}; const m = root.meas[cur] = root.meas[cur] || {}; m[k] = e.target.value; const w = weightOn(cur); if(w) m._kg = w; save(); renderMeas(); });
-const HAB_PRE = ["Sabah diş fırçala","Akşam diş fırçala","Duş / banyo","Cilt bakımı","Esneme (10 dk)","Kitap oku","Erken yat (00:00 öncesi)","Telefonsuz 1 saat","Yürüyüş","Diş ipi"];
+const HAB_PRE = ["Sabah diş fırçala","Akşam diş fırçala","Duş / banyo","Cilt bakımı","Esneme (10 dk)","Kitap oku","Erken yat (00:00 öncesi)","Telefonsuz 1 saat","Yürüyüş","Diş ipi","Tıraş ol","Tırnak kes","Yüz yıkama","Saç bakımı","Parfüm / deodorant"];
+const HAB_PRE_F = {"Tıraş ol": 3, "Tırnak kes": 1, "Duş / banyo": 4, "Kitap oku": 4}; // hazır alışkanlıkların varsayılan sıklığı (haftada)
+const HAB_PRE_T = {"Tıraş ol": "s", "Yüz yıkama": "s", "Parfüm / deodorant": "s"};
 const habStreak = id => { const x = (root.habits || []).find(y => y.id === id); return x && habW(x) ? wkStreakOf(habWeekOk(x)) : streak(ds => !!((root.days[ds] || {}).hb || {})[id]); };
 const habUnit = x => habW(x) ? "hafta" : "gün";
 const HSEG = [["s","Sabah","zap"],["g","Gün içi","clock"],["a","Akşam","moon"]];
@@ -2386,7 +2388,7 @@ function renderHab(){
           <div class="spi"><b>${esc(x.name)}</b><small>${habW(x) ? `Bu hafta ${habWeekN(x.id, mon)}/${x.f}${st > 0 ? ` · ${I("flame", "sm")} ${st} hafta seri` : ""}` : st > 1 ? `${I("flame", "sm")} ${st} gün seri` : on ? "Bugün tamam" : "Bugün yapılmadı"}</small><div class="spdots">${dots}</div>
             <select class="hfq" data-hbf="${x.id}" aria-label="${esc(x.name)} sıklığı">${[0, 1, 2, 3, 4, 5, 6].map(n => `<option value="${n}" ${(+x.f || 0) === n ? "selected" : ""}>${n ? `Haftada ${n} gün` : "Her gün"}</option>`).join("")}</select></div>
           <button class="icon" data-hbrm="${x.id}" aria-label="${esc(x.name)} kaldır">✕</button></div>`; }).join("")}</div></div>`; }).join("");
-  $("hbPre").innerHTML = HAB_PRE.filter(n => !L.some(x => x.name === n)).map(n => `<button type="button" data-hbadd="${esc(n)}">+ ${esc(n)}</button>`).join("");
+  $("hbPre").innerHTML = HAB_PRE.filter(n => !L.some(x => x.name === n)).map(n => `<button type="button" data-hbadd="${esc(n)}">+ ${esc(n)}${HAB_PRE_F[n] ? ` <small>haftada ${HAB_PRE_F[n]}</small>` : ""}</button>`).join("");
 }
 // Ana sayfa: bugünkü takip (alışkanlıklar + takviyeler)
 function renderTrack(){
@@ -2406,7 +2408,7 @@ document.addEventListener("click", e => {
   const b = e.target.closest("[data-hb],[data-hbrm],[data-hbadd]"); if(!b) return;
   if(b.dataset.hb){ const d = day(cur); d.hb = d.hb || {}; if(d.hb[b.dataset.hb]) delete d.hb[b.dataset.hb]; else d.hb[b.dataset.hb] = true; save(); renderHab(); renderTrack(); return; }
   if(b.dataset.hbrm){ const x = (root.habits || []).find(x => x.id === b.dataset.hbrm); return ask(`“${x?.name}” listeden kaldırılsın mı?`, "Kaldır", () => { root.habits = root.habits.filter(y => y.id !== b.dataset.hbrm); save(); renderHab(); renderTrack(); }); }
-  if(b.dataset.hbadd){ root.habits = root.habits || []; root.habits.push({id: Math.random().toString(36).slice(2, 8), name: b.dataset.hbadd}); save(); renderHab(); renderTrack(); }
+  if(b.dataset.hbadd){ root.habits = root.habits || []; const n = b.dataset.hbadd; root.habits.push({id: Math.random().toString(36).slice(2, 8), name: n, ...(HAB_PRE_T[n] ? {t: HAB_PRE_T[n]} : {}), ...(HAB_PRE_F[n] ? {f: HAB_PRE_F[n]} : {})}); save(); renderHab(); renderTrack(); }
 });
 document.addEventListener("change", e => { const id = e.target.dataset?.hbf; if(!id) return; const x = (root.habits || []).find(y => y.id === id); if(!x) return; const v = +e.target.value; if(v) x.f = v; else delete x.f; save(); renderHab(); renderTrack(); toast(`${x.name}: ${habFreqTxt(x)}`); });
 $("hbForm").onsubmit = e => { e.preventDefault(); const n = $("hbName").value.trim(); if(!n) return; root.habits = root.habits || []; root.habits.push({id: Math.random().toString(36).slice(2, 8), name: n, t: $("hbSeg").value, ...(+$("hbFreq").value ? {f: +$("hbFreq").value} : {})}); $("hbName").value = ""; $("hbFreq").value = "0"; save(); renderHab(); };

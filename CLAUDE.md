@@ -97,3 +97,4 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - "Makinede/Kabloda yaptım" (data-mach, `MACH` eşlemesi): antrenmanda dambıllı hareketi makine karşılığına çevirir (sadece bugün ya da kartta da); kilolar yeni hareketin son kaydından gelir.
 - Bir kerelik geçiş `root.mig.tread`: kartlardan Walking_Treadmill çıkarıldı (kardiyo artık ayrı). Yeni geçişler için `root.mig` + `migDirty` kullan.
 - Ağırlık kalorisi: `workoutKcal(..., met)` varsayılan `liftMetOf()` = root.liftMet (3,5 varsayılan, 5 seçilebilir; bitirme ekranında Normal/Yoğun + "Hangisi?" açıklaması). Süre = yapılan set × `SET_MIN` (2,5 dk); gerçek süre sadece gösterilir. Bir kerelik `root.mig.met35` → `migWk` eski günlerin d.wk'sını yeniden hesaplar (setler lifts'ten, yoksa karttan; kart içi kardiyo MET/ACSM; d.ca fazlası 6 MET).
+- Hazır alışkanlıklar: `HAB_PRE` + varsayılan sıklık `HAB_PRE_F` (Tıraş 3, Tırnak 1, Duş 4, Kitap 4) ve bölüm `HAB_PRE_T`.
