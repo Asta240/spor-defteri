@@ -1577,7 +1577,7 @@ const shift = (s, n) => { const d = new Date(s+"T12:00"); d.setDate(d.getDate()+
 const dayName = (s, o) => new Date(s+"T12:00").toLocaleDateString("tr-TR", o);
 const blankDay = () => ({f:[], w:0, wo:"", ca:"", st:"", bu:"", kg:""});
 // Yenilikler: siteyi açınca bir kez çıkar, "Tamam"a basınca bir daha çıkmaz. Yeni yenilik eklerken NEWS.id'yi değiştir.
-const NEWS = {id:"2026-11-24", items:[
+const NEWS = {id:"2026-11-24b", items:[
   ["camera", "Fotoğraftan kalori yenilendi", "Claude önce yemekleri tanıyor, sen her birinin nasıl piştiğini (fırın, kızartma…), yağını, kaç kişilik olduğunu ve ne kadarını yediğini seçiyorsun, sonra hesaplıyor. Adımlar ayrı sayfa, ☰ menüden gezersin. Yanlış satırı “Düzelt” ile tek tek yeniden hesaplatabilirsin."],
   ["utensils", "Yemek danışma", "Kalori alımında “Yemeden önce danış” kartı: seçeneklerin fotoğrafını at, Claude neyi ne kadar yemeni söylesin."],
   ["pill", "Vitamin ve mineraller", "Kalori alımının altında: lif, C, D, B12, demir, kalsiyum, magnezyum, potasyum, çinko ve tuz; ihtiyacının ne kadarını aldığın."],
