@@ -564,7 +564,7 @@
   .kmini .it{display:flex;justify-content:space-between;background:var(--card-2);border-radius:10px;padding:8px 12px;font-size:14px}
   @media (min-width:1000px){
     #vKalori{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch} #vKalori>*{margin:0} #vKalori>.kseg{grid-column:1 / -1}
-    #vYemek{align-items:start} #addCard{grid-column:1} #eatCard{grid-column:2}
+    #vYemek{align-items:start} #addCard{grid-column:1} #eatCard{grid-column:2} #danLink{grid-column:1 / -1}
   }
   .mkg{display:flex;align-items:center;gap:6px;font-size:13px;margin-bottom:8px}
   .mkg svg.i{color:var(--accent)}
@@ -745,6 +745,8 @@
   .mic{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:12px} .mi{padding:10px 12px;border-radius:12px;background:var(--card-2)}
   .mi .mt{display:flex;justify-content:space-between;gap:6px;font-size:13px;align-items:baseline} .mi .mt b{font-size:13px;white-space:nowrap} .mi .mt small{color:var(--muted);font-weight:500}
   .mi .bar{height:6px;margin:6px 0 4px} .mi .bar i{background:var(--accent-soft)} .mi.ok .bar i{background:var(--accent)} .mi.over .bar i{background:var(--bad)} .mi>small{font-size:11px;color:var(--muted)}
+  .dancard{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;padding:14px 16px;border-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%),var(--card)}
+  .dancard .dt{display:block;font-size:15px} .dancard small{display:block;font-size:12.5px;color:var(--muted);margin-top:2px} .dancard .chev{font-size:22px;color:var(--accent)}
   .cextra{display:grid;gap:14px} @media (min-width:900px){ .cextra{grid-template-columns:1fr 1fr;align-items:start} }
   .plx{padding:12px;border-radius:12px;background:var(--card-2)} .plx+.plx{margin-top:10px} .plx h3{margin:0;font-size:15px} .plx .pls{font-size:12px;color:var(--muted);margin:2px 0 8px}
   .plx .rgh{margin:10px 0 4px} .plx .tipl{font-size:13px;line-height:1.45;margin-top:4px} .plx .tipl svg.i{flex:none;width:15px;height:15px;margin-top:2px;color:var(--accent)}
@@ -887,10 +889,15 @@
         <div class="ysb" style="margin-top:10px"><div class="rgh">Öğünlere göre</div><div id="ymMeals"></div></div>
         <div class="tip" id="ymTip" style="margin-top:10px"></div>
       </div>
+      <a class="card dancard" id="danLink" target="_blank" rel="noopener">
+        <span class="hico"><i data-i="bulb"></i></span>
+        <div style="flex:1;min-width:0"><b class="dt">Yemeden önce danış</b><small>Seçeneklerin fotoğrafını at, Claude neyi ne kadar yemeni söylesin</small><small id="danLeft"></small></div>
+        <span class="chev">›</span>
+      </a>
       <div class="card" id="addCard">
         <div class="hhead"><span class="hico"><i data-i="utensils"></i></span><div style="flex:1"><h2 style="margin:0">Yemek ekle</h2><div class="small muted" id="addLeft">Hangi öğün?</div></div></div>
         <div class="chips" id="mealSeg" style="margin:12px 0"></div>
-        <div class="seg atabs"><button data-at="ara" class="on">Listeden</button><button data-at="elle">Elle</button><button data-at="foto">Fotoğraf</button><button data-at="danis">Danış</button></div>
+        <div class="seg atabs"><button data-at="ara" class="on">Listeden</button><button data-at="elle">Elle</button><button data-at="foto">Fotoğraf</button></div>
         <div class="apane" data-ap="ara">
           <input id="fq" type="search" placeholder="Ara: mercimek, whopper, kola…" aria-label="Yemek ara">
           <ul class="fres" id="fres"></ul>
@@ -905,11 +912,6 @@
             <input id="fy" type="number" inputmode="numeric" min="0" placeholder="Yağ g" aria-label="Yağ">
             <button class="small-btn" style="grid-column:1 / -1;justify-self:start">Ekle</button>
           </form>
-        </div>
-        <div class="apane" data-ap="danis" hidden>
-          <p class="small muted" style="margin:0 0 10px">Yemeden önce sor: önündeki seçeneklerin (yemekhane tepsisi, menü, büfe) fotoğrafını at, Claude kalan kalorine ve hedefine göre neyi ne kadar yemeni söylesin.</p>
-          <p class="small" id="danLeft" style="margin:0 0 10px"></p>
-          <a class="camBtn" id="danLink" target="_blank" rel="noopener" style="display:inline-flex"><i data-i="utensils"></i> Yemek danışmayı aç</a>
         </div>
         <div class="apane" data-ap="foto" hidden>
           <p class="small muted" style="margin:0 0 10px">Fotoğrafı Claude'a gönder: önce yemekleri tanır, sen her birinin detayını (yağ, kaç kişilik, ne kadarını yediğin) seçersin, sonra kaloriyi hesaplar. “Bugünkü yemeklerime ekle”ye basınca yemekler buraya gelir.</p>
@@ -1575,7 +1577,7 @@ const blankDay = () => ({f:[], w:0, wo:"", ca:"", st:"", bu:"", kg:""});
 // Yenilikler: siteyi açınca bir kez çıkar, "Tamam"a basınca bir daha çıkmaz. Yeni yenilik eklerken NEWS.id'yi değiştir.
 const NEWS = {id:"2026-11-24", items:[
   ["camera", "Fotoğraftan kalori yenilendi", "Claude önce yemekleri tanıyor, sen her birinin yağını, kaç kişilik olduğunu ve ne kadarını yediğini seçiyorsun, sonra hesaplıyor. Yanlış satırı “Düzelt” ile tek tek yeniden hesaplatabilirsin."],
-  ["utensils", "Yemek danışma", "Kalori alımı → Yemek ekle → Danış: yemeden önce seçeneklerin fotoğrafını at, Claude neyi ne kadar yemeni söylesin."],
+  ["utensils", "Yemek danışma", "Kalori alımında “Yemeden önce danış” kartı: seçeneklerin fotoğrafını at, Claude neyi ne kadar yemeni söylesin."],
   ["pill", "Vitamin ve mineraller", "Kalori alımının altında: lif, C, D, B12, demir, kalsiyum, magnezyum, potasyum, çinko ve tuz; ihtiyacının ne kadarını aldığın."],
   ["dumbbell", "Antrenman sayfası", "Kardiyo ve Dinlenme günü kart olarak burada; antrenmanda + Kardiyo ekle, set silme, tüm setlere aynı kilo, “Makinede yaptım”, dambıl kilosu açıklaması, kartlara dönüş."],
   ["trend", "Gelişmeyen hareketler", "Kilosu artmayan hareket için olası zayıf kas, nedenler ve odak önerileri; kas yorgunluğu da yanında."],
@@ -2230,7 +2232,7 @@ function renderDay(){
       : `<div class="kstack" style="margin-top:0">${rows.map(r => `<i style="width:${r.kc / (s.k || 1) * 100}%;background:${MC[r.k]}" title="${r.t}"></i>`).join("")}</div>
         <div class="mtab"><div class="mtr mth"><span>Öğün</span><span>kcal</span><span>%</span><span>P</span><span>K</span><span>Y</span></div>
         ${rows.map(r => `<div class="mtr"><span><i style="background:${MC[r.k]}"></i>${r.t}</span><b>${fmt(r.kc)}</b><span>%${Math.round(r.kc / (s.k || 1) * 100)}</span><span>${fmt(r.p)}</span><span>${fmt(r.c)}</span><span>${fmt(r.y)}</span></div>`).join("")}</div>`; }
-  { const lk = Math.max(0, Math.round(g.k - s.k)), lp = Math.max(0, Math.round(g.p - s.p)); $("danLink").href = FOTO_URL + `#danis/k=${lk}/p=${lp}`; $("danLeft").innerHTML = `Bugün kalan: <b style="color:var(--accent)">${fmt(lk)} kcal</b> · <b>${lp} g protein</b> (danışmada bunu yaz)`; }
+  { const lk = Math.max(0, Math.round(g.k - s.k)), lp = Math.max(0, Math.round(g.p - s.p)); $("danLink").href = FOTO_URL + `#danis/k=${lk}/p=${lp}`; $("danLeft").innerHTML = `Kalan: <b style="color:var(--accent)">${fmt(lk)} kcal</b> · ${lp} g protein`; }
   $("addLeft").innerHTML = s.k <= g.k ? `Kalan alınacak: <b style="color:var(--accent)">${fmt(g.k - s.k)} kcal</b> · Hangi öğün?` : `Hedefi <b style="color:var(--bad)">${fmt(s.k - g.k)} kcal</b> aştın · Hangi öğün?`;
   $("ymLeft").textContent = s.k <= g.k ? `${fmt(g.k - s.k)} kcal kaldı` : `${fmt(s.k - g.k)} kcal fazla`;
   $("ymBar").style.width = Math.min(100, s.k / (g.k || 1) * 100) + "%";
