@@ -2642,8 +2642,11 @@ $("tCards").addEventListener("click", e => {
   if(d.add){ openCard = root.cards[+d.add].id; addTarget = openCard; setTab("lib"); toast(`“${root.cards[+d.add].name}” kartına eklenecek hareketi seç`); return; }
   if(d.ren){ const c = root.cards[+d.ren]; openSheet(`<h2>Kartın adı</h2><input id="renIn" value="${esc(c.name)}" maxlength="40"><div class="row" style="margin-top:12px"><button class="ghost" data-close style="flex:1">Vazgeç</button><button id="renOk" style="flex:1">Kaydet</button></div>`); $("renOk").onclick = () => { const v = $("renIn").value.trim(); if(v){ c.name = v; save(); renderCards(); } closeSheet(); }; return; }
   if(d.delc){ const c = root.cards[+d.delc]; return ask(`“${c.name}” kartı silinsin mi?`, "Sil", () => { root.cards.splice(+d.delc, 1); cardPage = null; editCard = null; save(); renderCards(); toast("Kart silindi"); }); }
-  if(d.start){ startSession(+d.start); return; }
+  if(d.start){ const S = root.session, ci = +d.start;
+    if(S && S.cardId !== root.cards[ci].id) return ask(`Aktif antrenman (${S.card}) iptal edilip “${root.cards[ci].name}” başlatılsın mı?`, "Başlat", () => { listOverride = false; startSession(ci); });
+    listOverride = false; if(S){ renderCards(); window.scrollTo({top: 0}); } else startSession(ci); return; }
   if(b.id === "tplBtn") return showTemplates();
+  if("tolist" in d){ listOverride = true; cardPage = null; editCard = null; try{ localStorage.setItem("sd-cardpage", ""); }catch(e){} renderCards(); window.scrollTo({top: 0}); return; }
   if(b.id === "resumeBtn"){ listOverride = false; renderCards(); window.scrollTo({top: 0}); return; }
   if(b.id === "newCard"){ openSheet(`<h2>Yeni kart</h2><input id="ncIn" placeholder="Örn. Pazartesi – İtiş" maxlength="40"><div class="row" style="margin-top:12px"><button class="ghost" data-close style="flex:1">Vazgeç</button><button id="ncOk" style="flex:1">Oluştur</button></div>`); $("ncOk").onclick = () => { const v = $("ncIn").value.trim(); if(!v) return; const c = card(v, []); root.cards.push(c); openCard = cardPage = c.id; editCard = c.id; save(); closeSheet(); renderCards(); }; return; }
   // antrenman modu
@@ -2841,7 +2844,7 @@ function overload(id, targetR){
 }
 function renderSession(){
   const S = root.session;
-  $("tCards").innerHTML = `<div class="card">
+  $("tCards").innerHTML = `<button class="backbtn" data-tolist>‹ Kartlar</button><div class="card">
     <div class="row" style="justify-content:space-between;align-items:center"><div><h2 style="margin:0">${esc(S.card)}</h2><div class="small muted">${dayName(S.date, {weekday:"long", day:"numeric", month:"long"})}</div></div><div class="wotop" style="align-items:center"><span class="pill">${S.ex.reduce((a, x) => a + x.sets.filter(s => s.done).length, 0)} / ${S.ex.reduce((a, x) => a + x.sets.length, 0)} set</span><button class="ghost small-btn" id="sesEnd">Bitir ve kaydet ✓</button><button class="ghost small-btn" id="sesCancel">İptal et</button></div></div>
     ${S.ex.map((x, xi) => { const e = EXM[x.id], l = lastLift(x.id); return `<div class="logex">
       <div class="row" style="align-items:center;flex-wrap:nowrap"><div style="width:72px;flex:none">${anim(e.id, e.tr)}</div><div style="flex:1"><h3><button data-info="${e.id}" style="all:unset;cursor:pointer">${esc(e.tr)}</button></h3><div class="small muted">${l ? "Geçen sefer: " + esc(liftText(l)) : "İlk sefer, rahat bir kiloyla başla"}</div>${(root.exNotes || {})[e.id] ? `<div class="small lognote">${I("edit")} ${esc(root.exNotes[e.id])}</div>` : ""}${(o => o ? `<div class="ovl ${o.t}">${I(o.t === "up" ? "trend" : o.t === "down" ? "trenddown" : "target")}<span>${esc(o.msg)}</span>${o.t !== "keep" ? `<button class="small-btn" data-ovl="${xi}:${o.kg}">Uygula</button>` : ""}</div>` : "")(overload(x.id, +((root.cards.find(c => c.id === S.cardId) || {ex: []}).ex.find(y => y.id === x.id) || {}).r || 10))}</div></div>
