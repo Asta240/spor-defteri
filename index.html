@@ -757,7 +757,7 @@
   .ptabs button{font-size:13px}
   @media (max-width:700px){ .ptabs{width:100%;flex-wrap:nowrap;overflow-x:auto} .ptabs button{flex:none} }
   #tProg[data-tab] > [data-pt]{display:none}
-  #tProg[data-tab="genel"] > [data-pt~="genel"],#tProg[data-tab="antrenman"] > [data-pt~="antrenman"],#tProg[data-tab="beslenme"] > [data-pt~="beslenme"],#tProg[data-tab="vucut"] > [data-pt~="vucut"],#tProg[data-tab="aliskanlik"] > [data-pt~="aliskanlik"],#tProg[data-tab="takviye"] > [data-pt~="takviye"],#tProg[data-tab="rozet"] > [data-pt~="rozet"]{display:block}
+  #tProg[data-tab="haftalik"] > [data-pt~="haftalik"],#tProg[data-tab="antrenman"] > [data-pt~="antrenman"],#tProg[data-tab="beslenme"] > [data-pt~="beslenme"],#tProg[data-tab="vucut"] > [data-pt~="vucut"],#tProg[data-tab="aliskanlik"] > [data-pt~="aliskanlik"],#tProg[data-tab="takviye"] > [data-pt~="takviye"],#tProg[data-tab="rozet"] > [data-pt~="rozet"]{display:block}
   .sklist{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
   .ski{background:var(--card-2);border-radius:16px;padding:12px}
   .skh{display:flex;align-items:center;gap:10px}
@@ -1098,22 +1098,22 @@
     </section>
 
     <!-- İLERLEME -->
-    <section id="tProg" hidden data-tab="genel">
-      <div class="ptabs seg" id="ptabs"><button data-ptab="antrenman">Antrenman</button><button data-ptab="beslenme">Beslenme</button><button data-ptab="vucut">Vücut</button><button data-ptab="aliskanlik">Alışkanlıklar</button><button data-ptab="takviye">Takviyeler</button><button data-ptab="rozet">Rozetler</button></div>
-      <div data-pt="genel" class="card" style="grid-column:1 / -1" id="pgWeek"></div>
-      <div data-pt="genel" class="card" style="grid-column:1 / -1"><h2><i data-i="flame"></i> Bütün seriler</h2><div class="sklist" id="pgAll"></div></div>
+    <section id="tProg" hidden data-tab="antrenman">
+      <div class="ptabs seg" id="ptabs"><button data-ptab="antrenman">Antrenman</button><button data-ptab="beslenme">Beslenme</button><button data-ptab="vucut">Vücut</button><button data-ptab="aliskanlik">Alışkanlıklar</button><button data-ptab="takviye">Takviyeler</button><button data-ptab="rozet">Rozetler</button><button data-ptab="haftalik">Haftalık</button></div>
+      <div data-pt="haftalik" class="card" style="grid-column:1 / -1" id="pgWeek"></div>
+      <div data-pt="haftalik" class="card" style="grid-column:1 / -1;order:9"><h2><i data-i="flame"></i> Bütün seriler</h2><div class="sklist" id="pgAll"></div></div>
       <div data-pt="beslenme" class="card" style="grid-column:1 / -1"><h2><i data-i="utensils"></i> Beslenme serileri</h2><div class="sklist" id="pgNut"></div></div>
       <div data-pt="antrenman" class="card" style="grid-column:1 / -1"><h2><i data-i="dumbbell"></i> Antrenman serisi</h2><div class="sklist" id="pgWo"></div></div>
       <div data-pt="aliskanlik" class="card" style="grid-column:1 / -1"><h2><i data-i="check"></i> Alışkanlıklar</h2><div class="sklist" id="pgHab"></div></div>
       <div data-pt="takviye" class="card" style="grid-column:1 / -1"><h2><i data-i="pill"></i> Takviyeler</h2><div class="sklist" id="pgSupp"></div></div>
       <div data-pt="vucut" class="card"><h2><i data-i="ruler"></i> Ölçüler</h2><div id="pgMeas"></div></div>
-      <div data-pt="genel vucut" class="card" style="grid-column:1 / -1">
+      <div data-pt="vucut" class="card" style="grid-column:1 / -1">
         <h2><i data-i="trend"></i> Kilo · kalori · adım (son 30 gün)</h2>
         <div class="fig" id="cmFig" style="height:220px"></div>
         <div class="cmleg"><span><i style="background:var(--ink)"></i>Kilo</span><span><i style="background:var(--accent)"></i>Alınan kalori</span><span><i style="background:#5b9cf5"></i>Adım</span></div>
         <div class="cmval" id="cmVal"></div>
       </div>
-      <div data-pt="genel" class="card" style="grid-column:1 / -1">
+      <div data-pt="haftalik" class="card" style="grid-column:1 / -1">
         <h2><i data-i="chartbar"></i> Haftalık rapor</h2>
         <div class="rpgrid" id="rpGrid"></div>
         <p class="small muted" id="rpNote" style="margin:10px 0 0"></p>
@@ -1139,7 +1139,7 @@
         <div class="wkbars" id="wkBars"></div>
         <p class="small muted" id="wkNote" style="margin:10px 0 0"></p>
       </div>
-      <div data-pt="rozet genel" class="card" style="grid-column:1 / -1">
+      <div data-pt="rozet" class="card" style="grid-column:1 / -1">
         <h2><i data-i="medal"></i> Rozetler</h2>
         <div class="bdgrid" id="bdGrid"></div>
       </div>
