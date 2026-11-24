@@ -1582,10 +1582,10 @@ function startApp(code, r){
   $("codeBtn").textContent = label();
   setSync(ONLINE() ? "" : "Sadece bu cihazda");
   setTab(tab);
-  applyPendingYmk();
-  applyPendingVeri();
-  if(ONLINE()){ poll(); setInterval(() => { if(!document.hidden) poll(); }, 30000); document.addEventListener("visibilitychange", () => { if(!document.hidden) poll(); }); }
-  else lsSet(storeKey(), JSON.stringify(root));
+  // Fotoğraf/veri linki: önce sunucudaki güncel hali al, sonra ekle (yoksa eski önbellek üstüne eklenip sunucudakiyle eziliyordu)
+  const pend = () => { applyPendingYmk(); applyPendingVeri(); };
+  if(ONLINE()){ Promise.resolve(poll()).catch(() => {}).then(pend); setInterval(() => { if(!document.hidden) poll(); }, 30000); document.addEventListener("visibilitychange", () => { if(!document.hidden) poll(); }); }
+  else{ lsSet(storeKey(), JSON.stringify(root)); pend(); }
   setTimeout(maybeNews, 800);
 }
 // Giriş yolları: kullanıcı adı + şifre, Google, eski kod. Hepsi sonunda hesabın koduna çıkar.
@@ -2535,7 +2535,7 @@ function readLinkHash(){
 }
 readLinkHash();
 // Site zaten açıkken link açılırsa (sayfa yenilenmez) de çalışsın
-window.addEventListener("hashchange", () => { if(readLinkHash() && root){ applyPendingYmk(); applyPendingVeri(); } });
+window.addEventListener("hashchange", async () => { if(readLinkHash() && root){ if(ONLINE()) try{ await poll(); }catch(e){} applyPendingYmk(); applyPendingVeri(); } });
 
 // ================= KARTLAR =================
 let openCard = null;
