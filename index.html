@@ -890,7 +890,7 @@
       <div class="card" id="addCard">
         <div class="hhead"><span class="hico"><i data-i="utensils"></i></span><div style="flex:1"><h2 style="margin:0">Yemek ekle</h2><div class="small muted" id="addLeft">Hangi öğün?</div></div></div>
         <div class="chips" id="mealSeg" style="margin:12px 0"></div>
-        <div class="seg atabs"><button data-at="ara" class="on">Listeden</button><button data-at="elle">Elle</button><button data-at="foto">Fotoğraf</button></div>
+        <div class="seg atabs"><button data-at="ara" class="on">Listeden</button><button data-at="elle">Elle</button><button data-at="foto">Fotoğraf</button><button data-at="danis">Danış</button></div>
         <div class="apane" data-ap="ara">
           <input id="fq" type="search" placeholder="Ara: mercimek, whopper, kola…" aria-label="Yemek ara">
           <ul class="fres" id="fres"></ul>
@@ -906,8 +906,13 @@
             <button class="small-btn" style="grid-column:1 / -1;justify-self:start">Ekle</button>
           </form>
         </div>
+        <div class="apane" data-ap="danis" hidden>
+          <p class="small muted" style="margin:0 0 10px">Yemeden önce sor: önündeki seçeneklerin (yemekhane tepsisi, menü, büfe) fotoğrafını at, Claude kalan kalorine ve hedefine göre neyi ne kadar yemeni söylesin.</p>
+          <p class="small" id="danLeft" style="margin:0 0 10px"></p>
+          <a class="camBtn" id="danLink" target="_blank" rel="noopener" style="display:inline-flex"><i data-i="utensils"></i> Yemek danışmayı aç</a>
+        </div>
         <div class="apane" data-ap="foto" hidden>
-          <p class="small muted" style="margin:0 0 10px">Fotoğrafı Claude'a gönder, kaloriyi o hesaplasın. “Bugünkü yemeklerime ekle”ye basınca yemekler buraya kendiliğinden gelir.</p>
+          <p class="small muted" style="margin:0 0 10px">Fotoğrafı Claude'a gönder: önce yemekleri tanır, sen her birinin detayını (yağ, kaç kişilik, ne kadarını yediğin) seçersin, sonra kaloriyi hesaplar. “Bugünkü yemeklerime ekle”ye basınca yemekler buraya gelir.</p>
           <a class="camBtn" id="camLink" target="_blank" rel="noopener" style="display:inline-flex"><i data-i="camera"></i> Fotoğraftan kalori aç</a>
           <form id="ymkForm" class="row" style="margin-top:12px"><input id="ymkIn" placeholder="Açılmazsa kodu yapıştır: YMK1.…" autocomplete="off" aria-label="Yemek kodu" style="flex:1 1 180px"><button class="small-btn">Yapıştır</button></form>
         </div>
@@ -2220,6 +2225,7 @@ function renderDay(){
       : `<div class="kstack" style="margin-top:0">${rows.map(r => `<i style="width:${r.kc / (s.k || 1) * 100}%;background:${MC[r.k]}" title="${r.t}"></i>`).join("")}</div>
         <div class="mtab"><div class="mtr mth"><span>Öğün</span><span>kcal</span><span>%</span><span>P</span><span>K</span><span>Y</span></div>
         ${rows.map(r => `<div class="mtr"><span><i style="background:${MC[r.k]}"></i>${r.t}</span><b>${fmt(r.kc)}</b><span>%${Math.round(r.kc / (s.k || 1) * 100)}</span><span>${fmt(r.p)}</span><span>${fmt(r.c)}</span><span>${fmt(r.y)}</span></div>`).join("")}</div>`; }
+  { const lk = Math.max(0, Math.round(g.k - s.k)), lp = Math.max(0, Math.round(g.p - s.p)); $("danLink").href = FOTO_URL + `#danis/k=${lk}/p=${lp}`; $("danLeft").innerHTML = `Bugün kalan: <b style="color:var(--accent)">${fmt(lk)} kcal</b> · <b>${lp} g protein</b> (danışmada bunu yaz)`; }
   $("addLeft").innerHTML = s.k <= g.k ? `Kalan alınacak: <b style="color:var(--accent)">${fmt(g.k - s.k)} kcal</b> · Hangi öğün?` : `Hedefi <b style="color:var(--bad)">${fmt(s.k - g.k)} kcal</b> aştın · Hangi öğün?`;
   $("ymLeft").textContent = s.k <= g.k ? `${fmt(g.k - s.k)} kcal kaldı` : `${fmt(s.k - g.k)} kcal fazla`;
   $("ymBar").style.width = Math.min(100, s.k / (g.k || 1) * 100) + "%";
