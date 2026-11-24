@@ -71,6 +71,9 @@
   /* menü (Sınav Asistanı'ndaki gibi) */
   .menuBtn{background:var(--card);color:var(--ink);border:1px solid var(--line);font-size:20px;padding:0;width:44px;height:44px;flex:none;line-height:1}
   .brand{display:flex;align-items:center;gap:12px}
+  body.scrolled #menuBtn{position:fixed;top:12px;left:12px;z-index:40;box-shadow:0 6px 20px rgba(0,0,0,.45);animation:mbIn .18s ease}
+  @keyframes mbIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1}}
+  #vGorev{max-width:620px;margin:0 auto}
   .drawer-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}
   .drawer{position:fixed;top:0;left:0;bottom:0;width:290px;max-width:85vw;background:var(--card);border-right:1px solid var(--line);transform:translateX(-102%);transition:transform .22s ease;z-index:41;display:flex;flex-direction:column;padding:14px;overflow-y:auto;overscroll-behavior:contain}
   body.drawer-open .drawer{transform:none} body.drawer-open .drawer-bg{opacity:1;pointer-events:auto}
@@ -435,6 +438,7 @@
   .water #wm{width:48px;flex:none;font-size:20px}
   .wbig{flex:1;min-height:52px;font-size:16px;background:var(--accent-soft);color:var(--accent);border:0}
   .wbig small{font-weight:600;opacity:.8;margin-left:4px}
+  .wsz{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px} .wsz button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;min-height:0;font-size:12px;line-height:1.2;background:var(--card-2);border:1px solid var(--line);color:var(--ink)} .wsz button small{color:var(--muted);font-size:11px} .wsz button svg.i{width:18px;height:18px;color:#4dabf7} .wsz button:hover{border-color:#4dabf7}
   .wbig:hover{background:var(--accent);color:#fff}
   .cup{width:18px;height:24px;border-width:2px;border-radius:3px 3px 7px 7px}
   .wweek{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;text-align:center}
@@ -895,7 +899,8 @@
       <div class="card suhero">
         <div class="glass"><div class="wfill" id="wFill"></div><div class="gtxt"><strong id="wv">0 L</strong><span id="wPct"></span></div></div>
         <div class="sucol">
-          <div class="water"><button class="ghost" id="wm" aria-label="Bir bardak çıkar">−</button><button id="wp" class="wbig">+ 1 bardak <small>250 ml</small></button></div>
+          <div class="wsz" id="wSizes"></div>
+          <div class="row" style="justify-content:flex-end"><button class="ghost small-btn" id="wm">− Son ekleneni geri al</button></div>
           <div class="cups" id="cups"></div>
           <p class="small muted" id="suNote" style="margin:0"></p>
         </div>
@@ -1005,6 +1010,10 @@
     </section>
 
     <!-- HEDEFLER -->
+    <section id="vGorev" hidden>
+      <div class="card" id="gvTasks"></div>
+    </section>
+
     <section id="vHedef" hidden>
       <div class="card gseg">
         <div class="hhead"><span class="hico"><i data-i="utensils"></i></span><div><h2 style="margin:0">Beslenme</h2><div class="small muted">Günlük alım hedeflerin</div></div></div>
@@ -1138,7 +1147,8 @@
   <nav id="dnav">
     <div class="dlab">Ana menü</div>
     <button data-v="ozet"><i data-i="home"></i> Günün özeti</button>
-    <button data-v="hedef"><i data-i="target"></i> Hedefler</button>
+    <button data-v="gorev"><i data-i="target"></i> Görevler</button>
+    <button data-v="hedef"><i data-i="sliders"></i> Hedefler</button>
     <div class="sep"></div>
     <div class="dlab">Kalori</div>
     <button data-v="yemek"><i data-i="utensils"></i> Kalori alımı</button>
@@ -1335,7 +1345,7 @@ const yt = e => "https://www.youtube.com/results?search_query=" + encodeURICompo
 // Çalışan kas haritası (kendi çizimimiz). Kas listesi free-exercise-db'den: [ana, yardımcı]
 const MUS = {"Leverage_Incline_Chest_Press":[["ch"],["sh","tri"]],"Leverage_Chest_Press":[["ch"],["sh","tri"]],"Barbell_Bench_Press_-_Medium_Grip":[["ch"],["sh","tri"]],"Dumbbell_Flyes":[["ch"],[]],"Cable_Crossover":[["ch"],["sh"]],"Leverage_Shoulder_Press":[["sh"],["tri"]],"Dumbbell_Shoulder_Press":[["sh"],["tri"]],"Side_Lateral_Raise":[["sh"],[]],"Face_Pull":[["sh"],["mb"]],"Cable_Rope_Overhead_Triceps_Extension":[["tri"],[]],"Triceps_Pushdown":[["tri"],[]],"Dips_-_Triceps_Version":[["tri"],["ch","sh"]],"Wide-Grip_Lat_Pulldown":[["la"],["bi","mb","sh"]],"Leverage_Iso_Row":[["la"],["bi","mb"]],"Seated_Cable_Rows":[["mb"],["bi","la","sh"]],"Rope_Straight-Arm_Pulldown":[["la"],[]],"Hyperextensions_Back_Extensions":[["lb"],["gl","ha"]],"Bent_Over_Barbell_Row":[["mb"],["bi","la","sh"]],"Pullups":[["la"],["bi","mb"]],"EZ-Bar_Curl":[["bi"],[]],"Hammer_Curls":[["bi"],[]],"Incline_Dumbbell_Curl":[["bi"],[]],"Barbell_Squat":[["qu"],["ca","gl","ha","lb"]],"Leg_Press":[["qu"],["ca","gl","ha"]],"Leg_Extensions":[["qu"],[]],"Lying_Leg_Curls":[["ha"],[]],"Romanian_Deadlift":[["ha"],["ca","gl","lb"]],"Thigh_Abductor":[["abd"],["gl"]],"Thigh_Adductor":[["add"],["gl","ha"]],"Seated_Calf_Raise":[["ca"],[]],"Crunches":[["ab"],[]],"Weighted_Crunches":[["ab"],[]],"Reverse_Crunch":[["ab"],[]],"Air_Bike":[["ab"],[]],"Cable_Crunch":[["ab"],[]],"Flat_Bench_Lying_Leg_Raise":[["ab"],[]],"Hanging_Leg_Raise":[["ab"],[]],"Plank":[["ab"],[]],"Barbell_Deadlift":[["lb"],["ca","fa","gl","ha","la","mb","qu","tr"]],"Incline_Dumbbell_Press":[["ch"],["sh","tri"]],"Dumbbell_Bench_Press":[["ch"],["sh","tri"]],"Pushups":[["ch"],["sh","tri"]],"Close-Grip_Barbell_Bench_Press":[["tri"],["ch","sh"]],"Butterfly":[["ch"],[]],"Barbell_Curl":[["bi"],["fa"]],"Preacher_Curl":[["bi"],[]],"Concentration_Curls":[["bi"],["fa"]],"Standing_Dumbbell_Triceps_Extension":[["tri"],[]],"Bench_Dips":[["tri"],["ch","sh"]],"Arnold_Dumbbell_Press":[["sh"],["tri"]],"Barbell_Shoulder_Press":[["sh"],["ch","tri"]],"Front_Dumbbell_Raise":[["sh"],[]],"Reverse_Flyes":[["sh"],[]],"Dumbbell_Shrug":[["tr"],[]],"Upright_Barbell_Row":[["sh"],["tr"]],"One-Arm_Dumbbell_Row":[["mb"],["bi","la","sh"]],"T-Bar_Row_with_Handle":[["mb"],["bi","la"]],"Chin-Up":[["la"],["bi","fa","mb"]],"Close-Grip_Front_Lat_Pulldown":[["la"],["bi","mb","sh"]],"Dumbbell_Lunges":[["qu"],["ca","gl","ha"]],"Goblet_Squat":[["qu"],["ca","gl","ha","sh"]],"Hack_Squat":[["qu"],["ca","gl","ha"]],"Smith_Machine_Squat":[["qu"],["ca","gl","ha","lb"]],"Barbell_Hip_Thrust":[["gl"],["ca","ha"]],"Standing_Calf_Raises":[["ca"],[]],"Seated_Leg_Curl":[["ha"],[]],"Dumbbell_Step_Ups":[["qu"],["ca","gl","ha"]],"Glute_Kickback":[["gl"],["ha"]],"Russian_Twist":[["ab"],["lb"]],"Ab_Roller":[["ab"],["sh"]],"Mountain_Climbers":[["qu"],["ch","ha","sh"]],"Side_Bridge":[["ab"],["sh"]],"Rowing_Stationary":[["qu"],["bi","ca","gl","ha","lb","mb"]],"Bicycling_Stationary":[["qu"],["ca","gl","ha"]],"Elliptical_Trainer":[["qu"],["ca","gl","ha"]],"Stairmaster":[["qu"],["ca","gl","ha"]],"Walking_Treadmill":[["qu"],["ca","gl","ha"]]};
 // Çizgi ikonlar (emoji yerine)
-const ICONS = {"home":"<path d=\"M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z\"/>","target":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><circle cx=\"12\" cy=\"12\" r=\"5\"/><circle cx=\"12\" cy=\"12\" r=\"1\"/>","utensils":"<path d=\"M7 3v8a2 2 0 0 0 2 2v8M5 3v6M9 3v6M17 3c-2 2-2.5 6 0 8v10\"/>","flame":"<path d=\"M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-3 2-4 2-7 1 1 2 2 2 3 0-2 0-4 1-6z\"/>","droplet":"<path d=\"M12 3l5.5 7a7 7 0 1 1-11 0z\"/>","shoe":"<path d=\"M3 16h18v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1zM3 16V8l5 1 2 3 6 1a4 4 0 0 1 4 3\"/>","pill":"<path d=\"M10.5 4.5a4.95 4.95 0 0 1 7 7l-6 6a4.95 4.95 0 0 1-7-7zM7.5 7.5l9 9\" transform=\"rotate(0)\"/>","scale":"<path d=\"M12 3v18M5 7h14M5 7l-3 7a3 3 0 0 0 6 0zM19 7l-3 7a3 3 0 0 0 6 0zM8 21h8\"/>","layers":"<path d=\"M12 3l9 5-9 5-9-5zM3 13l9 5 9-5\"/>","dumbbell":"<path d=\"M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12\"/>","trend":"<path d=\"M3 17l6-6 4 4 8-8M15 7h6v6\"/>","trenddown":"<path d=\"M3 7l6 6 4-4 8 8M15 17h6v-6\"/>","user":"<circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21a8 8 0 0 1 16 0\"/>","heart":"<path d=\"M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z\"/><path d=\"M8 12h2l1-2 2 4 1-2h2\"/>","ruler":"<path d=\"M3 17L17 3l4 4L7 21zM7 13l2 2M10 10l2 2M13 7l2 2\"/>","bell":"<path d=\"M6 9a6 6 0 0 1 12 0c0 6 3 7 3 7H3s3-1 3-7M10 20a2 2 0 0 0 4 0\"/>","camera":"<path d=\"M4 8h3l2-3h6l2 3h3v11H4z\"/><circle cx=\"12\" cy=\"13\" r=\"3.5\"/>","bulb":"<path d=\"M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z\"/>","trophy":"<path d=\"M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 21h8M10 17h4v4h-4z\"/>","medal":"<circle cx=\"12\" cy=\"15\" r=\"5\"/><path d=\"M8 3l4 7 4-7M12 13v4\"/>","calendar":"<rect x=\"4\" y=\"5\" width=\"16\" height=\"16\" rx=\"2\"/><path d=\"M4 10h16M9 3v4M15 3v4\"/>","egg":"<path d=\"M12 3c3.5 0 6 6 6 10a6 6 0 0 1-12 0c0-4 2.5-10 6-10z\"/>","zap":"<path d=\"M13 2L4 14h7l-1 8 9-12h-7z\"/>","run":"<path d=\"M3 12h4l3-8 4 16 3-8h4\"/>","moon":"<path d=\"M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z\"/>","chartbar":"<path d=\"M4 20V10M10 20V4M16 20v-7M2 20h20\"/>","pin":"<path d=\"M12 21s-6-6.5-6-11a6 6 0 0 1 12 0c0 4.5-6 11-6 11z\"/><circle cx=\"12\" cy=\"10\" r=\"2\"/>","msg":"<path d=\"M21 12a8 8 0 0 1-12 7l-5 1 1-4a8 8 0 1 1 16-4z\"/>","wind":"<path d=\"M3 8h10a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7\"/>","clock":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 2\"/>","alert":"<path d=\"M12 3l9 16H3zM12 10v4M12 17v.5\"/>","edit":"<path d=\"M4 20h4L19 9l-4-4L4 16zM14 6l4 4\"/>","check":"<path d=\"M4 12l5 5L20 6\"/>","list":"<path d=\"M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01\"/>","menu":"<path d=\"M4 6h16M4 12h16M4 18h16\"/>"};
+const ICONS = {"home":"<path d=\"M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z\"/>","target":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><circle cx=\"12\" cy=\"12\" r=\"5\"/><circle cx=\"12\" cy=\"12\" r=\"1\"/>","utensils":"<path d=\"M7 3v8a2 2 0 0 0 2 2v8M5 3v6M9 3v6M17 3c-2 2-2.5 6 0 8v10\"/>","flame":"<path d=\"M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-3 2-4 2-7 1 1 2 2 2 3 0-2 0-4 1-6z\"/>","droplet":"<path d=\"M12 3l5.5 7a7 7 0 1 1-11 0z\"/>","shoe":"<path d=\"M3 16h18v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1zM3 16V8l5 1 2 3 6 1a4 4 0 0 1 4 3\"/>","pill":"<path d=\"M10.5 4.5a4.95 4.95 0 0 1 7 7l-6 6a4.95 4.95 0 0 1-7-7zM7.5 7.5l9 9\" transform=\"rotate(0)\"/>","scale":"<path d=\"M12 3v18M5 7h14M5 7l-3 7a3 3 0 0 0 6 0zM19 7l-3 7a3 3 0 0 0 6 0zM8 21h8\"/>","layers":"<path d=\"M12 3l9 5-9 5-9-5zM3 13l9 5 9-5\"/>","dumbbell":"<path d=\"M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12\"/>","trend":"<path d=\"M3 17l6-6 4 4 8-8M15 7h6v6\"/>","trenddown":"<path d=\"M3 7l6 6 4-4 8 8M15 17h6v-6\"/>","user":"<circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21a8 8 0 0 1 16 0\"/>","heart":"<path d=\"M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z\"/><path d=\"M8 12h2l1-2 2 4 1-2h2\"/>","ruler":"<path d=\"M3 17L17 3l4 4L7 21zM7 13l2 2M10 10l2 2M13 7l2 2\"/>","bell":"<path d=\"M6 9a6 6 0 0 1 12 0c0 6 3 7 3 7H3s3-1 3-7M10 20a2 2 0 0 0 4 0\"/>","camera":"<path d=\"M4 8h3l2-3h6l2 3h3v11H4z\"/><circle cx=\"12\" cy=\"13\" r=\"3.5\"/>","bulb":"<path d=\"M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z\"/>","trophy":"<path d=\"M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 21h8M10 17h4v4h-4z\"/>","medal":"<circle cx=\"12\" cy=\"15\" r=\"5\"/><path d=\"M8 3l4 7 4-7M12 13v4\"/>","calendar":"<rect x=\"4\" y=\"5\" width=\"16\" height=\"16\" rx=\"2\"/><path d=\"M4 10h16M9 3v4M15 3v4\"/>","egg":"<path d=\"M12 3c3.5 0 6 6 6 10a6 6 0 0 1-12 0c0-4 2.5-10 6-10z\"/>","zap":"<path d=\"M13 2L4 14h7l-1 8 9-12h-7z\"/>","run":"<path d=\"M3 12h4l3-8 4 16 3-8h4\"/>","moon":"<path d=\"M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z\"/>","chartbar":"<path d=\"M4 20V10M10 20V4M16 20v-7M2 20h20\"/>","pin":"<path d=\"M12 21s-6-6.5-6-11a6 6 0 0 1 12 0c0 4.5-6 11-6 11z\"/><circle cx=\"12\" cy=\"10\" r=\"2\"/>","msg":"<path d=\"M21 12a8 8 0 0 1-12 7l-5 1 1-4a8 8 0 1 1 16-4z\"/>","wind":"<path d=\"M3 8h10a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7\"/>","clock":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 2\"/>","alert":"<path d=\"M12 3l9 16H3zM12 10v4M12 17v.5\"/>","edit":"<path d=\"M4 20h4L19 9l-4-4L4 16zM14 6l4 4\"/>","check":"<path d=\"M4 12l5 5L20 6\"/>","list":"<path d=\"M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01\"/>","menu":"<path d=\"M4 6h16M4 12h16M4 18h16\"/>","sliders":"<path d=\"M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0\"/><circle cx=\"16\" cy=\"6\" r=\"2\"/><circle cx=\"10\" cy=\"12\" r=\"2\"/><circle cx=\"18\" cy=\"18\" r=\"2\"/>","bottle":"<path d=\"M10 2h4v3l2 3v13a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V8l2-3zM8 12h8\"/>","cup":"<path d=\"M5 4h14l-2 16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1zM6 9h12\"/>"};
 const I = (n, c) => ICONS[n] ? `<svg class="i ${c || ""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>` : "";
 const fillIcons = root => { for(const el of (root || document).querySelectorAll("i[data-i]")) el.outerHTML = I(el.dataset.i); };
 fillIcons();
@@ -1727,8 +1737,8 @@ function ask(text, yes, onYes){
 }
 
 // ================= MENÜ / SAYFALAR =================
-const VIEWS = {ozet:["vOzet","Günün özeti"], yemek:["vYemek","Kalori alımı"], su:["vSu","Su"], adim:["vAdim","Adım"], hareket:["vHareket","Kilo ve ölçüler"], hedef:["vHedef","Hedefler"], hesap:["vHesap","Hesap"], supp:["vSupp","Takviyeler"], hab:["vHab","Alışkanlıklar"], kalori:["vKalori","Kalori yakımı"], cards:["tCards","Antrenman kartları"], lib:["tLib","Hareketler"], prog:["tProg","İlerleme"]};
-const DATED = ["ozet","kalori","yemek","su","adim","hareket","supp","hab"];
+const VIEWS = {ozet:["vOzet","Günün özeti"], yemek:["vYemek","Kalori alımı"], su:["vSu","Su"], adim:["vAdim","Adım"], hareket:["vHareket","Kilo ve ölçüler"], hedef:["vHedef","Hedefler"], gorev:["vGorev","Görevler"], hesap:["vHesap","Hesap"], supp:["vSupp","Takviyeler"], hab:["vHab","Alışkanlıklar"], kalori:["vKalori","Kalori yakımı"], cards:["tCards","Antrenman kartları"], lib:["tLib","Hareketler"], prog:["tProg","İlerleme"]};
+const DATED = ["ozet","gorev","kalori","yemek","su","adim","hareket","supp","hab"];
 function setTab(t){
   if(!VIEWS[t]) t = "ozet";
   tab = t; try{ localStorage.setItem("sd-tab", t); localStorage.setItem("sd-cardpage", t === "cards" && cardPage ? cardPage : ""); }catch(e){}
@@ -1822,7 +1832,7 @@ function badgeList(){
 function dailyTasks(ds){
   const d = root.days[ds] || blankDay(), g = root.goals, sm = sum(d), H = root.habits || [], hb = d.hb || {};
   const t = [
-    ["droplet", `Su hedefi (${g.w} bardak)`, d.w >= g.w, `${d.w}/${g.w}`],
+    ["droplet", `Su hedefi (${g.w} bardak)`, d.w >= g.w, `${wN(d.w)}/${g.w}`],
     ["egg", `Protein ${g.p} g`, d.f.length > 0 && sm.p >= g.p, `${Math.round(sm.p)}/${g.p}`],
     ["utensils", "Kalori hedefinde kal (±%10)", sm.k >= g.k * .9 && sm.k <= g.k * 1.1, `${fmt(sm.k)}`],
     ["shoe", `${fmt(g.st)} adım`, +d.st >= g.st, `${fmt(+d.st || 0)}`],
@@ -1863,8 +1873,9 @@ function renderTasks(){
        <p class="small muted" style="margin:10px 0 0">${dn === T.length ? `<b style="color:var(--accent)">Mükemmel gün!</b> ` : `${T.length - dn} görev kaldı. `}Toplam ${pd} mükemmel gün.</p>`
     : badgeCard(tbW, mon, "Haftanın rozeti") + `<div class="tklist">${W.map(([ic, t, v, goal]) => { const ok = v >= goal; return `<div class="tk wk ${ok ? "on" : ""}"><span class="tki">${ok ? I("check") : I(ic)}</span><span class="tkt">${esc(t)}<span class="tkb"><i style="width:${Math.min(100, v / goal * 100)}%"></i></span></span><small>${fmt(Math.min(v, goal))}/${fmt(goal)}</small></div>`; }).join("")}</div>
        <p class="small muted" style="margin:10px 0 0">${wdn === W.length ? `<b style="color:var(--accent)">Mükemmel hafta!</b>` : `${W.length - wdn} haftalık hedef kaldı · ${dayName(shift(mon, 6), {weekday:"long"})} akşamına kadar.`}</p>`;
-  $("ozTasks").innerHTML = `<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:12px"><h2 style="margin:0">${I("target")} Görevler</h2>
+  const html = `<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:12px"><h2 style="margin:0">${I("target")} Görevler</h2>
     <div class="seg tseg"><button data-tt="gun" class="${taskTab === "gun" ? "on" : ""}">Günlük ${dn}/${T.length}</button><button data-tt="hafta" class="${taskTab === "hafta" ? "on" : ""}">Haftalık ${wdn}/${W.length}</button></div></div>` + body;
+  $("ozTasks").innerHTML = html; $("gvTasks").innerHTML = html;
 }
 document.addEventListener("click", e => { const b = e.target.closest("[data-tt]"); if(b){ taskTab = b.dataset.tt; renderTasks(); } });
 function checkBadges(){
@@ -1979,9 +1990,10 @@ document.addEventListener("click", e => { const a = e.target.closest(".anim"); i
 
 // ================= GÜNLÜK SAYFALAR (özet, yemek, su, hareket) =================
 const RG = (t, inner, n) => `<div class="rgrp" style="--n:${n}"><div class="rgh">${t}</div><div class="rgr">${inner}</div></div>`;
+const fmtV = v => (+v || 0) % 1 && Math.abs(v) < 100 ? wN(v) : fmt(v);
 function ring(val, goal, col, label, u, go){
   const r = 50, C = 2*Math.PI*r, pc = Math.min(val/(goal||1), 1);
-  return `<div class="ring"${go ? ` data-go="${go}" role="button" tabindex="0" aria-label="${label}: ${fmt(val)} / ${fmt(goal)} ${u}, aç"` : ""}><div class="rw"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--line)" stroke-width="11"/><circle class="p" cx="60" cy="60" r="${r}" fill="none" stroke="${col}" stroke-width="11" stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C*(1-pc)).toFixed(1)}" transform="rotate(-90 60 60)"/></svg><div class="rv">${fmt(val)}<small>/ ${fmt(goal)}</small></div></div><b>${label}</b></div>`;
+  return `<div class="ring"${go ? ` data-go="${go}" role="button" tabindex="0" aria-label="${label}: ${fmtV(val)} / ${fmt(goal)} ${u}, aç"` : ""}><div class="rw"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--line)" stroke-width="11"/><circle class="p" cx="60" cy="60" r="${r}" fill="none" stroke="${col}" stroke-width="11" stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C*(1-pc)).toFixed(1)}" transform="rotate(-90 60 60)"/></svg><div class="rv">${fmtV(val)}<small>/ ${fmt(goal)}</small></div></div><b>${label}</b></div>`;
 }
 // Haftanın özeti (seçili günün haftası, Pazartesi–Pazar; gelecek günler sayılmaz)
 let sumMode = lsGet("sd-sum") === "hafta" ? "hafta" : "gun";
@@ -2037,7 +2049,7 @@ function burnedOf(ds){
   const e = estBurn(ds); return {v: e, est: e > 0};
 }
 const burnTxt = B => B.v ? fmt(B.v) : "—";
-const liters = w => (w * 0.25).toLocaleString("tr-TR", {minimumFractionDigits: 2}) + " L";
+const liters = w => (Math.round(w * 250) / 1000).toLocaleString("tr-TR", {minimumFractionDigits: 2}) + " L";
 function renderDay(){
   const d = day(cur), s = sum(d), g = root.goals;
   if(weekMode()){
@@ -2072,7 +2084,7 @@ function renderDay(){
     const lk = lastWeighDay(); $("ozKg").hidden = !(cur === today() && bmrOn(cur) && (!lk || shift(lk, 3) <= today()));
     const lm = lastMeasDay(), anyData = Object.keys(root.days).length >= 3;
     $("ozMeas").hidden = !(cur === today() && anyData && (!lm || shift(lm, 30) <= today()) && !(root.measSnooze && shift(root.measSnooze, 7) > today()));
-    $("ozWater").hidden = !(cur === today() && waterDue()); $("ozWaterN").textContent = d.w;
+    $("ozWater").hidden = !(cur === today() && waterDue()); $("ozWaterN").textContent = wN(d.w);
     $("ozMove").hidden = $("ozYest").hidden && $("ozKg").hidden && $("ozProf").hidden && $("ozMeas").hidden && $("ozWater").hidden; }
   // yemek
   $("ymSum").innerHTML = `${fmt(s.k)} / ${fmt(g.k)} kcal`;
@@ -2100,12 +2112,12 @@ function renderDay(){
   $("fReset").hidden = !d.f.length;
   // su
   $("wv").textContent = liters(d.w);
-  $("cups").innerHTML = Array.from({length: Math.max(g.w, d.w)}, (_, i) => `<span class="cup${i < d.w ? " f" : ""}"></span>`).join("");
+  $("cups").innerHTML = Array.from({length: Math.max(g.w, Math.ceil(d.w))}, (_, i) => `<span class="cup${i < Math.round(d.w) ? " f" : ""}"></span>`).join("");
   $("wFill").style.height = Math.min(100, d.w / (g.w || 1) * 100) + "%";
-  $("wPct").textContent = `${d.w} / ${g.w} bardak`;
+  $("wPct").textContent = `${wN(d.w)} / ${g.w} bardak`;
   $("wWeek").innerHTML = Array.from({length: 7}, (_, i) => { const ds = shift(cur, i - 6), w = (root.days[ds] || {}).w || 0;
-    return `<div class="wd2 ${ds === cur ? "cur" : ""}"><div class="wb"><i style="height:${Math.min(100, w / (g.w || 1) * 100)}%" class="${w >= g.w ? "ok" : ""}"></i></div><b>${w}</b><small>${dayName(ds, {weekday:"short"})}</small></div>`; }).join("");
-  $("suNote").textContent = d.w >= g.w ? "Günlük hedefini tamamladın." : `Hedefe ${g.w - d.w} bardak (${liters(g.w - d.w)}) kaldı.`;
+    return `<div class="wd2 ${ds === cur ? "cur" : ""}"><div class="wb"><i style="height:${Math.min(100, w / (g.w || 1) * 100)}%" class="${w >= g.w ? "ok" : ""}"></i></div><b>${wN(w)}</b><small>${dayName(ds, {weekday:"short"})}</small></div>`; }).join("");
+  $("suNote").textContent = d.w >= g.w ? "Günlük hedefini tamamladın." : `Hedefe ${wN(g.w - d.w)} bardak (${liters(g.w - d.w)}) kaldı.`;
   // hareket
   const names = root.cards.map(c => c.name);
   if(d.wo && !names.includes(d.wo)) names.push(d.wo);
@@ -2255,7 +2267,7 @@ document.addEventListener("click", e => {
 });
 $("spForm").onsubmit = e => { e.preventDefault(); const n = $("spName").value.trim(); if(!n) return; root.supp = root.supp || []; root.supp.push({id: Math.random().toString(36).slice(2, 8), name: n, dose: $("spDose").value.trim()}); $("spName").value = $("spDose").value = ""; save(); renderSupp(); };
 function renderHareket(d){
-  checkBadges(); if(tab === "ozet"){ renderStreaks(); renderTasks(); renderCardio(); renderWeekCard(); }
+  checkBadges(); if(tab === "gorev") renderTasks(); if(tab === "ozet"){ renderStreaks(); renderTasks(); renderCardio(); renderWeekCard(); }
   renderSupp(); renderHab(); renderTrack();
   renderMeas();
   if($("hWoS")) $("hWoS").innerHTML = d.wo ? `<span style="color:var(--good);font-weight:700">✓ ${esc(d.wo)}</span>${+d.ca > 0 ? ` · ${fmt(+d.ca)} dk kardiyo` : ""}` : (+d.ca > 0 ? `${fmt(+d.ca)} dk kardiyo` : "Bu gün antrenman yok");
@@ -2306,9 +2318,15 @@ document.addEventListener("click", e => { const t = e.target.closest("[data-at]"
   const am = e.target.closest("[data-addmeal]"); if(am){ meal = am.dataset.addmeal; renderMealSeg(); document.querySelector("[data-at=ara]").click(); $("addCard").scrollIntoView({behavior: "smooth", block: "start"}); setTimeout(() => $("fq").focus(), 300); } });
 $("mealSeg").onclick = e => { const b = e.target.closest("button[data-meal]"); if(b){ meal = b.dataset.meal; renderMealSeg(); } };
 renderMealSeg();
-const addWater = () => { day(cur).w++; root.wAt = Date.now(); save(); renderDay(); };
-$("wp").onclick = addWater;
-$("wm").onclick = () => { const d = day(cur); if(d.w > 0){ d.w--; save(); renderDay(); } };
+const WSIZES = [["cup", "Çay bardağı", 100], ["cup", "Büyük bardak", 400], ["bottle", "Yarım L şişe", 500], ["bottle", "1 L şişe", 1000], ["bottle", "1,5 L şişe", 1500], ["cup", "Bardak", 250]];
+const wR = v => Math.round((+v || 0) * 100) / 100, wN = v => wR(v).toLocaleString("tr-TR", {maximumFractionDigits: 1});
+const addMl = ml => { const d = day(cur); d.w = wR((+d.w || 0) + ml / 250); (d.wl = d.wl || []).push(ml); root.wAt = Date.now(); save(); renderDay(); };
+const addWater = () => addMl(250);
+$("wSizes").innerHTML = [WSIZES[5], WSIZES[0], WSIZES[1], WSIZES[2], WSIZES[3], WSIZES[4]].map(([ic, t, ml]) => `<button data-ml="${ml}">${I(ic)}<span>${t}</span><small>${ml >= 1000 ? String(ml / 1000).replace(".", ",") + " L" : ml + " ml"}</small></button>`).join("");
+$("wSizes").onclick = e => { const b = e.target.closest("[data-ml]"); if(b){ addMl(+b.dataset.ml); toast("+" + b.querySelector("small").textContent + " su"); } };
+
+$("wm").onclick = () => { const d = day(cur); if(d.w > 0){ const ml = (d.wl || []).pop() || 250; d.w = Math.max(0, wR(d.w - ml / 250)); save(); renderDay(); } };
+addEventListener("scroll", () => document.body.classList.toggle("scrolled", scrollY > 70), {passive: true});
 for(const k of FIELDS) if($(k)) $(k).addEventListener(k === "wo" ? "change" : "input", e => { day(cur)[k] = e.target.value; save(); renderDay(); });
 for(const [id, k] of [["gwoW","woW"],["gcaW","caW"],["gweW","weW"]]) $(id).addEventListener("input", e => { const v = +e.target.value; if(v >= 0 && e.target.value !== ""){ root.goals[k] = v; save(); renderDay(); } });
 $("gkgW").addEventListener("input", e => { const v = parseFloat(String(e.target.value).replace(",", ".")); root.goals.kgW = isFinite(v) ? v : 0; save(); renderDay(); });
@@ -2661,7 +2679,7 @@ setInterval(async () => {
   root.wNotified = Date.now(); save(); if(tab === "ozet") renderDay();
   try{ if("Notification" in window && Notification.permission === "granted"){
     const reg = navigator.serviceWorker && await navigator.serviceWorker.getRegistration();
-    const body = `Bugün ${(root.days[today()] || {w:0}).w} / ${root.goals.w} bardak içtin.`;
+    const body = `Bugün ${wN((root.days[today()] || {w:0}).w)} / ${root.goals.w} bardak içtin.`;
     if(reg) reg.showNotification("Su içme zamanı", {body, icon: "/icon-192.png", tag: "su"}); else new Notification("Su içme zamanı", {body});
   } }catch(e){}
 }, 60e3);
