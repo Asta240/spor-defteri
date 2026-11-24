@@ -88,3 +88,5 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Antrenmanda "Tüm setlere aynı kilo" (data-samekg): en son kilosu değiştirilen setin (kgSrc) ya da ilk dolu setin kilosunu bütün setlere yazar.
 - Dambıl açıklaması: `DB_KIND` (p = iki dambıl, b = tek dambıl iki elle, o = tek kol) + `dbHint()` antrenmanda set tablosunun altında; iki dambıllı harekette başlık "kg (tek el)" ve toplam kilo yazar.
 - Antrenman sırasında "‹ Kartlar" (data-tolist → listOverride=true) kart listesine döner; üstte "Aktif antrenman · Devam et". Başka kartta "Başlat" → onay (aktif iptal olur); aynı kartta "Başlat" → devam eder (sıfırlamaz).
+- Incline yürüyüş (Walking_Treadmill) antrenmanda Eğim % ve Hız km/s (x.inc/x.spd, data-trd); bitirince ACSM ile kalori (cardioKcal "tread"); lifts kaydında {inc, spd}, liftText gösterir, sonraki seferde dolu gelir.
+- Antrenmanda set silme: her setin yanında küçük ✕ (data-setx), tek set kalınca gizli. Tamamlanan set butonu turuncu (.done).

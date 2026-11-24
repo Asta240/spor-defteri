@@ -241,12 +241,13 @@
   /* antrenman modu */
   .logex{padding:12px 0;border-top:1px solid var(--line)}
   .logex h3{font-size:15px;margin:0 0 2px}
-  .sets{display:grid;grid-template-columns:2.2em minmax(0,1fr) minmax(0,1fr) auto;gap:6px;align-items:center;margin-top:8px}
+  .sets{display:grid;grid-template-columns:2.2em minmax(0,1fr) minmax(0,1fr) auto 26px;gap:6px;align-items:center;margin-top:8px}
   .sets input{min-height:40px;text-align:center;padding:6px}
   .sets .h{font-size:12px;color:var(--muted);font-weight:600;text-align:center}
   .sets .i{font-size:13px;color:var(--muted);text-align:center}
   .sets button{min-height:40px;padding:0 10px}
-  .done{background:var(--good)!important}
+  .sets .setx{min-height:0;width:26px;height:26px;padding:0;border:0;background:none;color:var(--muted);font-size:13px;justify-self:center} .sets .setx:hover{color:var(--bad)} .sets .setx:disabled{opacity:0;pointer-events:none}
+  .done{background:var(--accent)!important;color:#1a1206!important}
   /* tablo */
   .scroll{overflow-x:auto}
   table{width:100%;border-collapse:collapse;font-size:14px}
@@ -735,6 +736,7 @@
   .hsc .tbar{margin-top:6px;background:var(--card)} .hsc small.muted{font-size:12px}
   .hgrp .tch{margin-bottom:12px}
   .hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px}
+  .trd{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px} .trd .f{margin:0}
   .dbh{display:flex;gap:6px;align-items:flex-start;margin-top:8px;line-height:1.4} .dbh svg.i{flex:none;width:15px;height:15px;margin-top:1px;color:var(--accent)} .dbh b{color:var(--ink)}
   .hfq{margin-top:6px;min-height:0;height:28px;padding:2px 8px;font-size:12px;width:auto;max-width:100%;background:var(--card-2);border:1px solid var(--line);border-radius:8px;color:var(--muted)}
   .htile{display:flex;align-items:center;gap:12px;background:var(--card-2);border-radius:14px;padding:10px 6px 10px 10px;border:1px solid transparent}
@@ -2570,7 +2572,7 @@ window.addEventListener("hashchange", async () => { if(readLinkHash() && root){ 
 // ================= KARTLAR =================
 let openCard = null;
 const lastLift = id => { const a = root.lifts[id]; return a && a.length ? a[a.length - 1] : null; };
-const liftText = l => l ? l.s.map(x => x[0] ? `${num(x[0])}×${x[1]}` : `${x[1]}`).join(", ") : "";
+const liftText = l => l ? l.s.map(x => x[0] ? `${num(x[0])}×${x[1]}` : `${x[1]}`).join(", ") + (l.inc != null ? ` dk · %${num(l.inc)} eğim${l.spd ? ` · ${num(l.spd)} km/s` : ""}` : "") : "";
 let editCard = null; // düzenleme modundaki kartın id'si
 let cardPage = (() => { try{ return localStorage.getItem("sd-cardpage") || null; }catch(e){ return null; } })(); // açık kart sayfası (id)
 function renderCards(){
@@ -2628,6 +2630,7 @@ $("tCards").addEventListener("change", e => {
   const t = e.target;
   if(t.id === "woT" || t.id === "caT"){ const d = day(today()); if(t.id === "woT") d.wo = t.value; else d.ca = t.value; save(); renderCards(); return; }
   if(t.dataset.set){ const [ci, xi, k] = t.dataset.set.split(":"); const v = Math.max(1, Math.round(+t.value || 1)); root.cards[ci].ex[xi][k] = v; t.value = v; save(); }
+  if(t.dataset.trd){ const [xi, k] = t.dataset.trd.split(":"); root.session.ex[xi][k] = t.value; save(); return; }
   if(t.dataset.kg || t.dataset.rp){ const [xi, si] = (t.dataset.kg || t.dataset.rp).split(":"); const st = root.session.ex[xi].sets[si]; if(t.dataset.kg){ st.kg = t.value; kgSrc[xi] = +si; const h = $("dbh" + xi), x = root.session.ex[xi]; if(h) h.outerHTML = dbHint(x.id, t.value, xi); } else st.r = t.value; save(); }
 });
 $("tCards").addEventListener("click", e => {
@@ -2650,6 +2653,8 @@ $("tCards").addEventListener("click", e => {
   if(b.id === "resumeBtn"){ listOverride = false; renderCards(); window.scrollTo({top: 0}); return; }
   if(b.id === "newCard"){ openSheet(`<h2>Yeni kart</h2><input id="ncIn" placeholder="Örn. Pazartesi – İtiş" maxlength="40"><div class="row" style="margin-top:12px"><button class="ghost" data-close style="flex:1">Vazgeç</button><button id="ncOk" style="flex:1">Oluştur</button></div>`); $("ncOk").onclick = () => { const v = $("ncIn").value.trim(); if(!v) return; const c = card(v, []); root.cards.push(c); openCard = cardPage = c.id; editCard = c.id; save(); closeSheet(); renderCards(); }; return; }
   // antrenman modu
+  if(d.setx){ const [xi, si] = d.setx.split(":").map(Number), x = root.session.ex[xi]; if(x.sets.length < 2) return; x.sets.splice(si, 1); delete kgSrc[xi]; save(); renderSession();
+    toast(`${si + 1}. set silindi`); return; }
   if(d.ok){ const [xi, si] = d.ok.split(":").map(Number); const st = root.session.ex[xi].sets[si]; st.done = !st.done; save(); renderSession(); return; }
   if(d.ovl){ const [xi, kg] = d.ovl.split(":"); for(const st of root.session.ex[+xi].sets) if(!st.done) st.kg = kg; save(); renderSession(); toast(`${String(kg).replace(".", ",")} kg uygulandı`); return; }
   if(d.samekg){ const xi = +d.samekg, x = root.session.ex[xi], src = x.sets[kgSrc[xi]] && x.sets[kgSrc[xi]].kg !== "" ? x.sets[kgSrc[xi]] : x.sets.find(z => z.kg !== "" && z.kg != null);
@@ -2663,7 +2668,8 @@ $("tCards").addEventListener("click", e => {
 function makeSession(c){
   return {card: c.name, cardId: c.id, date: today(), start: Date.now(), ex: c.ex.filter(x => EXM[x.id]).map(x => {
     const l = lastLift(x.id), e = EXM[x.id];
-    return {id: x.id, sets: Array.from({length: x.s}, (_, i) => ({kg: e.u ? "" : (l && l.s[i] ? l.s[i][0] : (l ? l.s[l.s.length-1][0] : "")), r: x.r, done: false}))};
+    const tr = x.id === "Walking_Treadmill" && l ? {inc: l.inc ?? "", spd: l.spd ?? ""} : {};
+    return {id: x.id, ...tr, sets: Array.from({length: x.s}, (_, i) => ({kg: e.u ? "" : (l && l.s[i] ? l.s[i][0] : (l ? l.s[l.s.length-1][0] : "")), r: x.r, done: false}))};
   })};
 }
 function startSession(ci){
@@ -2847,10 +2853,10 @@ function renderSession(){
   $("tCards").innerHTML = `<button class="backbtn" data-tolist>‹ Kartlar</button><div class="card">
     <div class="row" style="justify-content:space-between;align-items:center"><div><h2 style="margin:0">${esc(S.card)}</h2><div class="small muted">${dayName(S.date, {weekday:"long", day:"numeric", month:"long"})}</div></div><div class="wotop" style="align-items:center"><span class="pill">${S.ex.reduce((a, x) => a + x.sets.filter(s => s.done).length, 0)} / ${S.ex.reduce((a, x) => a + x.sets.length, 0)} set</span><button class="ghost small-btn" id="sesEnd">Bitir ve kaydet ✓</button><button class="ghost small-btn" id="sesCancel">İptal et</button></div></div>
     ${S.ex.map((x, xi) => { const e = EXM[x.id], l = lastLift(x.id); return `<div class="logex">
-      <div class="row" style="align-items:center;flex-wrap:nowrap"><div style="width:72px;flex:none">${anim(e.id, e.tr)}</div><div style="flex:1"><h3><button data-info="${e.id}" style="all:unset;cursor:pointer">${esc(e.tr)}</button></h3><div class="small muted">${l ? "Geçen sefer: " + esc(liftText(l)) : "İlk sefer, rahat bir kiloyla başla"}</div>${(root.exNotes || {})[e.id] ? `<div class="small lognote">${I("edit")} ${esc(root.exNotes[e.id])}</div>` : ""}${(o => o ? `<div class="ovl ${o.t}">${I(o.t === "up" ? "trend" : o.t === "down" ? "trenddown" : "target")}<span>${esc(o.msg)}</span>${o.t !== "keep" ? `<button class="small-btn" data-ovl="${xi}:${o.kg}">Uygula</button>` : ""}</div>` : "")(overload(x.id, +((root.cards.find(c => c.id === S.cardId) || {ex: []}).ex.find(y => y.id === x.id) || {}).r || 10))}</div></div>
-      <div class="sets"><span class="h">Set</span><span class="h">${e.u ? "" : DB_KIND[e.id] === "p" ? "kg (tek el)" : "kg"}</span><span class="h">${unit(e)}</span><span></span>
-      ${x.sets.map((s, si) => `<span class="i">${si + 1}</span>${e.u ? "<span></span>" : `<input type="number" inputmode="decimal" step="0.5" min="0" value="${esc(s.kg)}" data-kg="${xi}:${si}" aria-label="${si+1}. set kg">`}<input type="number" inputmode="numeric" min="0" value="${esc(s.r)}" data-rp="${xi}:${si}" aria-label="${si+1}. set ${unit(e)}"><button class="${s.done ? "done" : "ghost"}" data-ok="${xi}:${si}" aria-label="${si+1}. set tamam">✓</button>`).join("")}
-      </div>${dbHint(e.id, (x.sets.find(z => +z.kg > 0) || {}).kg, xi)}<div class="row" style="margin-top:8px;gap:6px"><button class="ghost" data-addset="${xi}" style="min-height:36px">+ Set</button>${!e.u && x.sets.length > 1 ? `<button class="ghost small-btn" data-samekg="${xi}" style="min-height:36px">Tüm setlere aynı kilo</button>` : ""}</div></div>`; }).join("")}
+      <div class="row" style="align-items:center;flex-wrap:nowrap"><div style="width:72px;flex:none">${anim(e.id, e.tr)}</div><div style="flex:1"><h3><button data-info="${e.id}" style="all:unset;cursor:pointer">${esc(e.tr)}</button></h3><div class="small muted">${l ? "Geçen sefer: " + esc(liftText(l)) : e.u ? "İlk sefer" : "İlk sefer, rahat bir kiloyla başla"}</div>${(root.exNotes || {})[e.id] ? `<div class="small lognote">${I("edit")} ${esc(root.exNotes[e.id])}</div>` : ""}${(o => o ? `<div class="ovl ${o.t}">${I(o.t === "up" ? "trend" : o.t === "down" ? "trenddown" : "target")}<span>${esc(o.msg)}</span>${o.t !== "keep" ? `<button class="small-btn" data-ovl="${xi}:${o.kg}">Uygula</button>` : ""}</div>` : "")(overload(x.id, +((root.cards.find(c => c.id === S.cardId) || {ex: []}).ex.find(y => y.id === x.id) || {}).r || 10))}</div></div>
+      <div class="sets"><span class="h">Set</span><span class="h">${e.u ? "" : DB_KIND[e.id] === "p" ? "kg (tek el)" : "kg"}</span><span class="h">${unit(e)}</span><span></span><span></span>
+      ${x.sets.map((s, si) => `<span class="i">${si + 1}</span>${e.u ? "<span></span>" : `<input type="number" inputmode="decimal" step="0.5" min="0" value="${esc(s.kg)}" data-kg="${xi}:${si}" aria-label="${si+1}. set kg">`}<input type="number" inputmode="numeric" min="0" value="${esc(s.r)}" data-rp="${xi}:${si}" aria-label="${si+1}. set ${unit(e)}"><button class="${s.done ? "done" : "ghost"}" data-ok="${xi}:${si}" aria-label="${si+1}. set tamam">✓</button><button class="setx" data-setx="${xi}:${si}" aria-label="${si+1}. seti sil" ${x.sets.length > 1 ? "" : "disabled"}>✕</button>`).join("")}
+      </div>${x.id === "Walking_Treadmill" ? `<div class="trd"><label class="f">Eğim (%)<input type="number" inputmode="decimal" step="0.5" min="0" max="30" value="${esc(x.inc ?? "")}" data-trd="${xi}:inc" placeholder="ör. 12"></label><label class="f">Hız (km/s)<input type="number" inputmode="decimal" step="0.1" min="0" max="25" value="${esc(x.spd ?? "")}" data-trd="${xi}:spd" placeholder="ör. 5"></label></div>` : ""}${dbHint(e.id, (x.sets.find(z => +z.kg > 0) || {}).kg, xi)}<div class="row" style="margin-top:8px;gap:6px"><button class="ghost" data-addset="${xi}" style="min-height:36px">+ Set</button>${!e.u && x.sets.length > 1 ? `<button class="ghost small-btn" data-samekg="${xi}" style="min-height:36px">Tüm setlere aynı kilo</button>` : ""}</div></div>`; }).join("")}
   </div>`;
 }
 function bestOf(id){ let b = null; for(const l of root.lifts[id] || []) for(const [kg, r] of l.s){ if(!b || kg > b.kg || (kg === b.kg && r > b.r)) b = {kg, r, d: l.d}; } return b; }
@@ -2904,19 +2910,25 @@ function finishSession(){
   const cardio = S.ex.filter(x => EXM[x.id]?.u === "dk").map(x => [x.id, x.sets.filter(s => s.done).reduce((a, s) => a + (+s.r || 0), 0)]).filter(c => c[1] > 0);
   const real = S.start ? Math.round((Date.now() - S.start) / 60000) : 0, cardMin = cardio.reduce((a, c) => a + c[1], 0);
   let liftMin = real >= 10 && real <= 200 ? Math.max(0, real - cardMin) : doneSets * 3;
-  const kg = weightOn(today());
+  const kg = weightOn(today()), tx = S.ex.find(x => x.id === "Walking_Treadmill") || {};
   openSheet(`<h2>${I("flame")} Antrenmanı bitir</h2>
     <p class="small muted" style="margin:0 0 12px">${doneSets} set yapıldı. Süreyi ve kardiyoyu kontrol et, yaktığın kalori hesaplansın.</p>
     <div class="prof">
       <label class="f">Ağırlık süresi (dk)<input id="fwLift" type="number" inputmode="numeric" min="0" value="${liftMin}"></label>
       <label class="f">Kardiyo türü<select id="fwCt">${CARDIO_OPTS.map(([id, t]) => `<option value="${id}" ${cardio[0] && cardio[0][0] === id ? "selected" : ""}>${t}</option>`).join("")}</select></label>
       <label class="f">Kardiyo (dk)<input id="fwCm" type="number" inputmode="numeric" min="0" value="${cardMin || ""}" placeholder="0"></label>
+      <label class="f fwtr">Eğim (%)<input id="fwInc" type="number" inputmode="decimal" step="0.5" min="0" value="${esc(tx.inc ?? "")}" placeholder="0"></label>
+      <label class="f fwtr">Hız (km/s)<input id="fwSpd" type="number" inputmode="decimal" step="0.1" min="0" value="${esc(tx.spd ?? "")}" placeholder="5"></label>
     </div>
     <div class="fwres" id="fwRes"></div>
     <div class="row" style="margin-top:12px"><button class="ghost" data-close style="flex:1">Geri dön</button><button id="fwOk" style="flex:2">Bitir ve kaydet ✓</button></div>`);
-  const calc = () => workoutKcal(+$("fwLift").value || 0, (+$("fwCm").value > 0 ? [[$("fwCt").value, +$("fwCm").value]] : []), kg);
+  const calc = () => { const t = $("fwCt").value, m = +$("fwCm").value || 0, r = workoutKcal(+$("fwLift").value || 0, m > 0 ? [[t, m]] : [], kg);
+    if(t === "Walking_Treadmill" && m > 0 && +$("fwSpd").value > 0){ r.cardio = cardioKcal("tread", m, +$("fwSpd").value, +$("fwInc").value || 0, kg); r.total = r.lift + r.cardio; }
+    return r; };
+  const trShow = () => { for(const el of document.querySelectorAll(".fwtr")) el.hidden = $("fwCt").value !== "Walking_Treadmill"; };
+  $("fwCt").addEventListener("change", trShow); trShow();
   const upd = () => { const r = calc(); $("fwRes").innerHTML = `<b>~${fmt(r.total)} kcal</b><span>ağırlık ${fmt(r.lift)} + kardiyo ${fmt(r.cardio)} · ${String(kg || 70).replace(".", ",")} kg'a göre</span>`; };
-  for(const id of ["fwLift","fwCt","fwCm"]) $(id).addEventListener("input", upd);
+  for(const id of ["fwLift","fwCt","fwCm","fwInc","fwSpd"]) $(id).addEventListener("input", upd);
   upd();
   $("fwOk").onclick = () => { const r = calc(); closeSheet(); commitSession(r.total, +$("fwCm").value || 0); };
 }
@@ -2928,7 +2940,8 @@ function commitSession(kcal, cardioMin){
     if(!sets.length) continue;
     const a = root.lifts[x.id] || (root.lifts[x.id] = []);
     const i = a.findIndex(l => l.d === S.date);
-    if(i >= 0) a[i] = {d: S.date, s: sets}; else a.push({d: S.date, s: sets});
+    const ent = {d: S.date, s: sets, ...(x.id === "Walking_Treadmill" && (x.inc !== "" && x.inc != null || x.spd) ? {inc: +x.inc || 0, spd: +x.spd || 0} : {})};
+    if(i >= 0) a[i] = ent; else a.push(ent);
     a.sort((p, q) => p.d < q.d ? -1 : 1); n++;
   }
   const d = day(S.date); d.wo = S.card; d.wk = String(kcal || 0);
