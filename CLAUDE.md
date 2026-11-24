@@ -82,3 +82,4 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Menü butonu aşağı kayınca sabit kalır (`body.scrolled #menuBtn`, scrollY > 70).
 - Kalan alınacak kalori: "Yemek ekle" başlığında (#addLeft) ve yemek ekleme penceresinde "Ekleyince kalan" (#mulLeft).
 - Kan tahlili (Kilo ve ölçüler sayfası, en altta): `root.labs={"YYYY-MM-DD":{anahtar:değer}}`, `LABS` (gruplar, birim, aralık; ferritin/demir/Hb/HDL cinsiyete göre), `labSt` (l/b/n/h), `labTips` öneriler, `renderLabs()`. Tarih çipleriyle eski tahliller, önceki değerle kıyas.
+- Foto kalori prompt: fotoğraflar numaralı (Foto 1, 2…); "kalan/artan" notu ya da önce/sonra fotoğrafında yenen = başlangıç − kalan yazılır.

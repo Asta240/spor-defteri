@@ -66,7 +66,7 @@
     <h2>Fotoğraf yükle</h2>
     <label class="drop" id="drop"><input type="file" id="fileIn" accept="image/*" multiple>⬆️ Fotoğraf çek ya da seç<small>En fazla 4 fotoğraf · tabağın tamamı görünsün</small></label>
     <div class="thumbs" id="thumbs"></div>
-    <textarea id="note" placeholder="(İsteğe bağlı) Not: ör. “yarısını yedim”, “az yağlı”, “yemekhane porsiyonu”"></textarea>
+    <textarea id="note" placeholder="(İsteğe bağlı) Not: ör. “yarısını yedim”, “2. foto kalan hali”, “az yağlı”"></textarea>
     <div class="row" style="margin-top:10px"><button id="readBtn" class="big" disabled>Claude ile hesapla ✦</button></div>
     <p class="muted" id="st" style="margin:8px 0 0"></p>
   </section>
@@ -127,6 +127,9 @@ Kurallar:
 - Fast food ve zincir ürünlerinde (Popeyes, Burger King, McDonald's, KFC, Domino's vb.; ambalaj/kutu/logo görünüyorsa) zincirin Türkiye'deki resmi değerlerini kullan. Referans: Popeyes Popchicken ≈692 kcal, Popeyes XL Sandviç ≈750, Big Mac ≈525, Whopper ≈660, Double Whopper ≈940, Chicken Royale ≈600, orta patates kızartması ≈330, 330 ml kola ≈140, 400 ml kola ≈170.
 - Menü ise burger/sandviç, patates ve içeceği ayrı satır yaz; görünen sos paketlerini (ketçap ≈20, mayonez ≈90 kcal) de ekle.
 - Fotoğrafta yemek yoksa items boş olsun ve not'ta söyle.
+- Fotoğraflar sırayla Foto 1, Foto 2… diye numaralı. Birden fazla fotoğraf aynı tabağı/tepsiyi gösteriyorsa aynı yemeği iki kez sayma.
+- ÖNEMLİ — yemeden önce / sonra: Kullanıcı notunda "kalan", "artan", "geri kalan", "bu kadar kaldı", "sonrası", "yedikten sonra" gibi bir şey diyorsa ya da fotoğraflar aynı tepsinin dolu ve yarı boş halini gösteriyorsa: ilk (dolu) fotoğraf başlangıç, notta söylenen ya da sonraki fotoğraf KALAN kısımdır. Bu durumda listeye kullanıcının YEDİĞİ miktarı yaz: her yiyecek için yenen = başlangıç − kalan. Tamamen bitmiş yiyeceği tam porsiyon olarak yaz; hiç dokunulmamış yiyeceği listeye koyma; yarısı yenmişse yarı porsiyon yaz ve adına "(≈… yendi)" ekle. Asla kalan kısmın kalorisini yazma.
+- Not'ta hangi fotoğrafı başlangıç, hangisini kalan saydığını ve neyin ne kadar yendiğini tek cümlede söyle.
 ${note ? `Kullanıcının notu (buna göre ayarla): "${note}"` : ""}
 Sadece şu JSON'u döndür: {"items":[{"n":"Ad (≈miktar)","k":0,"p":0,"y":0,"c":0}],"not":"tek cümlelik kısa yorum ya da boş"}`;
 
@@ -135,7 +138,7 @@ $("readBtn").onclick = async () => {
   const btn = $("readBtn"); btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Claude bakıyor…'; $("st").textContent = "";
   try{
     const imgs = await Promise.all(files.map(shrink));
-    const r = await sample.json(PROMPT($("note").value.trim()), {images: imgs, modelTier: "default"});
+    const r = await sample.json(PROMPT($("note").value.trim()) + (imgs.length > 1 ? `\n${imgs.length} fotoğraf var; sırası: ${imgs.map((_, i) => "Foto " + (i + 1)).join(", ")}.` : ""), {images: imgs, modelTier: "default"});
     const list = Array.isArray(r && r.items) ? r.items : [];
     items = list.map(x => ({n: String(x.n || "Yemek").slice(0, 80), k: Math.max(0, Math.round(+x.k || 0)), p: Math.max(0, Math.round(+x.p || 0)), y: Math.max(0, Math.round(+x.y || 0)), c: Math.max(0, Math.round(+x.c || 0))}));
     $("aiNote").hidden = !(r && r.not); $("aiNote").textContent = (r && r.not) || "";
