@@ -71,6 +71,8 @@
   /* menü (Sınav Asistanı'ndaki gibi) */
   .menuBtn{background:var(--card);color:var(--ink);border:1px solid var(--line);font-size:20px;padding:0;width:44px;height:44px;flex:none;line-height:1}
   .brand{display:flex;align-items:center;gap:12px}
+  header{position:relative} #taskBtn svg.i{width:22px;height:22px;color:var(--accent)}
+  @media (max-width:699px){ #taskBtn{position:absolute;top:0;right:0} .brand{padding-right:52px;align-items:flex-start} }
   body.scrolled #menuBtn{position:fixed;top:12px;left:12px;z-index:40;box-shadow:0 6px 20px rgba(0,0,0,.45);animation:mbIn .18s ease}
   @keyframes mbIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1}}
   #vGorev{max-width:620px;margin:0 auto}
@@ -669,7 +671,7 @@
     #ozStreak{grid-column:3;grid-row:2}
     #ozWo,#ozStreak,#ozCardio{align-self:stretch;display:flex;flex-direction:column}
     #ozStreak .bdrow{margin-top:auto;padding-top:12px}
-    #ozTasks{grid-column:3;grid-row:1;align-self:stretch}
+    #vOzet>.card:first-child{grid-column:1 / -1}
     #ozTasks .tk{min-height:36px;padding:5px 10px 5px 6px} #ozTasks .tki{width:24px;height:24px} #ozTasks .tkt{font-size:13px} #ozTasks .tklist{gap:5px}
     #ozTasks .row{flex-wrap:nowrap} #ozTasks h2{white-space:nowrap}
     #vOzet .rw{max-width:112px}
@@ -765,7 +767,7 @@
 <div class="wrap">
   <header>
     <div class="brand"><button class="menuBtn" id="menuBtn" aria-label="Menü" hidden><i data-i="menu"></i></button><div><h1>Spor <span>Defteri</span></h1><p class="sub">Kalori, su, antrenman kartları ve ağırlık defteri</p></div></div>
-    <div class="sync" id="syncBox" hidden><span id="sync"></span><button class="codechip" id="codeBtn" title="Hesap"></button></div>
+    <div class="sync" id="syncBox" hidden><span id="sync"></span><button class="codechip" id="codeBtn" title="Hesap"></button><button class="menuBtn" id="taskBtn" aria-label="Görevler" title="Görevler" hidden><i data-i="target"></i></button></div>
   </header>
 
   <!-- GİRİŞ -->
@@ -835,7 +837,6 @@
       <div class="card" id="ozWeek" hidden></div>
       <div class="card" id="ozCardio"></div>
       <div class="card" id="ozStreak"></div>
-      <div class="card" id="ozTasks"></div>
       <div class="card" id="ozTrack" hidden></div>
       <div class="card" id="ozMove">
         <div class="tip" id="ozYest" hidden style="margin-top:0">Dünün adım sayısını girmedin.
@@ -1745,10 +1746,11 @@ function setTab(t){
   for(const [k, [id]] of Object.entries(VIEWS)) $(id).hidden = k !== t;
   for(const b of $("dnav").querySelectorAll("button[data-v]")) b.classList.toggle("on", b.dataset.v === t);
   $("vTitle").textContent = VIEWS[t][1];
-  $("datebar").hidden = !DATED.includes(t);
+  $("datebar").hidden = !DATED.includes(t); $("taskBtn").hidden = t !== "ozet";
   closeDrawer(); renderAll(); if(t === "hesap") renderAccount(); window.scrollTo({top: 0});
 }
 $("dProf").onclick = () => setTab("hesap");
+$("taskBtn").onclick = () => setTab("gorev");
 function openDrawer(){ const n = label() || "Hesap"; $("dName").textContent = n; $("dAv").textContent = (n.trim()[0] || "?").toLocaleUpperCase("tr");
   const P = root && root.profile || {}; $("dSub").textContent = P.h ? `${P.h} cm · ${String(weightOn(today()) || P.w || "").replace(".", ",")} kg` : "Vücut bilgilerini gir";
   document.body.classList.add("drawer-open"); $("drawer").setAttribute("aria-hidden", "false"); $("drawerClose").focus(); }
@@ -1875,7 +1877,7 @@ function renderTasks(){
        <p class="small muted" style="margin:10px 0 0">${wdn === W.length ? `<b style="color:var(--accent)">Mükemmel hafta!</b>` : `${W.length - wdn} haftalık hedef kaldı · ${dayName(shift(mon, 6), {weekday:"long"})} akşamına kadar.`}</p>`;
   const html = `<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:12px"><h2 style="margin:0">${I("target")} Görevler</h2>
     <div class="seg tseg"><button data-tt="gun" class="${taskTab === "gun" ? "on" : ""}">Günlük ${dn}/${T.length}</button><button data-tt="hafta" class="${taskTab === "hafta" ? "on" : ""}">Haftalık ${wdn}/${W.length}</button></div></div>` + body;
-  $("ozTasks").innerHTML = html; $("gvTasks").innerHTML = html;
+  $("gvTasks").innerHTML = html;
 }
 document.addEventListener("click", e => { const b = e.target.closest("[data-tt]"); if(b){ taskTab = b.dataset.tt; renderTasks(); } });
 function checkBadges(){
@@ -2268,7 +2270,7 @@ document.addEventListener("click", e => {
 });
 $("spForm").onsubmit = e => { e.preventDefault(); const n = $("spName").value.trim(); if(!n) return; root.supp = root.supp || []; root.supp.push({id: Math.random().toString(36).slice(2, 8), name: n, dose: $("spDose").value.trim()}); $("spName").value = $("spDose").value = ""; save(); renderSupp(); };
 function renderHareket(d){
-  checkBadges(); if(tab === "gorev") renderTasks(); if(tab === "ozet"){ renderStreaks(); renderTasks(); renderCardio(); renderWeekCard(); }
+  checkBadges(); if(tab === "gorev") renderTasks(); if(tab === "ozet"){ renderStreaks(); renderCardio(); renderWeekCard(); }
   renderSupp(); renderHab(); renderTrack();
   renderMeas();
   if($("hWoS")) $("hWoS").innerHTML = d.wo ? `<span style="color:var(--good);font-weight:700">✓ ${esc(d.wo)}</span>${+d.ca > 0 ? ` · ${fmt(+d.ca)} dk kardiyo` : ""}` : (+d.ca > 0 ? `${fmt(+d.ca)} dk kardiyo` : "Bu gün antrenman yok");

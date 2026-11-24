@@ -78,6 +78,6 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Hareket notları: `root.exNotes={exId: metin}`; showEx'te textarea, kart listesinde ve antrenmanda gösterilir.
 - Yenilikler penceresi: `NEWS={id, items}` + `maybeNews()`; açılışta bir kez, "Tamam" → `root.newsSeen` (+ localStorage `sd-news`). Yeni hesap görmez. Yeni yenilikte NEWS.id'yi değiştir. Update log sayfası YOK (Yasin istemedi).
 - Su boyları: `WSIZES` (bardak 250, çay bardağı 100, büyük bardak 400, yarım L 500, 1 L, 1,5 L) → `addMl(ml)`; `d.w` hâlâ bardak (250 ml) cinsinden, ondalıklı olabilir (`wR`, `wN`); `d.wl` eklenen ml listesi, "Son ekleneni geri al" sondan çıkarır.
-- Görevler sayfası: menüde hedef ikonu (`gorev` → #vGorev/#gvTasks), `renderTasks()` hem ana sayfaya hem buraya yazar. Hedefler ikonu `sliders`.
+- Görevler sayfası: menüde hedef ikonu (`gorev` → #vGorev/#gvTasks). Ana sayfada görev kartı YOK; sağ üstte hamburger gibi hedef butonu (#taskBtn, sadece ozet sekmesinde) Görevler sayfasını açar. Hedefler ikonu `sliders`.
 - Menü butonu aşağı kayınca sabit kalır (`body.scrolled #menuBtn`, scrollY > 70).
 - Kalan alınacak kalori: "Yemek ekle" başlığında (#addLeft) ve yemek ekleme penceresinde "Ekleyince kalan" (#mulLeft).
