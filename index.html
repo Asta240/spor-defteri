@@ -484,6 +484,16 @@
   h2 svg.i{color:var(--accent)}
   .fl>span svg.i{color:var(--accent);width:20px;height:20px}
   .tip svg.i{color:var(--accent)}
+  .labtop{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin:14px 0 4px} .labtop .f{flex:0 0 190px;width:190px;margin:0}
+  .labdays{display:flex;gap:6px;flex-wrap:wrap} .labdays button{min-height:0;padding:6px 10px;font-size:12px;background:var(--card-2);border:1px solid var(--line);color:var(--ink)} .labdays button.on{border-color:var(--accent);color:var(--accent)}
+  .labg{margin-top:14px} .labg h3{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin:0 0 8px}
+  .labf{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px} .labf .f{margin:0} .labf .f small{color:var(--muted);font-weight:500}
+  .labrow{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:8px 12px;border-radius:12px;background:var(--card-2);font-size:14px} .labrow+.labrow{margin-top:6px}
+  .labrow small{display:block;color:var(--muted);font-size:12px} .labrow .lv{font-weight:700;text-align:right}
+  .lst{font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap} .lst.n{background:var(--card);color:var(--muted)} .lst.b{background:var(--accent-soft);color:var(--accent)} .lst.l,.lst.h{background:var(--bad-soft);color:var(--bad)}
+  .labres{display:grid;gap:14px;margin-top:16px} @media (min-width:900px){ .labres{grid-template-columns:1fr 1fr} }
+  .labres h3{font-size:14px;margin:0 0 8px;display:flex;gap:6px;align-items:center} .labres h3 svg.i{color:var(--accent)}
+  .labtip{padding:10px 12px;border-radius:12px;background:var(--card-2);font-size:13px;line-height:1.45} .labtip+.labtip{margin-top:6px} .labtip b{display:block;font-size:14px;margin-bottom:2px}
   .tipl{display:flex;gap:8px;align-items:flex-start} .tipl+.tipl{margin-top:6px} .tipl svg.i{margin-top:2px}
   .stk .ic svg.i{width:20px;height:20px;color:var(--accent)}
   .bd svg.i{width:18px;height:18px;color:var(--accent)}
@@ -944,6 +954,13 @@
         <div id="baTips" style="margin-top:12px"></div>
         <p class="small muted" style="margin:10px 0 0">Tahminidir; kas oranı yüksek olanlarda BMI yanıltabilir. Yağ oranı için en doğrusu salondaki vücut analizi cihazı.</p>
       </div>
+      <div class="card hcard" style="grid-column:1 / -1">
+        <div class="hhead"><span class="hico"><i data-i="flask"></i></span><div style="flex:1"><h2 style="margin:0">Kan tahlili</h2><div class="small muted">Sonuçlarını gir, değerlerine göre vitamin ve beslenme önerisi çıksın</div></div></div>
+        <div class="labtop"><label class="f">Tahlil tarihi<input id="labDate" type="date"></label><div class="labdays" id="labDays"></div></div>
+        <div id="labForm"></div>
+        <div id="labRes"></div>
+        <p class="small muted" style="margin:12px 0 0">Bilgi amaçlıdır. Referans aralıkları laboratuvara göre biraz değişebilir; takviyeye başlamadan ve dozu için doktoruna danış.</p>
+      </div>
     </section>
 
     <!-- ADIM VE YAKILAN -->
@@ -1346,7 +1363,7 @@ const yt = e => "https://www.youtube.com/results?search_query=" + encodeURICompo
 // Çalışan kas haritası (kendi çizimimiz). Kas listesi free-exercise-db'den: [ana, yardımcı]
 const MUS = {"Leverage_Incline_Chest_Press":[["ch"],["sh","tri"]],"Leverage_Chest_Press":[["ch"],["sh","tri"]],"Barbell_Bench_Press_-_Medium_Grip":[["ch"],["sh","tri"]],"Dumbbell_Flyes":[["ch"],[]],"Cable_Crossover":[["ch"],["sh"]],"Leverage_Shoulder_Press":[["sh"],["tri"]],"Dumbbell_Shoulder_Press":[["sh"],["tri"]],"Side_Lateral_Raise":[["sh"],[]],"Face_Pull":[["sh"],["mb"]],"Cable_Rope_Overhead_Triceps_Extension":[["tri"],[]],"Triceps_Pushdown":[["tri"],[]],"Dips_-_Triceps_Version":[["tri"],["ch","sh"]],"Wide-Grip_Lat_Pulldown":[["la"],["bi","mb","sh"]],"Leverage_Iso_Row":[["la"],["bi","mb"]],"Seated_Cable_Rows":[["mb"],["bi","la","sh"]],"Rope_Straight-Arm_Pulldown":[["la"],[]],"Hyperextensions_Back_Extensions":[["lb"],["gl","ha"]],"Bent_Over_Barbell_Row":[["mb"],["bi","la","sh"]],"Pullups":[["la"],["bi","mb"]],"EZ-Bar_Curl":[["bi"],[]],"Hammer_Curls":[["bi"],[]],"Incline_Dumbbell_Curl":[["bi"],[]],"Barbell_Squat":[["qu"],["ca","gl","ha","lb"]],"Leg_Press":[["qu"],["ca","gl","ha"]],"Leg_Extensions":[["qu"],[]],"Lying_Leg_Curls":[["ha"],[]],"Romanian_Deadlift":[["ha"],["ca","gl","lb"]],"Thigh_Abductor":[["abd"],["gl"]],"Thigh_Adductor":[["add"],["gl","ha"]],"Seated_Calf_Raise":[["ca"],[]],"Crunches":[["ab"],[]],"Weighted_Crunches":[["ab"],[]],"Reverse_Crunch":[["ab"],[]],"Air_Bike":[["ab"],[]],"Cable_Crunch":[["ab"],[]],"Flat_Bench_Lying_Leg_Raise":[["ab"],[]],"Hanging_Leg_Raise":[["ab"],[]],"Plank":[["ab"],[]],"Barbell_Deadlift":[["lb"],["ca","fa","gl","ha","la","mb","qu","tr"]],"Incline_Dumbbell_Press":[["ch"],["sh","tri"]],"Dumbbell_Bench_Press":[["ch"],["sh","tri"]],"Pushups":[["ch"],["sh","tri"]],"Close-Grip_Barbell_Bench_Press":[["tri"],["ch","sh"]],"Butterfly":[["ch"],[]],"Barbell_Curl":[["bi"],["fa"]],"Preacher_Curl":[["bi"],[]],"Concentration_Curls":[["bi"],["fa"]],"Standing_Dumbbell_Triceps_Extension":[["tri"],[]],"Bench_Dips":[["tri"],["ch","sh"]],"Arnold_Dumbbell_Press":[["sh"],["tri"]],"Barbell_Shoulder_Press":[["sh"],["ch","tri"]],"Front_Dumbbell_Raise":[["sh"],[]],"Reverse_Flyes":[["sh"],[]],"Dumbbell_Shrug":[["tr"],[]],"Upright_Barbell_Row":[["sh"],["tr"]],"One-Arm_Dumbbell_Row":[["mb"],["bi","la","sh"]],"T-Bar_Row_with_Handle":[["mb"],["bi","la"]],"Chin-Up":[["la"],["bi","fa","mb"]],"Close-Grip_Front_Lat_Pulldown":[["la"],["bi","mb","sh"]],"Dumbbell_Lunges":[["qu"],["ca","gl","ha"]],"Goblet_Squat":[["qu"],["ca","gl","ha","sh"]],"Hack_Squat":[["qu"],["ca","gl","ha"]],"Smith_Machine_Squat":[["qu"],["ca","gl","ha","lb"]],"Barbell_Hip_Thrust":[["gl"],["ca","ha"]],"Standing_Calf_Raises":[["ca"],[]],"Seated_Leg_Curl":[["ha"],[]],"Dumbbell_Step_Ups":[["qu"],["ca","gl","ha"]],"Glute_Kickback":[["gl"],["ha"]],"Russian_Twist":[["ab"],["lb"]],"Ab_Roller":[["ab"],["sh"]],"Mountain_Climbers":[["qu"],["ch","ha","sh"]],"Side_Bridge":[["ab"],["sh"]],"Rowing_Stationary":[["qu"],["bi","ca","gl","ha","lb","mb"]],"Bicycling_Stationary":[["qu"],["ca","gl","ha"]],"Elliptical_Trainer":[["qu"],["ca","gl","ha"]],"Stairmaster":[["qu"],["ca","gl","ha"]],"Walking_Treadmill":[["qu"],["ca","gl","ha"]]};
 // Çizgi ikonlar (emoji yerine)
-const ICONS = {"home":"<path d=\"M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z\"/>","target":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><circle cx=\"12\" cy=\"12\" r=\"5\"/><circle cx=\"12\" cy=\"12\" r=\"1\"/>","utensils":"<path d=\"M7 3v8a2 2 0 0 0 2 2v8M5 3v6M9 3v6M17 3c-2 2-2.5 6 0 8v10\"/>","flame":"<path d=\"M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-3 2-4 2-7 1 1 2 2 2 3 0-2 0-4 1-6z\"/>","droplet":"<path d=\"M12 3l5.5 7a7 7 0 1 1-11 0z\"/>","shoe":"<path d=\"M3 16h18v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1zM3 16V8l5 1 2 3 6 1a4 4 0 0 1 4 3\"/>","pill":"<path d=\"M10.5 4.5a4.95 4.95 0 0 1 7 7l-6 6a4.95 4.95 0 0 1-7-7zM7.5 7.5l9 9\" transform=\"rotate(0)\"/>","scale":"<path d=\"M12 3v18M5 7h14M5 7l-3 7a3 3 0 0 0 6 0zM19 7l-3 7a3 3 0 0 0 6 0zM8 21h8\"/>","layers":"<path d=\"M12 3l9 5-9 5-9-5zM3 13l9 5 9-5\"/>","dumbbell":"<path d=\"M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12\"/>","trend":"<path d=\"M3 17l6-6 4 4 8-8M15 7h6v6\"/>","trenddown":"<path d=\"M3 7l6 6 4-4 8 8M15 17h6v-6\"/>","user":"<circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21a8 8 0 0 1 16 0\"/>","heart":"<path d=\"M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z\"/><path d=\"M8 12h2l1-2 2 4 1-2h2\"/>","ruler":"<path d=\"M3 17L17 3l4 4L7 21zM7 13l2 2M10 10l2 2M13 7l2 2\"/>","bell":"<path d=\"M6 9a6 6 0 0 1 12 0c0 6 3 7 3 7H3s3-1 3-7M10 20a2 2 0 0 0 4 0\"/>","camera":"<path d=\"M4 8h3l2-3h6l2 3h3v11H4z\"/><circle cx=\"12\" cy=\"13\" r=\"3.5\"/>","bulb":"<path d=\"M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z\"/>","trophy":"<path d=\"M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 21h8M10 17h4v4h-4z\"/>","medal":"<circle cx=\"12\" cy=\"15\" r=\"5\"/><path d=\"M8 3l4 7 4-7M12 13v4\"/>","calendar":"<rect x=\"4\" y=\"5\" width=\"16\" height=\"16\" rx=\"2\"/><path d=\"M4 10h16M9 3v4M15 3v4\"/>","egg":"<path d=\"M12 3c3.5 0 6 6 6 10a6 6 0 0 1-12 0c0-4 2.5-10 6-10z\"/>","zap":"<path d=\"M13 2L4 14h7l-1 8 9-12h-7z\"/>","run":"<path d=\"M3 12h4l3-8 4 16 3-8h4\"/>","moon":"<path d=\"M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z\"/>","chartbar":"<path d=\"M4 20V10M10 20V4M16 20v-7M2 20h20\"/>","pin":"<path d=\"M12 21s-6-6.5-6-11a6 6 0 0 1 12 0c0 4.5-6 11-6 11z\"/><circle cx=\"12\" cy=\"10\" r=\"2\"/>","msg":"<path d=\"M21 12a8 8 0 0 1-12 7l-5 1 1-4a8 8 0 1 1 16-4z\"/>","wind":"<path d=\"M3 8h10a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7\"/>","clock":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 2\"/>","alert":"<path d=\"M12 3l9 16H3zM12 10v4M12 17v.5\"/>","edit":"<path d=\"M4 20h4L19 9l-4-4L4 16zM14 6l4 4\"/>","check":"<path d=\"M4 12l5 5L20 6\"/>","list":"<path d=\"M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01\"/>","menu":"<path d=\"M4 6h16M4 12h16M4 18h16\"/>","sliders":"<path d=\"M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0\"/><circle cx=\"16\" cy=\"6\" r=\"2\"/><circle cx=\"10\" cy=\"12\" r=\"2\"/><circle cx=\"18\" cy=\"18\" r=\"2\"/>","bottle":"<path d=\"M10 2h4v3l2 3v13a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V8l2-3zM8 12h8\"/>","cup":"<path d=\"M5 4h14l-2 16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1zM6 9h12\"/>"};
+const ICONS = {"home":"<path d=\"M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z\"/>","target":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><circle cx=\"12\" cy=\"12\" r=\"5\"/><circle cx=\"12\" cy=\"12\" r=\"1\"/>","utensils":"<path d=\"M7 3v8a2 2 0 0 0 2 2v8M5 3v6M9 3v6M17 3c-2 2-2.5 6 0 8v10\"/>","flame":"<path d=\"M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-3 2-4 2-7 1 1 2 2 2 3 0-2 0-4 1-6z\"/>","droplet":"<path d=\"M12 3l5.5 7a7 7 0 1 1-11 0z\"/>","shoe":"<path d=\"M3 16h18v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1zM3 16V8l5 1 2 3 6 1a4 4 0 0 1 4 3\"/>","pill":"<path d=\"M10.5 4.5a4.95 4.95 0 0 1 7 7l-6 6a4.95 4.95 0 0 1-7-7zM7.5 7.5l9 9\" transform=\"rotate(0)\"/>","scale":"<path d=\"M12 3v18M5 7h14M5 7l-3 7a3 3 0 0 0 6 0zM19 7l-3 7a3 3 0 0 0 6 0zM8 21h8\"/>","layers":"<path d=\"M12 3l9 5-9 5-9-5zM3 13l9 5 9-5\"/>","dumbbell":"<path d=\"M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12\"/>","trend":"<path d=\"M3 17l6-6 4 4 8-8M15 7h6v6\"/>","trenddown":"<path d=\"M3 7l6 6 4-4 8 8M15 17h6v-6\"/>","user":"<circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21a8 8 0 0 1 16 0\"/>","heart":"<path d=\"M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z\"/><path d=\"M8 12h2l1-2 2 4 1-2h2\"/>","ruler":"<path d=\"M3 17L17 3l4 4L7 21zM7 13l2 2M10 10l2 2M13 7l2 2\"/>","bell":"<path d=\"M6 9a6 6 0 0 1 12 0c0 6 3 7 3 7H3s3-1 3-7M10 20a2 2 0 0 0 4 0\"/>","camera":"<path d=\"M4 8h3l2-3h6l2 3h3v11H4z\"/><circle cx=\"12\" cy=\"13\" r=\"3.5\"/>","bulb":"<path d=\"M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z\"/>","trophy":"<path d=\"M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 21h8M10 17h4v4h-4z\"/>","medal":"<circle cx=\"12\" cy=\"15\" r=\"5\"/><path d=\"M8 3l4 7 4-7M12 13v4\"/>","calendar":"<rect x=\"4\" y=\"5\" width=\"16\" height=\"16\" rx=\"2\"/><path d=\"M4 10h16M9 3v4M15 3v4\"/>","egg":"<path d=\"M12 3c3.5 0 6 6 6 10a6 6 0 0 1-12 0c0-4 2.5-10 6-10z\"/>","zap":"<path d=\"M13 2L4 14h7l-1 8 9-12h-7z\"/>","run":"<path d=\"M3 12h4l3-8 4 16 3-8h4\"/>","moon":"<path d=\"M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z\"/>","chartbar":"<path d=\"M4 20V10M10 20V4M16 20v-7M2 20h20\"/>","pin":"<path d=\"M12 21s-6-6.5-6-11a6 6 0 0 1 12 0c0 4.5-6 11-6 11z\"/><circle cx=\"12\" cy=\"10\" r=\"2\"/>","msg":"<path d=\"M21 12a8 8 0 0 1-12 7l-5 1 1-4a8 8 0 1 1 16-4z\"/>","wind":"<path d=\"M3 8h10a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7\"/>","clock":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 2\"/>","alert":"<path d=\"M12 3l9 16H3zM12 10v4M12 17v.5\"/>","edit":"<path d=\"M4 20h4L19 9l-4-4L4 16zM14 6l4 4\"/>","check":"<path d=\"M4 12l5 5L20 6\"/>","list":"<path d=\"M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01\"/>","menu":"<path d=\"M4 6h16M4 12h16M4 18h16\"/>","flask":"<path d=\"M9 3h6M10 3v6L4.5 18.5A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.5-2.5L14 9V3M7 15h10\"/>","sliders":"<path d=\"M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0\"/><circle cx=\"16\" cy=\"6\" r=\"2\"/><circle cx=\"10\" cy=\"12\" r=\"2\"/><circle cx=\"18\" cy=\"18\" r=\"2\"/>","bottle":"<path d=\"M10 2h4v3l2 3v13a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V8l2-3zM8 12h8\"/>","cup":"<path d=\"M5 4h14l-2 16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1zM6 9h12\"/>"};
 const I = (n, c) => ICONS[n] ? `<svg class="i ${c || ""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>` : "";
 const fillIcons = root => { for(const el of (root || document).querySelectorAll("i[data-i]")) el.outerHTML = I(el.dataset.i); };
 fillIcons();
@@ -2150,6 +2167,87 @@ function foodTip(s, g, gy, gc){
 }
 const MEAS = [["solkol","Sol kol"],["sagkol","Sağ kol"],["omuz","Omuz"],["gogus","Göğüs"],["bel","Bel"]];
 function lastMeasDay(before){ const ks = Object.keys(root.meas || {}).filter(k => (!before || k < before) && MEAS.some(([f]) => +root.meas[k][f] > 0)).sort(); return ks[ks.length - 1] || ""; }
+// ============ Kan tahlili: root.labs = {"YYYY-MM-DD": {anahtar: değer}} ============
+// r: [düşük altı, sınırda altı, normal üst, yüksek] — fonksiyon olabilir (cinsiyete göre)
+const LABS = [
+  ["Vitamin ve mineral", [
+    ["vitd", "D vitamini (25-OH)", "ng/mL", [20, 30, 100]],
+    ["b12", "B12 vitamini", "pg/mL", [200, 300, 900]],
+    ["ferr", "Ferritin", "ng/mL", m => m ? [30, 50, 300] : [15, 30, 150]],
+    ["fe", "Demir", "µg/dL", m => m ? [65, 65, 175] : [50, 50, 170]],
+    ["fol", "Folat (B9)", "ng/mL", [3, 5, 20]],
+    ["mg", "Magnezyum", "mg/dL", [1.7, 1.9, 2.4]],
+    ["zn", "Çinko", "µg/dL", [70, 80, 120]]]],
+  ["Kan sayımı", [
+    ["hb", "Hemoglobin", "g/dL", m => m ? [13.5, 13.5, 17.5] : [12, 12, 15.5]]]],
+  ["Şeker ve tiroid", [
+    ["glu", "Açlık şekeri", "mg/dL", [70, 70, 99, 126]],
+    ["a1c", "HbA1c", "%", [0, 0, 5.6, 6.5]],
+    ["tsh", "TSH", "mIU/L", [0.4, 0.4, 4.0]]]],
+  ["Kolesterol", [
+    ["tc", "Total kolesterol", "mg/dL", [0, 0, 199, 240]],
+    ["ldl", "LDL", "mg/dL", [0, 0, 129, 160]],
+    ["hdl", "HDL", "mg/dL", m => m ? [40, 40, 999] : [50, 50, 999]],
+    ["tg", "Trigliserit", "mg/dL", [0, 0, 149, 200]]]]];
+const LAB = Object.fromEntries(LABS.flatMap(g => g[1]).map(x => [x[0], x]));
+// durum: l=düşük, b=sınırda, n=normal, h=yüksek
+function labSt(k, v){
+  const [, , , r0] = LAB[k], r = typeof r0 === "function" ? r0((root.profile || {}).sex !== "k") : r0;
+  if(v < r[0]) return "l"; if(v < r[1]) return "b"; if(v > r[2]) return r[3] && v < r[3] ? "b" : "h"; return "n";
+}
+const LST = {l: "Düşük", b: "Sınırda", n: "Normal", h: "Yüksek"};
+function labRef(k){ const [, , u, r0] = LAB[k], r = typeof r0 === "function" ? r0((root.profile || {}).sex !== "k") : r0, f = x => String(x).replace(".", ",");
+  return r[2] >= 999 ? `> ${f(r[0])}` : r[0] ? `${f(r[0])}–${f(r[2])}` : `< ${f(Math.round((r[2] + (r[2] % 1 ? 0.1 : 1)) * 10) / 10)}`; }
+function labTips(v){
+  const T = [], st = k => v[k] != null && v[k] !== "" ? labSt(k, +v[k]) : null, has = (k, ...a) => a.includes(st(k));
+  if(has("vitd", "l")) T.push(["D vitamini eksik", "D vitamini takviyesi gerekebilir; eksiklikte doz ve süreyi doktorun belirler. Takviyeyi yağlı bir öğünle al. Güneş (öğle saatlerinde kol ve bacaklara 15–20 dk), yağlı balık ve yumurta sarısı destekler."]);
+  else if(has("vitd", "b")) T.push(["D vitamini yetersiz", "Normalin altına yakın. Kışın düşük doz D vitamini takviyesi yaygın bir tercih; doktoruna sor. Güneş ve yağlı balığı artır."]);
+  else if(has("vitd", "h")) T.push(["D vitamini yüksek", "D vitamini takviyesi alıyorsan bırak ve doktoruna göster; fazlası kalsiyumu yükseltebilir."]);
+  if(has("b12", "l")) T.push(["B12 düşük", "B12 takviyesi gerekebilir; doktoruna danış. Kırmızı et, yumurta, süt ürünleri ve balıktan zengin beslen. Uyuşma, karıncalanma, halsizlik varsa mutlaka göster."]);
+  else if(has("b12", "b")) T.push(["B12 sınırda", "Et, yumurta, süt ürünlerini artır. Sebze ağırlıklı besleniyorsan B12 takviyesi düşünülebilir."]);
+  const anemia = has("hb", "l"), lowIron = has("ferr", "l") || has("fe", "l");
+  if(lowIron) T.push(["Demir depoları düşük", "Demir takviyesi gerekebilir ama doktor kontrolünde başla; fazla demir zararlı. Takviyeyi aç karnına, C vitamini (portakal suyu) ile al; çay ve kahveyi 1 saat ara ver. Kırmızı et, ciğer, mercimek, nohut, ıspanak."]);
+  else if(has("ferr", "b")) T.push(["Ferritin sınırda", "Demirden zengin beslen (kırmızı et, baklagiller) ve yemekle birlikte çay içme. Takviye için önce doktoruna sor."]);
+  if(has("ferr", "h") || has("fe", "h")) T.push(["Demir yüksek", "Demir takviyesi ve demirli multivitamin alma. Ferritin yüksekliği iltihap ya da başka sebeplerden de olabilir; doktoruna göster."]);
+  if(anemia) T.push(["Hemoglobin düşük (kansızlık)", lowIron ? "Demir eksikliğine bağlı olabilir. Doktoruna göster, demir tedavisini o planlasın." : "Sebebi demir, B12 ya da folat olabilir; doktoruna göster."]);
+  if(has("fol", "l", "b")) T.push(["Folat düşük", "Folik asit takviyesi gerekebilir. Yeşil yapraklı sebze, mercimek, nohut, portakal ve ceviz folattan zengin."]);
+  if(has("mg", "l", "b")) T.push(["Magnezyum düşük", "Magnezyum takviyesi (sitrat ya da bisglisinat, akşam) düşünülebilir; kas krampı ve uykuya da iyi gelir. Kuruyemiş, kabak çekirdeği, bitter çikolata, ıspanak, yulaf."]);
+  if(has("zn", "l", "b")) T.push(["Çinko düşük", "Çinko takviyesi yemekle alınabilir; uzun süre yüksek doz bakır eksikliği yapar. Kırmızı et, kabak çekirdeği, yumurta, baklagiller."]);
+  if(has("glu", "b", "h") || has("a1c", "b", "h")) T.push([has("glu", "h") || has("a1c", "h") ? "Kan şekeri yüksek" : "Kan şekeri sınırda", "Şekerli içecek, tatlı ve beyaz unu azalt; karbonhidratı protein ve lifle birlikte ye. Düzenli antrenman ve kilo kontrolü çok etkili. Doktoruna göster."]);
+  if(has("glu", "l")) T.push(["Açlık şekeri düşük", "Uzun açlık ya da yoğun antrenman sonrası olabilir. Tekrarlıyorsa doktoruna göster."]);
+  if(has("tsh", "l", "h")) T.push(["TSH normal dışı", "Tiroid değerin normal aralıkta değil. Bu takviyeyle düzelecek bir şey değil; doktoruna göster (yorgunluk, kilo değişimi, çarpıntı olabilir)."]);
+  const lip = has("ldl", "b", "h") || has("tc", "b", "h");
+  if(lip) T.push(["Kolesterol yüksek", "Kızartma, fast food, işlenmiş et ve doymuş yağı azalt; yulaf, baklagil, sebze (lif) ve zeytinyağını artır. Haftada 2 kez balık. Kardiyo LDL'yi düşürmeye yardım eder."]);
+  if(has("tg", "b", "h")) T.push(["Trigliserit yüksek", "Şeker, meyve suyu, beyaz un ve alkolü azalt. Yağlı balık ya da omega-3 takviyesi trigliseridi düşürür; doktoruna sor."]);
+  if(has("hdl", "l")) T.push(["HDL (iyi kolesterol) düşük", "Düzenli kardiyo ve ağırlık antrenmanı HDL'yi yükseltir. Zeytinyağı, ceviz, fındık, yağlı balık ekle; sigara içiyorsan bırakmak çok etkili."]);
+  return T;
+}
+let labDay = null;
+function renderLabs(){
+  root.labs = root.labs || {};
+  const ds = Object.keys(root.labs).filter(d => Object.keys(root.labs[d]).length).sort();
+  if(!labDay) labDay = ds[ds.length - 1] || today();
+  $("labDate").value = labDay;
+  $("labDays").innerHTML = ds.length ? ds.slice(-6).reverse().map(d => `<button data-ld="${d}" class="${d === labDay ? "on" : ""}">${dayName(d, {day: "numeric", month: "short", year: "2-digit"})}</button>`).join("") : "";
+  const v = root.labs[labDay] || {}, prevD = ds.filter(d => d < labDay).pop(), pv = prevD ? root.labs[prevD] : {};
+  if(!document.activeElement || !document.activeElement.dataset.lab)
+    $("labForm").innerHTML = LABS.map(([g, xs]) => `<div class="labg"><h3>${g}</h3><div class="labf">${xs.map(([k, n, u]) => `<label class="f"><span>${n} <small>${u}</small></span><input data-lab="${k}" type="number" inputmode="decimal" step="any" min="0" value="${v[k] ?? ""}" placeholder="${labRef(k)}"></label>`).join("")}</div></div>`).join("");
+  const ks = Object.keys(v).filter(k => LAB[k] && v[k] !== "");
+  if(!ks.length){ $("labRes").innerHTML = `<p class="small muted" style="margin:14px 0 0">Tahlil sonucundaki değerleri yazdıkça burada durumları ve önerilerin çıkar. Hepsini girmen gerekmiyor.</p>`; return; }
+  const order = {l: 0, h: 1, b: 2, n: 3}, f = x => String(Math.round(x * 100) / 100).replace(".", ",");
+  const rows = ks.sort((a, b) => order[labSt(a, +v[a])] - order[labSt(b, +v[b])]).map(k => { const [, n, u] = LAB[k], st = labSt(k, +v[k]), p = pv[k];
+    return `<div class="labrow"><div>${n}<small>Normal: ${labRef(k)} ${u}${p != null && p !== "" ? ` · önceki ${f(+p)}` : ""}</small></div><span class="lv">${f(+v[k])} <small style="display:inline">${u}</small></span><span class="lst ${st}">${LST[st]}</span></div>`; }).join("");
+  const T = labTips(v);
+  $("labRes").innerHTML = `<div class="labres"><div><h3>${I("list")} Sonuçlar</h3>${rows}</div><div><h3>${I("bulb")} Öneriler</h3>${T.length ? T.map(([t, d]) => `<div class="labtip"><b>${t}</b>${d}</div>`).join("") : `<div class="labtip"><b>Girdiğin değerler normal aralıkta</b>Ekstra takviyeye gerek görünmüyor. Dengeli beslenmeye ve yılda bir kontrole devam.</div>`}</div></div>
+    <div class="row" style="justify-content:flex-end;margin-top:10px"><button class="ghost small-btn" id="labDel">Bu tahlili sil</button></div>`;
+  $("labDel").onclick = () => { if(confirm("Bu tarihteki tahlil silinsin mi?")){ delete root.labs[labDay]; labDay = null; save(); renderLabs(); } };
+}
+$("labForm").addEventListener("input", e => { const k = e.target.dataset.lab; if(!k) return; root.labs = root.labs || {}; const o = root.labs[labDay] = root.labs[labDay] || {};
+  if(e.target.value === "") delete o[k]; else o[k] = +e.target.value; save(); renderLabs(); });
+$("labDate").onchange = e => { if(!e.target.value) return; const o = root.labs && root.labs[labDay]; const nd = e.target.value;
+  if(o && Object.keys(o).length && !(root.labs[nd] && Object.keys(root.labs[nd]).length) && labDay === today() && nd !== labDay){ root.labs[nd] = o; delete root.labs[labDay]; save(); }
+  labDay = nd; $("labForm").innerHTML = ""; renderLabs(); };
+$("labDays").onclick = e => { const b = e.target.closest("[data-ld]"); if(b){ labDay = b.dataset.ld; $("labForm").innerHTML = ""; renderLabs(); } };
 function renderBody(){
   const P = root.profile || {}, h = +P.h || 0, w = weightOn(cur), age = P.by ? new Date(cur + "T12:00").getFullYear() - +P.by : 0, male = P.sex !== "k";
   const lm = lastMeasDay(shift(cur, 1)), M = lm ? root.meas[lm] : {}, v = k => +M[k] || 0;
@@ -2175,7 +2273,7 @@ function renderBody(){
   $("baTips").innerHTML = tips.map(t => `<div class="tipl">${I("bulb")}<span>${t}</span></div>`).join("");
 }
 function renderMeas(){
-  renderBody();
+  renderBody(); renderLabs();
   const m = (root.meas || {})[cur] || {};
   for(const [k] of MEAS){ const el = $("m_" + k); if(document.activeElement !== el) el.value = m[k] ?? ""; }
   const pd = lastMeasDay(cur), P = pd ? root.meas[pd] : null, has = MEAS.some(([k]) => +m[k] > 0);
