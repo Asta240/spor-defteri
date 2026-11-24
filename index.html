@@ -2666,9 +2666,9 @@ $("tCards").addEventListener("click", e => {
   if(b.id === "newCard"){ openSheet(`<h2>Yeni kart</h2><input id="ncIn" placeholder="Örn. Pazartesi – İtiş" maxlength="40"><div class="row" style="margin-top:12px"><button class="ghost" data-close style="flex:1">Vazgeç</button><button id="ncOk" style="flex:1">Oluştur</button></div>`); $("ncOk").onclick = () => { const v = $("ncIn").value.trim(); if(!v) return; const c = card(v, []); root.cards.push(c); openCard = cardPage = c.id; editCard = c.id; save(); closeSheet(); renderCards(); }; return; }
   // antrenman modu
   if("scdadd" in d){ const S = root.session; S.cardio = S.cardio || []; const lc = ((root.days[today()] || {}).cardio || []).slice(-1)[0] || {}; S.cardio.push({t: lc.t || "tread", min: "", spd: lc.spd || "", inc: lc.inc || ""}); save(); renderSession(); return; }
-  if(d.scdx != null && d.scdx !== undefined && b.matches("[data-scdx]")){ root.session.cardio.splice(+d.scdx, 1); save(); renderSession(); return; }
-  if(d.setx){ const [xi, si] = d.setx.split(":").map(Number), x = root.session.ex[xi]; if(x.sets.length < 2) return; x.sets.splice(si, 1); delete kgSrc[xi]; save(); renderSession();
-    toast(`${si + 1}. set silindi`); return; }
+  if(b.matches("[data-scdx]")){ const ci = +d.scdx; return ask("Bu kardiyo silinsin mi?", "Sil", () => { root.session.cardio.splice(ci, 1); save(); renderSession(); }); }
+  if(d.setx){ const [xi, si] = d.setx.split(":").map(Number), x = root.session.ex[xi]; if(x.sets.length < 2) return;
+    return ask(`${EXM[x.id]?.tr || "Hareket"}: ${si + 1}. set silinsin mi?`, "Sil", () => { x.sets.splice(si, 1); delete kgSrc[xi]; save(); renderSession(); toast(`${si + 1}. set silindi`); }); }
   if(d.ok){ const [xi, si] = d.ok.split(":").map(Number); const st = root.session.ex[xi].sets[si]; st.done = !st.done; save(); renderSession(); return; }
   if(d.ovl){ const [xi, kg] = d.ovl.split(":"); for(const st of root.session.ex[+xi].sets) if(!st.done) st.kg = kg; save(); renderSession(); toast(`${String(kg).replace(".", ",")} kg uygulandı`); return; }
   if(d.samekg){ const xi = +d.samekg, x = root.session.ex[xi], src = x.sets[kgSrc[xi]] && x.sets[kgSrc[xi]].kg !== "" ? x.sets[kgSrc[xi]] : x.sets.find(z => z.kg !== "" && z.kg != null);
