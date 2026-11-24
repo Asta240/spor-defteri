@@ -737,6 +737,10 @@
   .hgrp .tch{margin-bottom:12px}
   .hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px}
   .trd{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px} .trd .f{margin:0}
+  .cextra{display:grid;gap:14px} @media (min-width:900px){ .cextra{grid-template-columns:1fr 1fr;align-items:start} }
+  .plx{padding:12px;border-radius:12px;background:var(--card-2)} .plx+.plx{margin-top:10px} .plx h3{margin:0;font-size:15px} .plx .pls{font-size:12px;color:var(--muted);margin:2px 0 8px}
+  .plx .rgh{margin:10px 0 4px} .plx .tipl{font-size:13px;line-height:1.45;margin-top:4px} .plx .tipl svg.i{flex:none;width:15px;height:15px;margin-top:2px;color:var(--accent)}
+  .plweak{display:flex;gap:6px;flex-wrap:wrap} .plweak span{font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--accent-soft);color:var(--accent)}
   .dbh{display:flex;gap:6px;align-items:flex-start;margin-top:8px;line-height:1.4} .dbh svg.i{flex:none;width:15px;height:15px;margin-top:1px;color:var(--accent)} .dbh b{color:var(--ink)}
   .hfq{margin-top:6px;min-height:0;height:28px;padding:2px 8px;font-size:12px;width:auto;max-width:100%;background:var(--card-2);border:1px solid var(--line);border-radius:8px;color:var(--muted)}
   .htile{display:flex;align-items:center;gap:12px;background:var(--card-2);border-radius:14px;padding:10px 6px 10px 10px;border:1px solid transparent}
@@ -1092,7 +1096,7 @@
 
     <!-- İLERLEME -->
     <section id="tProg" hidden data-tab="genel">
-      <div class="ptabs seg" id="ptabs"><button data-ptab="genel">Genel</button><button data-ptab="antrenman">Antrenman</button><button data-ptab="beslenme">Beslenme</button><button data-ptab="vucut">Vücut</button><button data-ptab="aliskanlik">Alışkanlıklar</button><button data-ptab="takviye">Takviyeler</button><button data-ptab="rozet">Rozetler</button></div>
+      <div class="ptabs seg" id="ptabs"><button data-ptab="antrenman">Antrenman</button><button data-ptab="beslenme">Beslenme</button><button data-ptab="vucut">Vücut</button><button data-ptab="aliskanlik">Alışkanlıklar</button><button data-ptab="takviye">Takviyeler</button><button data-ptab="rozet">Rozetler</button></div>
       <div data-pt="genel" class="card" style="grid-column:1 / -1" id="pgWeek"></div>
       <div data-pt="genel" class="card" style="grid-column:1 / -1"><h2><i data-i="flame"></i> Bütün seriler</h2><div class="sklist" id="pgAll"></div></div>
       <div data-pt="beslenme" class="card" style="grid-column:1 / -1"><h2><i data-i="utensils"></i> Beslenme serileri</h2><div class="sklist" id="pgNut"></div></div>
@@ -1126,10 +1130,6 @@
           <div class="row" style="gap:4px"><button class="ghost small-btn" id="calPrev" aria-label="Önceki ay">‹</button><b id="calMon" style="min-width:110px;text-align:center;font-size:14px"></b><button class="ghost small-btn" id="calNext" aria-label="Sonraki ay">›</button></div></div>
         <div class="cal" id="calGrid"></div>
         <div class="rpgrid c3" id="calStats" style="margin-top:12px"></div>
-      </div>
-      <div data-pt="antrenman" class="card">
-        <h2><i data-i="zap"></i> Kas yorgunluğu</h2>
-        <div id="fgBox"></div>
       </div>
       <div data-pt="antrenman" class="card">
         <h2><i data-i="chartbar"></i> Haftada kaç gün gittin</h2>
@@ -1185,7 +1185,7 @@
     <button data-v="hareket"><i data-i="scale"></i> Kilo ve ölçüler</button>
     <div class="sep"></div>
     <div class="dlab">Antrenman</div>
-    <button data-v="cards"><i data-i="layers"></i> Antrenman kartları</button>
+    <button data-v="cards"><i data-i="layers"></i> Antrenman</button>
     <button data-v="lib"><i data-i="dumbbell"></i> Hareketler</button>
     <button data-v="prog"><i data-i="trend"></i> İlerleme</button>
     <div class="sep"></div>
@@ -1771,7 +1771,7 @@ function ask(text, yes, onYes){
 }
 
 // ================= MENÜ / SAYFALAR =================
-const VIEWS = {ozet:["vOzet","Günün özeti"], yemek:["vYemek","Kalori alımı"], su:["vSu","Su"], adim:["vAdim","Adım"], hareket:["vHareket","Kilo ve ölçüler"], hedef:["vHedef","Hedefler"], gorev:["vGorev","Görevler"], hesap:["vHesap","Hesap"], supp:["vSupp","Takviyeler"], hab:["vHab","Alışkanlıklar"], kalori:["vKalori","Kalori yakımı"], cards:["tCards","Antrenman kartları"], lib:["tLib","Hareketler"], prog:["tProg","İlerleme"]};
+const VIEWS = {ozet:["vOzet","Günün özeti"], yemek:["vYemek","Kalori alımı"], su:["vSu","Su"], adim:["vAdim","Adım"], hareket:["vHareket","Kilo ve ölçüler"], hedef:["vHedef","Hedefler"], gorev:["vGorev","Görevler"], hesap:["vHesap","Hesap"], supp:["vSupp","Takviyeler"], hab:["vHab","Alışkanlıklar"], kalori:["vKalori","Kalori yakımı"], cards:["tCards","Antrenman"], lib:["tLib","Hareketler"], prog:["tProg","İlerleme"]};
 const DATED = ["ozet","gorev","kalori","yemek","su","adim","hareket","supp","hab"];
 function setTab(t){
   if(!VIEWS[t]) t = "ozet";
@@ -1936,7 +1936,7 @@ function renderStreaks(){
   $("bdGo").onclick = () => setTab("prog");
 }
 // ================= İLERLEME SEKMELERİ + SERİLER =================
-let progTab = (() => { try{ return localStorage.getItem("sd-ptab") || "genel"; }catch(e){ return "genel"; } })();
+let progTab = (() => { try{ const t = localStorage.getItem("sd-ptab"); return t && t !== "genel" ? t : "antrenman"; }catch(e){ return "antrenman"; } })();
 document.addEventListener("click", e => { const b = e.target.closest("[data-ptab]"); if(!b) return; progTab = b.dataset.ptab; try{ localStorage.setItem("sd-ptab", progTab); }catch(err){} renderProgTabs(); });
 function skItem(ic, name, ok, sub){
   const cur0 = streak(ok), best = bestStreak(ok), last = Array.from({length: 30}, (_, i) => shift(today(), i - 29)), pct = Math.round(last.filter(ok).length / 30 * 100);
@@ -2623,7 +2623,9 @@ function renderCards(){
       return `<button class="ccard ${act ? "act" : ""}" data-open="${c.id}">${act ? `<span class="abadge">Aktif · %${act.all ? Math.round(act.sets / act.all * 100) : 0}</span>` : ""}<div class="wcm">${bodySvg(P, [])}</div><div class="wct"><b>${esc(c.name)}</b>
         <small>${c.ex.length} hareket${last ? ` · son ${dayName(last, {day:"numeric", month:"short"})}` : ""}</small>
         <small class="ctags">${P.slice(0, 4).map(k => MUS_TR[k]).join(" · ")}</small></div><span class="chev">›</span></button>`; }).join("")}</div>`
-      : `<div class="card emptycards"><h2>Henüz kartın yok</h2><p class="muted" style="margin:0">Yukarıdan hazır kartlardan birini seç ya da kendi kartını oluştur.</p></div>`);
+      : `<div class="card emptycards"><h2>Henüz kartın yok</h2><p class="muted" style="margin:0">Yukarıdan hazır kartlardan birini seç ya da kendi kartını oluştur.</p></div>`)
+    + `<div class="cextra"><div class="card"><h2>${I("zap")} Kas yorgunluğu</h2><div id="fgBox"></div></div><div class="card"><h2>${I("trend")} Gelişmeyen hareketler</h2><div id="plBox"></div></div></div>`;
+  renderFatigue(); renderPlateau();
 }
 const kgSrc = {}; // antrenmanda en son kilosu değiştirilen set (hareket sırasına göre)
 $("tCards").addEventListener("change", e => {
@@ -3042,7 +3044,7 @@ function renderProg(){
       <div class="gbar"><i style="width:${Math.max(4, g.A / g.mx * 100)}%"></i><i class="z" style="width:${Math.max(4, g.Z / g.mx * 100)}%"></i></div>
       <div class="small muted">${num(g.A)} → <b style="color:var(--ink)">${num(g.Z)} ${g.u}</b> · ${g.n} antrenman · ${dayName(g.d0, {day:"numeric", month:"short"})}'den beri</div></div>`; }).join("");
   $("gainEmpty").hidden = gains.length > 0;
-  renderReport(); renderFatigue(); renderCombo();
+  renderReport(); renderCombo();
 }
 // ============ Kas yorgunluğu (son 4 gün; birincil kas set başı 1, yardımcı 0,5; her gün %25 azalır) ============
 function fatigue(){
@@ -3056,6 +3058,7 @@ function fatigue(){
 }
 const fgLv = v => !v ? 0 : v >= 6 ? 3 : v >= 3 ? 2 : 1;
 function renderFatigue(){
+  if(!$("fgBox")) return;
   const {F, last} = fatigue(), ks = Object.keys(MUS_TR), ago = a => a === 0 ? "bugün" : a === 1 ? "dün" : `${a} gün önce`;
   const tired = ks.filter(k => fgLv(F[k])).sort((a, b) => F[b] - F[a]), fresh = ks.filter(k => !fgLv(F[k]));
   const LV = ["", "Hafif", "Orta", "Yorgun"];
@@ -3064,6 +3067,79 @@ function renderFatigue(){
       : `<p class="small muted" style="margin:0">Son 3 günde kaydedilmiş antrenman yok; bütün kaslar dinlenmiş.</p>`}
     ${tired.length && fresh.length ? `<p class="small muted" style="margin:4px 0 0">Dinlenmiş: ${fresh.map(k => MUS_TR[k]).join(", ")}</p>` : ""}</div></div>
     <div class="fgleg"><span><span class="fgdot" style="opacity:.3"></span>Hafif</span><span><span class="fgdot" style="opacity:.65"></span>Orta</span><span><span class="fgdot"></span>Yorgun (en az 48 saat dinlendir)</span></div>`;
+}
+// ============ Gelişmeyen hareketler (plato) ============
+// Hareket tipine göre olası zayıf halka ve odak önerileri
+const PL_PAT = {
+  chest: ["Barbell_Bench_Press_-_Medium_Grip","Dumbbell_Bench_Press","Incline_Dumbbell_Press","Leverage_Chest_Press","Leverage_Incline_Chest_Press","Pushups"],
+  fly: ["Dumbbell_Flyes","Cable_Crossover","Butterfly"],
+  ohp: ["Leverage_Shoulder_Press","Dumbbell_Shoulder_Press","Barbell_Shoulder_Press","Arnold_Dumbbell_Press"],
+  raise: ["Side_Lateral_Raise","Front_Dumbbell_Raise","Reverse_Flyes","Face_Pull","Upright_Barbell_Row"],
+  tri: ["Cable_Rope_Overhead_Triceps_Extension","Triceps_Pushdown","Dips_-_Triceps_Version","Close-Grip_Barbell_Bench_Press","Standing_Dumbbell_Triceps_Extension","Bench_Dips"],
+  vpull: ["Wide-Grip_Lat_Pulldown","Close-Grip_Front_Lat_Pulldown","Pullups","Chin-Up","Rope_Straight-Arm_Pulldown"],
+  row: ["Leverage_Iso_Row","Seated_Cable_Rows","Bent_Over_Barbell_Row","One-Arm_Dumbbell_Row","T-Bar_Row_with_Handle"],
+  curl: ["EZ-Bar_Curl","Hammer_Curls","Incline_Dumbbell_Curl","Barbell_Curl","Preacher_Curl","Concentration_Curls"],
+  squat: ["Barbell_Squat","Leg_Press","Hack_Squat","Smith_Machine_Squat","Goblet_Squat","Dumbbell_Lunges","Dumbbell_Step_Ups"],
+  hinge: ["Romanian_Deadlift","Barbell_Deadlift","Barbell_Hip_Thrust","Hyperextensions_Back_Extensions"],
+  shrug: ["Dumbbell_Shrug"]};
+const PL_INFO = {
+  chest: [["Triceps", "Ön omuz"], "Bar göğüsten kalkıyor ama üstte kilitlenmiyorsa triceps, göğüsten hiç kalkmıyorsa göğüs ve ön omuz zayıf halka olabilir.",
+    ["Haftada 1–2 kez dar tutuş bench ya da dips ekle (triceps)", "Göğüste 1 sn bekletmeli tekrarlar yap (dipten kuvvet)", "Incline dumbbell press ile üst göğüs ve ön omzu güçlendir"]],
+  fly: [["Göğüs (izolasyon)"], "İzolasyon hareketinde kilo yavaş artar; ağırlık eklemek yerine tekrar ve kontrol önemlidir.",
+    ["Kiloyu artırmadan önce tekrarı 15'e çıkar", "İnişi 3 saniyede yap, en gergin noktada 1 sn bekle", "Ana göğüs hareketinde (bench/press) ilerle; fly onu takip eder"]],
+  ohp: [["Triceps", "Üst göğüs", "Karın (core)"], "Barı başın üstünde kilitleyemiyorsan triceps, gövde geriye kaçıyorsa core zayıf olabilir.",
+    ["Triceps için pushdown ya da overhead extension ekle", "Lateral raise ile yan omzu güçlendir", "Karnını sıkıp kalçayı kilitle; gerekirse oturarak yap"]],
+  raise: [["Yan / arka omuz (küçük kas)"], "Küçük kaslarda 1–2 kg'lık artış bile %20–40'lık sıçrama demek; kilo takılı kalması çok normal.",
+    ["Önce tekrarı artır (12 → 15 → 20), sonra kiloyu artır", "Son sette drop set yap (kiloyu düşürüp tükenene kadar devam)", "Kablo versiyonuna geç; kablo daha küçük artış imkânı verir"]],
+  tri: [["Triceps uzun baş", "Dirsek"], "Triceps hareketlerinde dirsek ağrısı ve uzun başın zayıflığı ilerlemeyi durdurabilir.",
+    ["Overhead extension ile uzun başı çalıştır", "Dar tutuş bench gibi ağır bir bileşik hareket ekle", "Dirsekleri sabit tut; vücudu sallayarak yapma"]],
+  vpull: [["Biceps", "Kavrama", "Kanat (lat)"], "Kol yoruluyor ama sırt hissedilmiyorsa biceps ve kavrama, sırtı hissetmiyorsan lat aktivasyonu zayıf olabilir.",
+    ["Düz kol rope pulldown ile kanadı hissetmeyi öğren", "İnişi 3 saniyede yap, aşağıda 1 sn sık", "Kavrama yetmiyorsa kayış (strap) kullan"]],
+  row: [["Orta sırt", "Arka omuz", "Kavrama"], "Çekerken kürek kemiklerini sıkmıyorsan iş kola biner; kavrama da sınırlayabilir.",
+    ["Her tekrarda kürek kemiklerini 1 sn sıkıp bekle", "Face pull / reverse fly ile arka omuz ekle", "Kavrama bitiyorsa kayış kullan"]],
+  curl: [["Brakialis / ön kol", "Biceps"], "Biceps'te en sık takılma sebebi sallayarak yapmak ve ön kol zayıflığı.",
+    ["Hammer curl ekle (brakialis ve ön kol)", "Preacher curl gibi sıkı (hile yapılamayan) bir versiyon yap", "İnişi yavaşlat; kiloyu düşürüp tam hareket yap"]],
+  squat: [["Ön bacak (quad)", "Kalça", "Karın (core)"], "Dipten kalkamıyorsan quad ve kalça, gövde öne düşüyorsa core ve üst sırt zayıf halka olabilir.",
+    ["Bulgarian split squat ya da lunge ekle (tek bacak)", "Dipte 1–2 sn bekletmeli (pause) squat yap", "Leg extension ile quad'ı ayrıca çalıştır; ayak bileği esnekliğine bak"]],
+  hinge: [["Arka bacak (hamstring)", "Kalça", "Bel", "Kavrama"], "Kavrama bitiyorsa ön kol, bel yuvarlanıyorsa bel ve core, kalkış zayıfsa hamstring ve kalça zayıf halka olabilir.",
+    ["Leg curl ve hip thrust ile arka zinciri güçlendir", "Kavrama için kayış ya da farmer walk ekle", "Hyperextension ile beli güçlendir"]],
+  shrug: [["Kavrama", "Trapez"], "Shrug'da kavrama genelde trapezden önce biter.",
+    ["Kayış (strap) kullan", "Üstte 1–2 sn bekle", "Ağır deadlift ve row trapezi de çalıştırır"]],
+  other: [["Hedef kas"], "Bu harekette bir süredir ilerleme yok.",
+    ["Önce tekrarı artır, sonra kiloyu artır", "İnişi yavaşlat, tam hareket yap", "4–6 haftada bir hareketin bir varyasyonuna geç"]]};
+const plPat = id => Object.keys(PL_PAT).find(k => PL_PAT[k].includes(id)) || "other";
+const e1rm = l => Math.max(...l.s.map(([kg, r]) => (+kg || 0) * (1 + (+r || 0) / 30)));
+function plateaus(){
+  const out = [], lim = shift(today(), -56);
+  for(const id in root.lifts){ const e = EXM[id]; if(!e || e.u) continue;
+    const L = root.lifts[id].filter(l => l.d >= lim && l.s.some(x => +x[0] > 0)); if(L.length < 3) continue;
+    const last = L.slice(-3), span = Math.round((new Date(last[2].d) - new Date(last[0].d)) / 864e5);
+    const top = l => Math.max(...l.s.map(x => +x[0] || 0)), base = Math.max(...L.slice(0, -2).map(e1rm));
+    if(span < 10 || e1rm(last[2]) > base * 1.01 || e1rm(last[1]) > base * 1.01 || top(last[2]) > top(last[0])) continue;
+    const n = (() => { let k = 0; const t = top(L[L.length - 1]); for(let i = L.length - 1; i >= 0 && top(L[i]) === t; i--) k++; return Math.max(3, k); })();
+    out.push({id, n, kg: top(last[2]), since: L[L.length - n].d, freq: L.filter(l => l.d >= shift(today(), -28)).length, same: last.every(l => liftText(l) === liftText(last[0]))});
+  }
+  return out.sort((a, b) => b.n - a.n);
+}
+function plReasons(p){
+  const R = [], ds = Array.from({length: 14}, (_, i) => shift(today(), -i)).map(x => root.days[x]).filter(d => d && d.f && d.f.length), g = root.goals;
+  if(ds.length >= 4){ const pa = ds.reduce((a, d) => a + sum(d).p, 0) / ds.length, ka = ds.reduce((a, d) => a + sum(d).k, 0) / ds.length;
+    if(pa < g.p * .85) R.push(`Son 2 haftada protein ortalaman ${fmt(pa)} g, hedefin ${g.p} g. Kas yapmak için protein yetmiyor olabilir.`);
+    if(ka < g.k - 300) R.push(`Kalori ortalaman (${fmt(ka)} kcal) hedefinin epey altında. Açıktayken kuvvetin sabit kalması normal; kilo vermek istiyorsan dert etme.`); }
+  if(p.freq <= 2) R.push(`Bu hareketi son 4 haftada ${p.freq} kez yapmışsın. Haftada en az 1 kez düzenli yapmak ilerlemeyi hızlandırır.`);
+  if(p.same) R.push("Son 3 seferde aynı kilo ve aynı tekrar. Önce tekrarı artırmayı dene (ör. 3×8 → 3×10), sonra kiloyu artır.");
+  R.push("Uyku (7–9 saat) ve dinlenme de kuvvet artışını doğrudan etkiler; yorgunken kilo artmaz.");
+  return R;
+}
+function renderPlateau(){
+  const box = $("plBox"); if(!box) return;
+  const P = plateaus();
+  if(!P.length){ box.innerHTML = `<p class="small muted" style="margin:0">Takıldığın hareket yok. Bir hareket 3 antrenman (en az 10 gün) boyunca kilo ya da tekrar olarak ilerlemezse burada nedenleri ve öneriler çıkar.</p>`; return; }
+  box.innerHTML = P.slice(0, 4).map(p => { const [W, why, focus] = PL_INFO[plPat(p.id)];
+    return `<div class="plx"><h3>${esc(EXM[p.id].tr)}</h3><div class="pls">Son ${p.n} antrenmanda ilerleme yok · ${num(p.kg)} kg · ${dayName(p.since, {day: "numeric", month: "long"})} tarihinden beri</div>
+      <div class="rgh">Olası zayıf halka</div><div class="plweak">${W.map(w => `<span>${w}</span>`).join("")}</div><p class="small" style="margin:6px 0 0;line-height:1.45">${why}</p>
+      <div class="rgh">Neden olabilir</div>${plReasons(p).map(t => `<div class="tipl">${I("alert")}<span>${t}</span></div>`).join("")}
+      <div class="rgh">Odaklan</div>${focus.map(t => `<div class="tipl">${I("target")}<span>${t}</span></div>`).join("")}</div>`; }).join("");
 }
 // ============ Birleşik grafik: kilo + alınan kalori + adım ============
 function renderCombo(){
