@@ -747,6 +747,8 @@
   .mi .bar{height:6px;margin:6px 0 4px} .mi .bar i{background:var(--accent-soft)} .mi.ok .bar i{background:var(--accent)} .mi.over .bar i{background:var(--bad)} .mi>small{font-size:11px;color:var(--muted)}
   .dancard{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;padding:14px 16px;border-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%),var(--card)}
   .dancard .dt{display:block;font-size:15px} .dancard small{display:block;font-size:12.5px;color:var(--muted);margin-top:2px} .dancard .chev{font-size:22px;color:var(--accent)}
+  #eatCard:not(.editing) [data-del],#eatCard:not(.editing) #fReset,#cdBox:not(.editing) [data-cdel]{display:none}
+  .edtog{min-height:0;padding:5px 12px;font-size:12.5px}
   .cextra{display:grid;gap:14px} @media (min-width:900px){ .cextra{grid-template-columns:1fr 1fr;align-items:start} }
   .plx{padding:12px;border-radius:12px;background:var(--card-2)} .plx+.plx{margin-top:10px} .plx h3{margin:0;font-size:15px} .plx .pls{font-size:12px;color:var(--muted);margin:2px 0 8px}
   .plx .rgh{margin:10px 0 4px} .plx .tipl{font-size:13px;line-height:1.45;margin-top:4px} .plx .tipl svg.i{flex:none;width:15px;height:15px;margin-top:2px;color:var(--accent)}
@@ -920,7 +922,7 @@
         </div>
       </div>
       <div class="card" id="eatCard">
-        <div class="hhead"><span class="hico"><i data-i="list"></i></span><div style="flex:1"><h2 style="margin:0">Bu gün yediklerin</h2><div class="small muted" id="eatSub"></div></div></div>
+        <div class="hhead"><span class="hico"><i data-i="list"></i></span><div style="flex:1"><h2 style="margin:0">Bu gün yediklerin</h2><div class="small muted" id="eatSub"></div></div><button class="ghost small-btn edtog" data-edit-for="eatCard">Düzenle</button></div>
         <div class="meals" id="fl"></div>
         <p class="empty" id="fe" hidden></p>
         <button class="ghost small-btn" id="fReset" style="margin-top:12px;color:var(--bad)">Günün yemeklerini sıfırla</button>
@@ -1584,6 +1586,7 @@ const NEWS = {id:"2026-11-24", items:[
   ["flame", "Daha doğru antrenman kalorisi", "Süre yaptığın setten hesaplanıyor (soyunma, bekleme sayılmaz); Normal 3,5 / Yoğun 5 MET seçebilirsin. Eski kayıtlar da düzeltildi."],
   ["flask", "Kan tahlili", "Kilo ve ölçüler sayfasında: değerlerini gir, durumları ve vitamin / beslenme önerilerini gör."],
   ["check", "Alışkanlıklar", "Haftada X gün seçeneği (banyo, tıraş, kitap gibi her gün olmayanlar mükemmel günü bozmaz) ve yeni hazır alışkanlıklar."],
+  ["edit", "Silmek için Düzenle", "Yediklerin ve kardiyo listesinde ✕ artık sadece “Düzenle”ye basınca çıkıyor; yanlışlıkla silinmiyor."],
   ["target", "Görevler ve su", "Görevler kendi sayfasında (ana sayfada sağ üstteki hedef). Su: çay bardağı, büyük bardak, yarım / 1 / 1,5 L şişe."]]};
 function maybeNews(){
   let ls = null; try{ ls = localStorage.getItem("sd-news"); }catch(e){}
@@ -2242,6 +2245,7 @@ function renderDay(){
     const idx = d.f.map((x, i) => i), MI = {k: "egg", o: "utensils", a: "moon", s: "zap"};
     const groups = [...MEALS, ["", "Öğünü seçilmemiş"]].map(([k, t]) => [k, t, idx.filter(i => (MEALS.some(M => M[0] === d.f[i].m) ? d.f[i].m : "") === k)]);
     const full = groups.filter(g => g[2].length), empty = groups.filter(g => g[0] && !g[2].length);
+    { const eb = document.querySelector('[data-edit-for="eatCard"]'); eb.hidden = !d.f.length; if(!d.f.length && EDIT.eatCard){ EDIT.eatCard = false; $("eatCard").classList.remove("editing"); eb.textContent = "Düzenle"; } }
     $("eatSub").textContent = d.f.length ? `${d.f.length} yemek · ${fmt(s.k)} kcal` : "Henüz bir şey eklemedin";
     $("fl").innerHTML = full.map(([k, t, is]) => `<div class="meal"><div class="mh"><span class="hico sm">${I(MI[k] || "list")}</span><b>${t}</b><span class="mk"><b>${fmt(is.reduce((a, i) => a + (+d.f[i].k || 0), 0))}</b> kcal · P ${fmt(is.reduce((a, i) => a + (+d.f[i].p || 0), 0))}</span></div>${is.map(i => row(d.f[i], i, !k)).join("")}</div>`).join("")
       + (empty.length ? `<div class="mempty"><span class="small muted">Ekle:</span>${empty.map(([k, t]) => `<button class="ghost small-btn" data-addmeal="${k}">${I(MI[k])} ${t}</button>`).join("")}</div>` : ""); }
@@ -2536,6 +2540,10 @@ $("fReset").onclick = () => {
   ask(`${ds === today() ? "Bugünün" : dayName(ds, {day:"numeric", month:"long"}) + " gününün"} ${n} yemeği (${fmt(k)} kcal) silinsin mi?`, "Sıfırla", () => { day(ds).f = []; save(); renderDay(); toast("Yemekler sıfırlandı"); });
 };
 $("fl").addEventListener("change", e => { const sel = e.target.closest("select[data-mv]"); if(!sel || !sel.value) return; const x = day(cur).f[+sel.dataset.mv]; if(x){ x.m = sel.value; save(); renderDay(); } });
+// Onaysız silmeler (yemek, kardiyo): ✕ sadece "Düzenle" modunda görünür
+const EDIT = {};
+document.addEventListener("click", e => { const b = e.target.closest("[data-edit-for]"); if(!b) return; const id = b.dataset.editFor; EDIT[id] = !EDIT[id];
+  const el = $(id); if(el) el.classList.toggle("editing", EDIT[id]); for(const x of document.querySelectorAll(`[data-edit-for="${id}"]`)) x.textContent = EDIT[id] ? "Bitti" : "Düzenle"; });
 $("fl").onclick = e => { const b = e.target.closest("button[data-del]"); if(!b) return; day(cur).f.splice(+b.dataset.del, 1); save(); renderDay(); };
 const MEALS = [["k","Kahvaltı"],["o","Öğle"],["a","Akşam"],["s","Ara öğün"]];
 const mealNow = () => { const h = new Date().getHours(); return h >= 5 && h < 11 ? "k" : h >= 11 && h < 16 ? "o" : h >= 18 && h < 23 ? "a" : "s"; };
@@ -3002,7 +3010,8 @@ function cardioKcal(t, min, spd, inc, kg){
 function renderCardio(box, ds){
   ds = ds || today();
   const d = root.days[ds] || blankDay(), L = d.cardio || [], tot = L.reduce((a, x) => a + (+x.kcal || 0), 0), mins = L.reduce((a, x) => a + (+x.min || 0), 0);
-  box.innerHTML = `<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px"><h2 style="margin:0">${I("heart")} Kardiyo</h2><span class="small muted">${mins ? `${fmt(mins)} dk · ~${fmt(tot)} kcal` : ""}</span></div>
+  if(!L.length) EDIT.cdBox = false; box.classList.toggle("editing", !!EDIT.cdBox);
+  box.innerHTML = `<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px"><h2 style="margin:0">${I("heart")} Kardiyo</h2><span class="row" style="gap:8px"><span class="small muted">${mins ? `${fmt(mins)} dk · ~${fmt(tot)} kcal` : ""}</span>${L.length ? `<button type="button" class="ghost small-btn edtog" data-edit-for="cdBox">${EDIT.cdBox ? "Bitti" : "Düzenle"}</button>` : ""}</span></div>
     ${L.length ? `<div class="cdl">${L.map((x, i) => `<div class="cdi"><span class="hico sm">${I("run")}</span><div style="flex:1"><b>${esc((CT.find(c => c[0] === x.t) || [0, "Kardiyo"])[1])}</b><small>${x.min} dk${x.spd ? ` · ${String(x.spd).replace(".", ",")} km/s` : ""}${x.inc ? ` · %${x.inc} eğim` : ""}</small></div><b class="cdk">~${fmt(x.kcal)} kcal</b><button class="icon" data-cdel="${i}" data-cdd="${ds}" aria-label="Sil">✕</button></div>`).join("")}</div>` : ""}
     <form id="cdForm" class="cdf">
       <label class="f" style="grid-column:1 / -1">Tür<select id="cdT">${CT.map(([k, t]) => `<option value="${k}">${t}</option>`).join("")}</select></label>
