@@ -741,6 +741,7 @@
   .scd{display:grid;grid-template-columns:minmax(0,1.6fr) repeat(3,minmax(0,1fr)) 26px;gap:6px;align-items:end;padding:8px 0;border-top:1px solid var(--line)} .scd .f{margin:0;font-size:11px} .scd .f select,.scd .f input{min-height:38px;padding:4px 8px;font-size:14px} .scd .setx{border:0;background:none;color:var(--muted);padding:0;min-height:0;height:38px}
   @media (max-width:560px){ .scd{grid-template-columns:repeat(3,minmax(0,1fr)) 26px} .scd .f:first-child{grid-column:1 / -1} }
   .scdk{font-size:12px;color:var(--muted);grid-column:1 / -1;margin-top:-2px}
+  .metseg{display:flex;align-items:center;gap:8px;flex-wrap:wrap} .metseg .seg button{font-size:12px;padding:6px 10px;min-height:0}
   .cextra{display:grid;gap:14px} @media (min-width:900px){ .cextra{grid-template-columns:1fr 1fr;align-items:start} }
   .plx{padding:12px;border-radius:12px;background:var(--card-2)} .plx+.plx{margin-top:10px} .plx h3{margin:0;font-size:15px} .plx .pls{font-size:12px;color:var(--muted);margin:2px 0 8px}
   .plx .rgh{margin:10px 0 4px} .plx .tipl{font-size:13px;line-height:1.45;margin-top:4px} .plx .tipl svg.i{flex:none;width:15px;height:15px;margin-top:2px;color:var(--accent)}
@@ -1542,6 +1543,21 @@ function lsSet(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
 function lsDel(k){ try{ localStorage.removeItem(k); }catch(e){} }
 const storeKey = () => "sd-root-" + CUR;
 let migDirty = false;
+// Bir kerelik: eski antrenman kalorilerini (5 MET + gerçek süre) yeni hesaba (3,5 MET + set × 2,5 dk) çevirir
+function migWk(r){
+  const CM = {Walking_Treadmill:6, Air_Bike:8, Rowing_Stationary:7, Bicycling_Stationary:7, Elliptical_Trainer:5, Stairmaster:9};
+  for(const ds in r.days){ const d = r.days[ds]; if(!d || !d.wo || d.wk === "" || d.wk == null) continue;
+    let sets = 0, cmin = 0, ck = 0;
+    const kgs = Object.keys(r.days).filter(k => k <= ds && +r.days[k].kg > 0).sort(), w = kgs.length ? +r.days[kgs[kgs.length - 1]].kg : (+(r.profile || {}).w || 70);
+    for(const id in r.lifts || {}){ const l = (r.lifts[id] || []).find(x => x.d === ds); if(!l) continue; const e = EX.find(x => x.id === id);
+      if(e && e.u === "dk"){ const m = l.s.reduce((a, x) => a + (+x[1] || 0), 0); cmin += m; ck += id === "Walking_Treadmill" && l.spd ? cardioKcal("tread", m, l.spd, l.inc || 0, w) : m / 60 * ((CM[id] || 6) - 1) * w; }
+      else if(!(e && e.u)) sets += l.s.length; }
+    if(!sets){ const c = (r.cards || []).find(c => c.name === d.wo); if(c) sets = c.ex.filter(x => { const e = EX.find(y => y.id === x.id); return !(e && e.u); }).reduce((a, x) => a + (+x.s || 0), 0); }
+    const listMin = (d.cardio || []).reduce((a, x) => a + (+x.min || 0), 0), extra = Math.max(0, (+d.ca || 0) - listMin - cmin);
+    if(extra) ck += extra / 60 * (6 - 1) * w;
+    if(sets) d.wk = String(Math.round(sets * SET_MIN / 60 * (3.5 - 1) * w + ck));
+  }
+}
 function fixRoot(r){
   const f = freshRoot();
   if(!r) f.newsSeen = NEWS.id; // yeni hesap yenilikleri görmez
@@ -1550,6 +1566,7 @@ function fixRoot(r){
   r.days = r.days || {}; r.lifts = r.lifts || {}; r.cards = Array.isArray(r.cards) ? r.cards : [];
   // Bir kerelik: kardiyo artık ayrı (Kardiyo kartı / antrenmanda + Kardiyo ekle), kartlardaki incline yürüyüş çıkarılır
   r.mig = r.mig || {};
+  if(!r.mig.met35){ migWk(r); r.mig.met35 = 1; migDirty = true; }
   if(!r.mig.tread){ r.cards.forEach(c => { if(Array.isArray(c.ex)) c.ex = c.ex.filter(x => x.id !== "Walking_Treadmill"); }); r.mig.tread = 1; migDirty = true; }
   return r;
 }
@@ -2797,20 +2814,20 @@ function renderHomeWo(){
 document.addEventListener("click", e => {
   const a = e.target.closest("[data-pastadd]"), dt = e.target.closest("[data-pastdet]"); if(!a && !dt) return;
   if(a){ const c = root.cards.find(x => x.id === a.dataset.pastadd); if(!c) return; const d = day(cur), sets = c.ex.reduce((t, x) => t + (+x.s || 0), 0);
-    d.wo = c.name; d.rest = false; d.wk = String(workoutKcal(sets * 3, [], weightOn(cur)).total); save(); renderAll(); toast(`${c.name} eklendi`); return; }
+    d.wo = c.name; d.rest = false; d.wk = String(workoutKcal(sets * SET_MIN, [], weightOn(cur)).total); save(); renderAll(); toast(`${c.name} eklendi`); return; }
   const c = root.cards.find(x => x.name === dt.dataset.pastdet); if(!c) return toast("Bu kart artık yok");
   const ds = cur, ex = c.ex.filter(x => EXM[x.id]);
   openSheet(`<h2>${esc(c.name)}</h2><p class="small muted" style="margin:0 0 10px">${dayName(ds, {day:"numeric", month:"long", weekday:"long"})} · boş bıraktığın setler kaydedilmez</p>
     <div class="pdl">${ex.map((x, xi) => { const e = EXM[x.id], ex0 = (root.lifts[x.id] || []).find(l => l.d === ds), ref = ex0 || [...(root.lifts[x.id] || [])].filter(l => l.d < ds).pop();
       return `<div class="pde"><b>${esc(e.tr)}</b><div class="pds">${Array.from({length: Math.max(+x.s || 1, ex0 ? ex0.s.length : 0)}, (_, si) => { const v = ex0 && ex0.s[si];
         return `<div class="pdr"><span>${si + 1}</span>${e.u ? "" : `<input type="number" inputmode="decimal" step="0.5" min="0" placeholder="${ref && ref.s[si] ? ref.s[si][0] : "kg"}" value="${v ? v[0] : ""}" data-pk="${xi}:${si}" aria-label="kg">`}<input type="number" inputmode="numeric" min="0" placeholder="${unit(e)}" value="${v ? v[1] : ""}" data-pr="${xi}:${si}" aria-label="${unit(e)}"></div>`; }).join("")}</div></div>`; }).join("")}</div>
-    <label class="f" style="margin-top:10px">Süre (dk, isteğe bağlı)<input id="pdMin" type="number" inputmode="numeric" min="0" placeholder="Boşsa set × 3 dk"></label>
+    <label class="f" style="margin-top:10px">Süre (dk, isteğe bağlı)<input id="pdMin" type="number" inputmode="numeric" min="0" placeholder="Boşsa set × 2,5 dk"></label>
     <div class="row" style="margin-top:12px"><button class="ghost small-btn" data-close>Vazgeç</button><button class="small-btn" id="pdOk">Kaydet</button></div>`);
   $("pdOk").onclick = () => { let n = 0, sets = 0;
     ex.forEach((x, xi) => { const e = EXM[x.id], rows = [...$("sheet").querySelectorAll(`[data-pr^="${xi}:"]`)].map(r => { const si = r.dataset.pr.split(":")[1], k = $("sheet").querySelector(`[data-pk="${xi}:${si}"]`); return [k ? +k.value || 0 : 0, +r.value || 0]; }).filter(z => z[1] > 0);
       const a = root.lifts[x.id] || (root.lifts[x.id] = []), i = a.findIndex(l => l.d === ds);
       if(rows.length){ if(i >= 0) a[i] = {d: ds, s: rows}; else a.push({d: ds, s: rows}); a.sort((p, q) => p.d < q.d ? -1 : 1); n++; sets += rows.length; } else if(i >= 0) a.splice(i, 1); });
-    const d = day(ds), mins = +$("pdMin").value || sets * 3; d.wo = c.name; d.rest = false; d.wk = String(workoutKcal(mins, [], weightOn(ds)).total);
+    const d = day(ds), mins = +$("pdMin").value || sets * SET_MIN; d.wo = c.name; d.rest = false; d.wk = String(workoutKcal(mins, [], weightOn(ds)).total);
     save(); closeSheet(); renderAll(); toast(`${c.name} kaydedildi · ${n} hareket`); };
 });
 // Ana sayfadan dokunulunca antrenman kendiliğinden başlar
@@ -2945,8 +2962,13 @@ document.addEventListener("click", e => { const b = e.target.closest("[data-cdel
 const CARDIO_MET = {Walking_Treadmill:6, Air_Bike:8, Rowing_Stationary:7, Bicycling_Stationary:7, Elliptical_Trainer:5, Stairmaster:9};
 const CARDIO_OPTS = [["Walking_Treadmill","Incline yürüyüş"],["Bicycling_Stationary","Bisiklet"],["Elliptical_Trainer","Eliptik"],["Rowing_Stationary","Kürek"],["Stairmaster","Merdiven"],["Air_Bike","Air bike"],["run","Koşu"]];
 CARDIO_MET.run = 9.8;
-function workoutKcal(liftMin, cardio, kg){
-  const w = kg || 70, lift = Math.max(0, liftMin) / 60 * (5 - 1) * w;
+// Ağırlık antrenmanı yoğunluğu: 3,5 MET (normal, setler arası dinlenmeli; varsayılan) ya da 5 MET (yoğun, kısa dinlenme). root.liftMet
+const SET_MIN = 2.5; // set başına dakika (set + dinlenme); süre buradan hesaplanır, soyunma / bekleme sayılmaz
+const liftMetOf = () => +root.liftMet === 5 ? 5 : 3.5;
+const MET_INFO = `<b>Normal (3,5 MET)</b>: setler arası 1–3 dk dinlendiğin klasik salon antrenmanı. Çoğu kişi için doğrusu bu.<br><b>Yoğun (5 MET)</b>: setler arası 30–60 sn, süper set / devre antrenmanı, sürekli nefes nefese.`;
+function workoutKcal(liftMin, cardio, kg, met){
+  met = met || liftMetOf();
+  const w = kg || 70, lift = Math.max(0, liftMin) / 60 * (met - 1) * w;
   const c = cardio.reduce((a, [id, m]) => a + (Math.max(0, m) / 60) * ((CARDIO_MET[id] || 6) - 1) * w, 0);
   return {lift: Math.round(lift), cardio: Math.round(c), total: Math.round(lift + c)};
 }
@@ -2956,12 +2978,14 @@ function finishSession(){
   const doneSets = S.ex.filter(x => EXM[x.id]?.u !== "dk").reduce((a, x) => a + x.sets.filter(s => s.done).length, 0);
   const cardio = S.ex.filter(x => EXM[x.id]?.u === "dk").map(x => [x.id, x.sets.filter(s => s.done).reduce((a, s) => a + (+s.r || 0), 0)]).filter(c => c[1] > 0);
   const real = S.start ? Math.round((Date.now() - S.start) / 60000) : 0, cardMin = cardio.reduce((a, c) => a + c[1], 0);
-  let liftMin = real >= 10 && real <= 200 ? Math.max(0, real - cardMin) : doneSets * 3;
+  const liftMin = Math.round(doneSets * SET_MIN);
   const kg = weightOn(today()), tx = S.ex.find(x => x.id === "Walking_Treadmill") || {};
   openSheet(`<h2>${I("flame")} Antrenmanı bitir</h2>
-    <p class="small muted" style="margin:0 0 12px">${doneSets} set yapıldı. Süreyi ve kardiyoyu kontrol et, yaktığın kalori hesaplansın.</p>
-    <div class="prof">
-      <label class="f">Ağırlık süresi (dk)<input id="fwLift" type="number" inputmode="numeric" min="0" value="${liftMin}"></label>
+    <p class="small muted" style="margin:0 0 12px">${doneSets} set yapıldı${real ? ` · antrenman süresi <b>${real >= 60 ? `${Math.floor(real / 60)} sa ` : ""}${real % 60} dk</b> (soyunma, bekleme dahil; kaloriye katılmaz)` : ""}.</p>
+    <div class="metseg"><span class="small muted">Yoğunluk</span><div class="seg"><button type="button" data-met="3.5" class="${liftMetOf() === 3.5 ? "on" : ""}">Normal · 3,5 MET</button><button type="button" data-met="5" class="${liftMetOf() === 5 ? "on" : ""}">Yoğun · 5 MET</button></div><button type="button" class="linkish small" id="metWhy">Hangisi?</button></div>
+    <p class="small muted" id="metInfo" hidden style="margin:6px 0 0;line-height:1.5">${MET_INFO}</p>
+    <div class="prof" style="margin-top:10px">
+      <label class="f">Çalışma süresi (dk) <small class="muted">set × 2,5</small><input id="fwLift" type="number" inputmode="numeric" min="0" value="${liftMin}"></label>
       <label class="f">Kardiyo türü<select id="fwCt">${CARDIO_OPTS.map(([id, t]) => `<option value="${id}" ${cardio[0] && cardio[0][0] === id ? "selected" : ""}>${t}</option>`).join("")}</select></label>
       <label class="f">Kardiyo (dk)<input id="fwCm" type="number" inputmode="numeric" min="0" value="${cardMin || ""}" placeholder="0"></label>
       <label class="f fwtr">Eğim (%)<input id="fwInc" type="number" inputmode="decimal" step="0.5" min="0" value="${esc(tx.inc ?? "")}" placeholder="0"></label>
@@ -2975,7 +2999,9 @@ function finishSession(){
     return r; };
   const trShow = () => { for(const el of document.querySelectorAll(".fwtr")) el.hidden = $("fwCt").value !== "Walking_Treadmill"; };
   $("fwCt").addEventListener("change", trShow); trShow();
-  const upd = () => { const r = calc(); $("fwRes").innerHTML = `<b>~${fmt(r.total)} kcal</b><span>ağırlık ${fmt(r.lift)} + kardiyo ${fmt(r.cardio)} · ${String(kg || 70).replace(".", ",")} kg'a göre</span>`; };
+  const upd = () => { const r = calc(); $("fwRes").innerHTML = `<b>~${fmt(r.total)} kcal</b><span>ağırlık ${fmt(r.lift)} (${String(liftMetOf()).replace(".", ",")} MET) + kardiyo ${fmt(r.cardio)} · ${String(kg || 70).replace(".", ",")} kg'a göre</span>`; };
+  $("sheet").querySelector(".metseg").onclick = e => { const b = e.target.closest("[data-met]"); if(b){ root.liftMet = +b.dataset.met; save(); for(const x of $("sheet").querySelectorAll("[data-met]")) x.classList.toggle("on", x === b); upd(); }
+    if(e.target.closest("#metWhy")) $("metInfo").hidden = !$("metInfo").hidden; };
   for(const id of ["fwLift","fwCt","fwCm","fwInc","fwSpd"]) $(id).addEventListener("input", upd);
   upd();
   $("fwOk").onclick = () => { const r = calc(); closeSheet(); commitSession(r.total - r.sc, +$("fwCm").value || 0); };
