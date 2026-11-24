@@ -862,7 +862,7 @@
         <div class="tip" id="ymTip" style="margin-top:10px"></div>
       </div>
       <div class="card" id="addCard">
-        <div class="hhead"><span class="hico"><i data-i="utensils"></i></span><div style="flex:1"><h2 style="margin:0">Yemek ekle</h2><div class="small muted">Hangi öğün?</div></div></div>
+        <div class="hhead"><span class="hico"><i data-i="utensils"></i></span><div style="flex:1"><h2 style="margin:0">Yemek ekle</h2><div class="small muted" id="addLeft">Hangi öğün?</div></div></div>
         <div class="chips" id="mealSeg" style="margin:12px 0"></div>
         <div class="seg atabs"><button data-at="ara" class="on">Listeden</button><button data-at="elle">Elle</button><button data-at="foto">Fotoğraf</button></div>
         <div class="apane" data-ap="ara">
@@ -2097,6 +2097,7 @@ function renderDay(){
       : `<div class="kstack" style="margin-top:0">${rows.map(r => `<i style="width:${r.kc / (s.k || 1) * 100}%;background:${MC[r.k]}" title="${r.t}"></i>`).join("")}</div>
         <div class="mtab"><div class="mtr mth"><span>Öğün</span><span>kcal</span><span>%</span><span>P</span><span>K</span><span>Y</span></div>
         ${rows.map(r => `<div class="mtr"><span><i style="background:${MC[r.k]}"></i>${r.t}</span><b>${fmt(r.kc)}</b><span>%${Math.round(r.kc / (s.k || 1) * 100)}</span><span>${fmt(r.p)}</span><span>${fmt(r.c)}</span><span>${fmt(r.y)}</span></div>`).join("")}</div>`; }
+  $("addLeft").innerHTML = s.k <= g.k ? `Kalan alınacak: <b style="color:var(--accent)">${fmt(g.k - s.k)} kcal</b> · Hangi öğün?` : `Hedefi <b style="color:var(--bad)">${fmt(s.k - g.k)} kcal</b> aştın · Hangi öğün?`;
   $("ymLeft").textContent = s.k <= g.k ? `${fmt(g.k - s.k)} kcal kaldı` : `${fmt(s.k - g.k)} kcal fazla`;
   $("ymBar").style.width = Math.min(100, s.k / (g.k || 1) * 100) + "%";
   { const nm = x => String(x.n || "").replace(/^\u{1F4F7}\s*/u, ""), isPh = x => x.ph || /^\u{1F4F7}/u.test(x.n || "");
@@ -2355,11 +2356,11 @@ $("fres").onclick = e => {
     <div class="chips" id="mul">${M.map(([m, t]) => `<button type="button" data-m="${m}" class="${m === 1 ? "on" : ""}">${t}</button>`).join("")}</div>
     ${f[4] ? `<div class="small muted" style="margin:12px 0 6px">Detay (birden fazla seçebilirsin)</div>
     <div class="chips" id="ext">${EXTRAS.map((x, i) => `<button type="button" data-x="${i}">${esc(x[0])} <span class="muted">${x[1] > 0 ? "+" : ""}${x[1]}</span></button>`).join("")}</div>` : ""}
-    <p style="font-weight:700;margin:14px 0" id="mulTot"></p>
+    <p style="font-weight:700;margin:14px 0 4px" id="mulTot"></p><p class="small" id="mulLeft" style="margin:0 0 14px"></p>
     <div class="row"><button class="ghost" data-close style="flex:1">Vazgeç</button><button id="mulAdd" style="flex:2">Ekle</button></div>`);
   let m = 1; const X = new Set();
   const tot = () => { let k = f[2], p = f[3], y = f[5] || 0, c = f[6] || 0; for(const i of X){ k += EXTRAS[i][1]; p += EXTRAS[i][2]; y += EXTRAS[i][3]; c += EXTRAS[i][4]; } return [Math.max(0, Math.round(k*m)), Math.round(p*m), Math.max(0, Math.round(y*m)), Math.max(0, Math.round(c*m))]; };
-  const upd = () => { const [k, p, y, c] = tot(); $("mulTot").textContent = `${fmt(k)} kcal · P ${fmt(p)} g · K ${fmt(c)} g · Y ${fmt(y)} g`; for(const c of $("mul").children) c.classList.toggle("on", +c.dataset.m === m);
+  const upd = () => { const [k, p, y, c] = tot(); $("mulTot").textContent = `${fmt(k)} kcal · P ${fmt(p)} g · K ${fmt(c)} g · Y ${fmt(y)} g`; { const L = root.goals.k - sum(day(cur)).k - k; $("mulLeft").innerHTML = L >= 0 ? `<span class="muted">Ekleyince kalan:</span> <b style="color:var(--accent)">${fmt(L)} kcal</b>` : `<span class="muted">Ekleyince hedefi</span> <b style="color:var(--bad)">${fmt(-L)} kcal</b> <span class="muted">aşarsın</span>`; } for(const c of $("mul").children) c.classList.toggle("on", +c.dataset.m === m);
     if($("ext")) for(const c of $("ext").children) c.classList.toggle("on", X.has(+c.dataset.x)); };
   $("mul").onclick = ev => { const c = ev.target.closest("button[data-m]"); if(c){ m = +c.dataset.m; upd(); } };
   if($("ext")) $("ext").onclick = ev => { const c = ev.target.closest("button[data-x]"); if(!c) return; const i = +c.dataset.x;

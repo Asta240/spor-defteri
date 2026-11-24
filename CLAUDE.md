@@ -80,3 +80,4 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Su boyları: `WSIZES` (bardak 250, çay bardağı 100, büyük bardak 400, yarım L 500, 1 L, 1,5 L) → `addMl(ml)`; `d.w` hâlâ bardak (250 ml) cinsinden, ondalıklı olabilir (`wR`, `wN`); `d.wl` eklenen ml listesi, "Son ekleneni geri al" sondan çıkarır.
 - Görevler sayfası: menüde hedef ikonu (`gorev` → #vGorev/#gvTasks), `renderTasks()` hem ana sayfaya hem buraya yazar. Hedefler ikonu `sliders`.
 - Menü butonu aşağı kayınca sabit kalır (`body.scrolled #menuBtn`, scrollY > 70).
+- Kalan alınacak kalori: "Yemek ekle" başlığında (#addLeft) ve yemek ekleme penceresinde "Ekleyince kalan" (#mulLeft).
