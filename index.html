@@ -2582,9 +2582,9 @@ function renderCards(){
   const el = $("tCards"); el.classList.remove("cflow");
   if(root.session && !listOverride) return renderSession();
   const td = root.days[today()] || blankDay(), wnames = root.cards.map(c => c.name); if(td.wo && !wnames.includes(td.wo)) wnames.push(td.wo);
-  const todayCard = `<div class="card tdwo"><div class="hhead"><span class="hico">${I("dumbbell")}</span><div style="flex:1"><h2 style="margin:0">Bugün</h2><div class="small muted">${td.wo ? `<span style="font-weight:700;color:var(--accent)">${esc(td.wo)}</span>` : "Antrenman yok"}${+td.ca > 0 ? ` · ${fmt(+td.ca)} dk kardiyo` : ""}${+td.wk > 0 ? ` · ${I("flame")} ~${fmt(+td.wk)} kcal` : ""}</div></div></div>
-    <div class="row" style="margin-top:12px"><label class="f">Yapılan antrenman<select id="woT"><option value="">Dinlenme</option>${wnames.map(n => `<option ${n === td.wo ? "selected" : ""}>${esc(n)}</option>`).join("")}</select></label>
-    <label class="f">Kardiyo (dk)<input id="caT" type="number" inputmode="numeric" min="0" value="${esc(td.ca || "")}" placeholder="0"></label></div></div>`;
+  const tdCd = (td.cardio || []).reduce((a, x) => a + (+x.min || 0), 0);
+  const tdTxt = root.session ? `<span style="font-weight:700;color:var(--accent)">${esc(root.session.card)}</span> · devam ediyor` : td.wo ? `<span style="font-weight:700;color:var(--accent)">${esc(td.wo)}</span> · yapıldı` : td.rest ? `<span style="font-weight:700;color:var(--accent)">Dinlenme günü</span>` : "Henüz seçilmedi · aşağıdan kart seç";
+  const todayCard = `<div class="card tdwo"><div class="hhead"><span class="hico">${I(td.rest && !td.wo ? "moon" : "dumbbell")}</span><div style="flex:1"><h2 style="margin:0">Bugün</h2><div class="small muted">${tdTxt}${tdCd ? ` · ${fmt(tdCd)} dk kardiyo` : ""}</div></div></div></div>`;
   const resume = root.session ? `<div class="card resume"><span>Aktif antrenman: <b>${esc(root.session.card)}</b></span><button id="resumeBtn">Devam et →</button></div>` : "";
   const musc = c => { const P = new Set(), S = new Set(); for(const x of c.ex){ const [a, b] = muscOf(x.id); a.forEach(k => P.add(k)); b.forEach(k => S.add(k)); } P.forEach(k => S.delete(k)); return [[...P], [...S]]; };
   const lastOf = c => Object.keys(root.days).filter(k => root.days[k].wo === c.name).sort().pop() || "";
@@ -2625,15 +2625,17 @@ function renderCards(){
   // ---- liste ----
   el.innerHTML = `<div class="row cardbtns"><button id="tplBtn" style="flex:1 1 180px">✦ Hazır kartlardan ekle</button><button class="ghost" id="newCard" style="flex:1 1 140px">+ Yeni kart</button></div>`
     + todayCard + resume
-    + (root.cards.length ? `<div class="clist">${root.cards.map(c => { const [P] = musc(c), last = lastOf(c);
+    + (root.cards.length ? `<div class="clist">${restCardBtn()}${root.cards.map(c => { const [P] = musc(c), last = lastOf(c);
       const act = root.session && root.session.cardId === c.id ? woProgress(c) : null;
       return `<button class="ccard ${act ? "act" : ""}" data-open="${c.id}">${act ? `<span class="abadge">Aktif · %${act.all ? Math.round(act.sets / act.all * 100) : 0}</span>` : ""}<div class="wcm">${bodySvg(P, [])}</div><div class="wct"><b>${esc(c.name)}</b>
         <small>${c.ex.length} hareket${last ? ` · son ${dayName(last, {day:"numeric", month:"short"})}` : ""}</small>
         <small class="ctags">${P.slice(0, 4).map(k => MUS_TR[k]).join(" · ")}</small></div><span class="chev">›</span></button>`; }).join("")}${cdCardBtn()}</div>`
-      : `<div class="clist">${cdCardBtn()}</div><div class="card emptycards"><h2>Henüz kartın yok</h2><p class="muted" style="margin:0">Yukarıdan hazır kartlardan birini seç ya da kendi kartını oluştur.</p></div>`)
+      : `<div class="clist">${restCardBtn()}${cdCardBtn()}</div><div class="card emptycards"><h2>Henüz kartın yok</h2><p class="muted" style="margin:0">Yukarıdan hazır kartlardan birini seç ya da kendi kartını oluştur.</p></div>`)
     + `<div class="cextra"><div class="card"><h2>${I("zap")} Kas yorgunluğu</h2><div id="fgBox"></div></div><div class="card"><h2>${I("trend")} Gelişmeyen hareketler</h2><div id="plBox"></div></div></div>`;
   renderFatigue(); renderPlateau();
 }
+function restCardBtn(){ const td = root.days[today()] || {}, on = !!td.rest && !td.wo;
+  return `<button class="ccard cdc ${on ? "act" : ""}" data-restday>${on ? `<span class="abadge">Bugün</span>` : ""}<div class="wcm cdico">${I("moon")}</div><div class="wct"><b>Dinlenme günü</b><small>${on ? "Bugün dinleniyorsun · geri almak için dokun" : "Bugün antrenman yok, kaslar toparlansın"}</small></div><span class="chev">›</span></button>`; }
 function cdCardBtn(){ const L = (root.days[today()] || {}).cardio || [], m = L.reduce((a, x) => a + (+x.min || 0), 0), k = L.reduce((a, x) => a + (+x.kcal || 0), 0);
   return `<button class="ccard cdc" data-open="__cardio"><div class="wcm cdico">${I("heart")}</div><div class="wct"><b>Kardiyo</b><small>${m ? `Bugün ${fmt(m)} dk · ~${fmt(k)} kcal` : "Sadece kardiyo yaptığın günler"}</small><small class="ctags">Bant · bisiklet · eliptik · koşu</small></div><span class="chev">›</span></button>`; }
 const kgSrc = {}; // antrenmanda en son kilosu değiştirilen set (hareket sırasına göre)
@@ -2649,6 +2651,11 @@ $("tCards").addEventListener("click", e => {
   const b = e.target.closest("button"); if(!b) return;
   const d = b.dataset;
   if(d.info) return showEx(d.info);
+  if("restday" in d){ const td = day(today());
+    if(root.session) return toast("Önce aktif antrenmanı bitir ya da iptal et");
+    if(td.rest && !td.wo){ td.rest = false; save(); renderAll(); return toast("Dinlenme günü kaldırıldı"); }
+    const go = () => { td.rest = true; td.wo = ""; td.wk = ""; root.pick = null; save(); renderAll(); toast("Bugün dinlenme günü"); };
+    return td.wo ? ask(`Bugün “${td.wo}” kaydı var. Silinip dinlenme günü yapılsın mı?`, "Dinlenme günü yap", go) : go(); }
   if(d.open){ cardPage = openCard = d.open; editCard = null; try{ localStorage.setItem("sd-cardpage", cardPage); }catch(e){} renderCards(); window.scrollTo({top: 0}); return; }
   if("back" in d){ cardPage = null; editCard = null; try{ localStorage.setItem("sd-cardpage", ""); }catch(e){} renderCards(); window.scrollTo({top: 0}); return; }
   if("edit" in d){ editCard = d.edit || null; if(editCard) openCard = editCard; renderCards(); return; }
