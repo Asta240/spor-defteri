@@ -2656,12 +2656,12 @@ function renderCards(){
   // ---- liste ----
   el.innerHTML = `<div class="row cardbtns"><button id="tplBtn" style="flex:1 1 180px">✦ Hazır kartlardan ekle</button><button class="ghost" id="newCard" style="flex:1 1 140px">+ Yeni kart</button></div>`
     + todayCard + resume
-    + (root.cards.length ? `<div class="clist">${restCardBtn()}${root.cards.map(c => { const [P] = musc(c), last = lastOf(c);
+    + (root.cards.length ? `<div class="clist">${root.cards.map(c => { const [P] = musc(c), last = lastOf(c);
       const act = root.session && root.session.cardId === c.id ? woProgress(c) : null;
       return `<button class="ccard ${act ? "act" : ""}" data-open="${c.id}">${act ? `<span class="abadge">Aktif · %${act.all ? Math.round(act.sets / act.all * 100) : 0}</span>` : ""}<div class="wcm">${bodySvg(P, [])}</div><div class="wct"><b>${esc(c.name)}</b>
         <small>${c.ex.length} hareket${last ? ` · son ${dayName(last, {day:"numeric", month:"short"})}` : ""}</small>
-        <small class="ctags">${P.slice(0, 4).map(k => MUS_TR[k]).join(" · ")}</small></div><span class="chev">›</span></button>`; }).join("")}${cdCardBtn()}</div>`
-      : `<div class="clist">${restCardBtn()}${cdCardBtn()}</div><div class="card emptycards"><h2>Henüz kartın yok</h2><p class="muted" style="margin:0">Yukarıdan hazır kartlardan birini seç ya da kendi kartını oluştur.</p></div>`)
+        <small class="ctags">${P.slice(0, 4).map(k => MUS_TR[k]).join(" · ")}</small></div><span class="chev">›</span></button>`; }).join("")}${cdCardBtn()}${restCardBtn()}</div>`
+      : `<div class="clist">${cdCardBtn()}${restCardBtn()}</div><div class="card emptycards"><h2>Henüz kartın yok</h2><p class="muted" style="margin:0">Yukarıdan hazır kartlardan birini seç ya da kendi kartını oluştur.</p></div>`)
     + `<div class="cextra"><div class="card"><h2>${I("zap")} Kas yorgunluğu</h2><div id="fgBox"></div></div><div class="card"><h2>${I("trend")} Gelişmeyen hareketler</h2><div id="plBox"></div></div></div>`;
   renderFatigue(); renderPlateau();
 }
