@@ -1577,7 +1577,8 @@ const shift = (s, n) => { const d = new Date(s+"T12:00"); d.setDate(d.getDate()+
 const dayName = (s, o) => new Date(s+"T12:00").toLocaleDateString("tr-TR", o);
 const blankDay = () => ({f:[], w:0, wo:"", ca:"", st:"", bu:"", kg:""});
 // Yenilikler: siteyi açınca bir kez çıkar, "Tamam"a basınca bir daha çıkmaz. Yeni yenilik eklerken NEWS.id'yi değiştir.
-const NEWS = {id:"2026-11-25a", items:[
+const NEWS = {id:"2026-11-25b", items:[
+  ["camera", "Fotoğraftan kalori daha doğru", "Nerede yediğini seç (ev, yemekhane, restoran, fast food): dışarıda yağ sorulmaz, standart porsiyonlar kullanılır. Parçaları sayıyor, su da ayrıca suya ekleniyor. Claude modeli: Güçlü varsayılan."],
   ["utensils", "Danışma otomatik dolar", "“Yemeden önce danış”a basınca doğrudan Yemek danışma açılır; kalan kalori, protein ve hedefin (hedef kilona göre) hesabından gelir."],
   ["camera", "Fotoğraftan kalori yenilendi", "Claude önce yemekleri tanıyor, sen her birinin nasıl piştiğini (fırın, kızartma…), yağını, kaç kişilik olduğunu ve ne kadarını yediğini seçiyorsun, sonra hesaplıyor. Adımlar ayrı sayfa, ☰ menüden gezersin. Yanlış satırı “Düzelt” ile tek tek yeniden hesaplatabilirsin."],
   ["utensils", "Yemek danışma", "Kalori alımında “Yemeden önce danış” kartı: seçeneklerin fotoğrafını at, Claude neyi ne kadar yemeni söylesin."],
@@ -2625,12 +2626,15 @@ function decodeYmk(c){
 }
 // ds verilmezse (fotoğraf sayfasındaki link) bugüne, Kod yapıştır'da seçili güne ekler
 function importYmk(c, ds){
-  const items = decodeYmk(c);
-  if(!items.length) throw "Kodda yemek yok.";
+  // ["__su__", ml] satırı yemek değil, suya eklenir
+  const all = decodeYmk(c), suMl = all.filter(x => x.n === "__su__").reduce((a, x) => a + x.k, 0), items = all.filter(x => x.n !== "__su__");
+  if(!items.length && !suMl) throw "Kodda yemek yok.";
   cur = ds || today();
+  if(suMl){ const d = day(cur); d.w = wR((+d.w || 0) + suMl / 250); (d.wl = d.wl || []).push(suMl); }
+  if(!items.length){ save(); setTab("su"); return toast(`${suMl} ml su eklendi`); }
   const mm = ds ? meal : mealNow(); day(cur).f.push(...items.map(x => ({...x, n: x.n, ph: 1, m: mm})));
   save(); setTab("yemek");
-  toast(`${items.length} yemek eklendi (${cur === today() ? "bugün" : dayName(cur, {day:"numeric", month:"long"})}) · ${fmt(items.reduce((a, x) => a + x.k, 0))} kcal`);
+  toast(`${items.length} yemek eklendi (${cur === today() ? "bugün" : dayName(cur, {day:"numeric", month:"long"})}) · ${fmt(items.reduce((a, x) => a + x.k, 0))} kcal${suMl ? ` · ${suMl} ml su` : ""}`);
 }
 $("ymkForm").onsubmit = e => { e.preventDefault(); try{ importYmk($("ymkIn").value, cur); $("ymkIn").value = ""; }catch(err){ toast(typeof err === "string" ? err : "Kod okunamadı."); } };
 function applyPendingYmk(){ const c = lsGet("sd-pending-ymk"); if(!c || !root) return; lsDel("sd-pending-ymk"); try{ importYmk(c); }catch(err){ toast(typeof err === "string" ? err : "Fotoğraf kodu okunamadı."); } }

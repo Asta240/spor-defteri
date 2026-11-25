@@ -100,6 +100,7 @@
     <h2><svg class="i" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Fotoğraf</h2>
     <label class="drop" id="drop"><input type="file" id="fileIn" accept="image/*" multiple><svg class="i" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>Fotoğraf çek ya da seç<small>En fazla 4 fotoğraf · tabakların tamamı görünsün</small></label>
     <div class="thumbs" id="thumbs"></div>
+    <label class="f">Nerede yedin?</label><div class="chips" id="yerC"></div>
     <label class="f">Fotoğraflar hakkında not (isteğe bağlı)<textarea id="note" placeholder="ör. “2. foto ikinci tabak yoğurdum”, “2. foto yedikten sonraki hali”"></textarea></label>
     <label class="f">Claude modeli</label><div class="chips tierc"><button type="button" data-tier="complex">Güçlü (daha doğru, biraz yavaş)</button><button type="button" data-tier="default">Normal (hızlı)</button></div>
     <div class="row end"><button class="pri" id="idBtn" disabled>Yemekleri tanı</button></div>
@@ -178,6 +179,7 @@ function go(g){ if(!avail(g)) return; page = g; const kal = ["p1","pm","p2","p3"
 const step = n => go("p" + n);
 let dDone = false;
 const Q = '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5M12 17h0"/></svg>';
+let YER = "", suMl = 0;
 let sample = null, canImg = false, files = [], imgs = null, foods = [], items = [], dFiles = [], dGoal = "";
 
 // ---------- Claude modeli: Güçlü (complex, varsayılan) ya da Normal (default) ----------
@@ -216,6 +218,17 @@ dropOn($("drop"), setFiles);
 const photoLine = () => files.length > 1 ? `Fotoğraflar sırayla: ${files.map((_, i) => "Foto " + (i + 1)).join(", ")}.` : "Tek fotoğraf var (Foto 1).";
 const userNote = () => $("note").value.trim();
 
+// Nerede yenildi: yemekhane / restoran / fast food'da yağ ve tepsi sorulmaz, standart tarif kullanılır
+const YERS = ["Ev", "Yemekhane", "Restoran", "Fast food"];
+const drawYer = () => { $("yerC").innerHTML = YERS.map(y => `<button type="button" data-yer="${y}" class="${YER === y ? "on" : ""}">${y}</button>`).join(""); };
+$("yerC").onclick = e => { const b = e.target.closest("[data-yer]"); if(!b) return; YER = YER === b.dataset.yer ? "" : b.dataset.yer; try{ localStorage.setItem("fk-yer", YER); }catch(e){} drawYer(); if(foods.length) drawFoods(); };
+try{ YER = localStorage.getItem("fk-yer") || ""; }catch(e){} drawYer();
+const outside = () => YER && YER !== "Ev";
+const YER_RULE = () => YER === "Yemekhane" ? `Yemek Türkiye'de bir üniversite / kamu YEMEKHANESİNDE yendi: standart toplu tarifler ve gramajlar geçerli (ana yemek pişmiş et/tavuk ≈ 100–160 g, pilav/makarna ≈ 150–200 g, çorba kasesi ≈ 250–300 ml, sebze yemeği ≈ 200 g). Toplu pişirmede yağ ortalamanın biraz üstüdür; tabakta kalan yağlı sos yenmediyse sayma.`
+  : YER === "Fast food" ? `Yemek bir FAST FOOD zincirinde yendi: zincirin resmi besin değerlerini kullan (ürünü tanıyabiliyorsan adını yaz).`
+  : YER === "Restoran" ? `Yemek bir RESTORANDA yendi: porsiyonlar ev porsiyonundan büyük, yağ ve tereyağı bol kullanılır.`
+  : YER === "Ev" ? `Yemek EVDE yendi; kullanıcının verdiği yağ ve tepsi bilgileri kesindir.` : "";
+
 // 1) Tanı
 const ID_PROMPT = () => `Sen bir diyetisyen asistanısın. Önce sadece fotoğraflardaki yemekleri TANI, kalori hesaplama.
 ${photoLine()}
@@ -223,20 +236,27 @@ ${userNote() ? `KULLANICININ NOTU (kesin bilgi, fotoğraf yorumundan önce gelir
 Kurallar:
 - Ayrı görünen her yiyecek ayrı satır (köfte, patates, pilav, yoğurt, içecek...). Türkçe kısa ad, miktarı ada yazma.
 - "foto": yiyeceğin göründüğü fotoğraf numaraları.
+${YER_RULE()}
+- ÖLÇEK: büyüklüğü tahmin ederken çatal/kaşığı (≈19–20 cm), yemek tabağını (≈26–28 cm), çorba kasesini (≈300 ml), tepsiyi ve su bardaklarını referans al. Parçalı yemeklerde (tavuk şeridi, köfte, patates dilimi) parçaları tek tek say, parça başına gram tahmin et, toplamı yaz (ör. "≈14 şerit, ≈160 g").
+- Meyveyi büyüklüğüne ve kabuğuna bakarak doğru adlandır (mandalina küçük ve gevşek kabuklu, portakal büyük).
+- SU, maden suyu, şekersiz çay/kahve yemek değildir: satır yazma; toplam su miktarını ml olarak "su_ml" alanına yaz (ör. 2 × 200 ml su = 400). Şekerli içecekleri ve ayranı yemek olarak yaz.
 - "miktar": o fotoğrafta görünen miktar. Tane sayılabiliyorsa tek tek dikkatle say (ör. "5 adet"). Değilse ASLA sadece "1 kase" / "1 porsiyon" yazma: kabın büyüklüğüne ve ne kadar dolu olduğuna bakıp gram tahmin et ve doluluğu yaz (ör. "≈180 g (kase ~⅔ dolu)", "≈300 g (kase ağzına kadar dolu)", "≈120 g (tabağın yarısı)").
 - AYNI YA DA BENZER YEMEK BİRDEN FAZLA FOTOĞRAFTA görünüyorsa (ör. iki fotoğrafta yoğurt kasesi) bunların aynı tabak mı, ikinci porsiyon mu, yoksa biri diğerinin kalanı mı olduğuna KENDİN KARAR VERME: her fotoğraftakini ayrı satır yaz, sonraki satırda "es" alanına eşleştiği önceki satırın sıra numarasını (0'dan başlar) yaz. Kullanıcının notu bunu açıkça söylüyorsa nota uy ve "es" yazma.
 - "yag": yağla pişen ya da yağ eklenen bir yemekse true (kızartma, fırın, sote, salata); yoğurt, ayran, meyve, ekmek gibi ise false.
 - "tepsi": tencere/tepsiden paylaşılan ev yemeğiyse true (kaç kişilik olduğu yağ payını değiştirir); paket ürün, içecek, tek porsiyon ise false.
 - "pis": pişirme şekli tahminin, şunlardan biri: "Fırın / tepsi", "Tava (az yağ)", "Kızartma (bol yağ)", "Haşlama / su", "Izgara", "Çiğ / pişmemiş"; yağ ile ilgisi yoksa boş.
 - "soru": hesabı en çok değiştirecek, fotoğraftan anlaşılmayan tek kısa soru ya da boş.
-Sadece şu JSON'u döndür: {"items":[{"n":"Köfte","foto":[1],"miktar":"5 adet","yag":true,"tepsi":true,"pis":"Fırın / tepsi","soru":""},{"n":"Yoğurt","foto":[1],"miktar":"≈300 g (kase ağzına kadar dolu)","yag":false,"tepsi":false,"pis":"","soru":""},{"n":"Yoğurt","foto":[2],"miktar":"≈180 g (kase ~⅔ dolu)","yag":false,"tepsi":false,"pis":"","soru":"","es":1}],"not":"kısa genel yorum ya da boş"}`;
+Sadece şu JSON'u döndür: {"items":[{"n":"Köfte","foto":[1],"miktar":"5 adet","yag":true,"tepsi":true,"pis":"Fırın / tepsi","soru":""},{"n":"Yoğurt","foto":[1],"miktar":"≈300 g (kase ağzına kadar dolu)","yag":false,"tepsi":false,"pis":"","soru":""},{"n":"Yoğurt","foto":[2],"miktar":"≈180 g (kase ~⅔ dolu)","yag":false,"tepsi":false,"pis":"","soru":"","es":1}],"su_ml":0,"not":"kısa genel yorum ya da boş"}`;
 $("idBtn").onclick = async () => {
   if(!files.length || !sample) return;
   const b = $("idBtn"); b.disabled = true; b.innerHTML = '<span class="spin"></span> Claude bakıyor…'; $("st1").textContent = "";
   try{
     const r = await sample.json(ID_PROMPT(), {images: await getImgs(), modelTier: tier()});
     foods = (Array.isArray(r && r.items) ? r.items : []).map(x => ({n: String(x.n || "Yemek").slice(0, 60), foto: Array.isArray(x.foto) ? x.foto.filter(n => +n > 0).map(Number) : [], miktar: String(x.miktar || "").slice(0, 60), yag: !!x.yag, tepsi: !!x.tepsi, es: Number.isInteger(x.es) ? x.es : null, soru: String(x.soru || "").slice(0, 160), pis: PIS.includes(x.pis) ? x.pis : "", pisG: PIS.includes(x.pis), oil: "", oilT: "", kisi: "", pay: "", ek: ""}));
-    $("idNote").hidden = !(r && r.not); $("idNote").textContent = (r && r.not) || "";
+    suMl = Math.max(0, Math.round(+(r && r.su_ml) || 0));
+    foods = foods.filter(x => !/^(su|maden suyu|soda|çay|kahve)\b/i.test(x.n) || x.yag);
+    const nt = [(r && r.not) || "", suMl ? `Su: ${suMl} ml (Spor Defteri'ne su olarak eklenir).` : ""].filter(Boolean).join(" ");
+    $("idNote").hidden = !nt; $("idNote").textContent = nt;
     if(!foods.length) $("st1").textContent = (r && r.not) || "Fotoğrafta yemek bulunamadı.";
     else { items = []; foods.forEach((x, i) => { if(x.es != null && !(x.es >= 0 && x.es < i)) x.es = null; x.esA = ""; }); if(foods.some(x => x.es != null)){ drawPairs(); go("pm"); } else { drawFoods(); go("p2"); } }
   }catch(e){ $("st1").textContent = errTxt(e); }
@@ -270,8 +290,9 @@ function drawFoods(){
     ${x.soru ? `<div class="q">${Q}<span>${esc(x.soru)}</span></div>` : ""}
     <label class="f">Yediğin miktar<input value="${esc(x.miktar)}" data-fi="${i}" data-ft="miktar" placeholder="ör. 4 adet, ≈200 g, kase yarım dolu"></label>
     ${x.yag ? `<label class="f">Nasıl pişti?${x.pisG ? ' <span style="font-weight:500">(Claude tahmini, değiştirebilirsin)</span>' : ""}</label>${chips(i, "pis", PIS)}` : ""}
-    ${x.yag ? `<label class="f">${x.pis === "Kızartma (bol yağ)" ? "Kızartma yağı (bilmiyorsan boş bırak; emilen yağ hesaplanır)" : "Yemeğe konan toplam yağ" + (x.tepsi ? " (tepsinin / tencerenin tamamına)" : "")}</label>${chips(i, "oil", OILS)}<label class="f">Yağ türü</label>${chips(i, "oilT", OILT)}` : ""}
-    ${x.tepsi ? `<label class="f">Tepsi / tencere kaç kişilikti?</label>${chips(i, "kisi", KISI)}` : ""}
+    ${x.yag && outside() ? `<p class="muted" style="margin:8px 0 0">${YER}: yağ miktarını bilmen gerekmiyor, standart tarife göre hesaplanır.</p>` : ""}
+    ${x.yag && !outside() ? `<label class="f">${x.pis === "Kızartma (bol yağ)" ? "Kızartma yağı (bilmiyorsan boş bırak; emilen yağ hesaplanır)" : "Yemeğe konan toplam yağ" + (x.tepsi ? " (tepsinin / tencerenin tamamına)" : "")}</label>${chips(i, "oil", OILS)}<label class="f">Yağ türü</label>${chips(i, "oilT", OILT)}` : ""}
+    ${x.tepsi && !outside() ? `<label class="f">Tepsi / tencere kaç kişilikti? <span style="font-weight:500">(bilmiyorsan boş bırak)</span></label>${chips(i, "kisi", KISI)}` : ""}
     <label class="f">Tabaktakinin ne kadarını yedin?</label>${chips(i, "pay", PAY)}
     <label class="f">Ek bilgi (isteğe bağlı)<input value="${esc(x.ek)}" data-fi="${i}" data-ft="ek" placeholder="${x.soru ? "Sorunun cevabı ya da başka bir detay" : "ör. az tuzlu, yağsız kıyma, light yoğurt"}"></label>
   </div>`).join("");
@@ -296,6 +317,7 @@ const ITEM_RULES = `- k = kcal, p = protein g, y = yağ g, c = karbonhidrat g (t
 - "v": hesabın kısa gerekçesi, sayılarla (ör. "4 köfte ≈ 180 g; 1 yk zeytinyağının 1/4'ü ≈ 30 kcal").`;
 const CALC_PROMPT = () => `Sen bir diyetisyen asistanısın. Kullanıcı fotoğraftaki yemeklerin detaylarını verdi; bu bilgiler KESİN, fotoğraf sadece yardımcı.
 ${photoLine()}${userNote() ? `\nKullanıcının genel notu: "${userNote()}"` : ""}
+${YER_RULE()}
 Yemekler:
 ${foods.map(foodLine).join("\n")}
 Her yemek için ayrı satır döndür, sırayı koru. Ad kısa, sonunda parantez içinde miktar; adetle sayılmayanlarda gram yaz (ör. "Köfte (4 adet)", "Yoğurt (≈180 g)"), "1 kase / 1 porsiyon" yazma.
@@ -320,11 +342,12 @@ $("back2").onclick = () => go("p2");
 const ITEM_PROMPT = (x, d) => `Sen bir diyetisyen asistanısın. Fotoğraflardaki yemeklerden SADECE şu satırı yeniden hesapla: "${x.n}" (önceki: ${x.k} kcal, ${x.p} g protein; gerekçe: ${x.v || "-"}).
 Kullanıcının düzeltmesi (kesin bilgi): "${d}"
 ${photoLine()}${userNote() ? ` Genel not: "${userNote()}"` : ""}
+${YER_RULE()}
 ${ITEM_RULES}
 Sadece şu JSON'u döndür: {"n":"Ad (miktar)","k":0,"p":0,"y":0,"c":0,"mi":[0,0,0,0,0,0,0,0,0,0],"v":"gerekçe"}`;
 const MI_N = ["lif", "C vit.", "D vit.", "B12", "demir", "kalsiyum", "magnezyum", "potasyum", "çinko", "sodyum"], MI_U = ["g", "mg", "µg", "µg", "mg", "mg", "mg", "mg", "mg", "mg"];
 function code(){
-  const json = JSON.stringify(items.filter(x => x.n.trim()).map(x => { const r = [x.n.trim(), x.k, x.p, x.y || 0, x.c || 0]; if(x.mi){ const f = x.k0 ? x.k / x.k0 : 1; r.push(x.mi.map(v => Math.round(v * f * 10) / 10)); } return r; }));
+  const json = JSON.stringify([...(suMl ? [["__su__", suMl, 0, 0, 0]] : []), ...items.filter(x => x.n.trim()).map(x => { const r = [x.n.trim(), x.k, x.p, x.y || 0, x.c || 0]; if(x.mi){ const f = x.k0 ? x.k / x.k0 : 1; r.push(x.mi.map(v => Math.round(v * f * 10) / 10)); } return r; })]);
   const b = btoa(String.fromCharCode(...new TextEncoder().encode(json))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
   return "YMK1." + b;
 }
@@ -338,7 +361,7 @@ function draw(){
 }
 function upd(){
   const k = items.reduce((a, x) => a + (+x.k || 0), 0), p = items.reduce((a, x) => a + (+x.p || 0), 0);
-  $("tot").innerHTML = `${k.toLocaleString("tr-TR")} kcal <span>· ${p} g protein</span>`;
+  $("tot").innerHTML = `${k.toLocaleString("tr-TR")} kcal <span>· ${p} g protein${suMl ? ` · ${suMl} ml su` : ""}</span>`;
   const c = code(); $("code").value = c; $("goBtn").href = SPOR_URL + "/#ymk=" + c; $("goBtn").classList.toggle("off", !items.length);
 }
 $("items").oninput = e => { const t = e.target; if(t.dataset.dtxt != null){ items[+t.dataset.dtxt].d = t.value; return; } if(t.dataset.i == null) return;
@@ -355,7 +378,7 @@ $("items").onclick = async e => { const b = e.target.closest("button"); if(!b) r
     if(items[i]) items[i].busy = false; draw(); } };
 
 $("copyBtn").onclick = async () => { try{ await navigator.clipboard.writeText($("code").value); $("copySt").textContent = "Kopyalandı"; }catch(e){ $("code").select(); $("copySt").textContent = "Seçildi, kopyala"; } };
-$("again").onclick = () => { files = []; imgs = null; foods = []; items = []; setFiles([]); $("note").value = ""; $("st1").textContent = $("st2").textContent = ""; go("p1"); };
+$("again").onclick = () => { files = []; imgs = null; foods = []; items = []; suMl = 0; setFiles([]); $("note").value = ""; $("st1").textContent = $("st2").textContent = ""; go("p1"); };
 
 // ================= YEMEK DANIŞMA =================
 function setDFiles(list){
