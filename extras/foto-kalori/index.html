@@ -72,6 +72,19 @@
   .sec>h4 svg.i{width:14px;height:14px;color:var(--accent)}
   .sec label.f:first-of-type{margin-top:8px}
   .hint{font-size:12.5px;color:var(--muted);margin:6px 0 0}
+  .fdl{display:grid;gap:6px;margin-top:12px}
+  .fr{display:flex;gap:6px;align-items:center;background:var(--card-2);border-radius:12px;padding:4px 4px 4px 10px}
+  .fr input{background:transparent;padding:7px 4px;min-width:0}
+  .fr .fn{flex:1;font-weight:700} .fr .mk{flex:1;color:var(--muted);text-align:right}
+  .chat{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+  .bq{display:flex;gap:9px;align-items:flex-start;max-width:90%;background:var(--card-2);border-radius:4px 16px 16px 16px;padding:10px 13px;font-size:14.5px;line-height:1.4}
+  .bq svg.i{width:18px;height:18px;color:var(--accent);flex:none;margin-top:1px}
+  .bq .who{font-size:10.5px;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+  .ba{align-self:flex-end;max-width:80%;background:var(--accent-soft);color:var(--accent);border-radius:16px 4px 16px 16px;padding:8px 13px;font-weight:700;font-size:14px;cursor:pointer;text-align:right}
+  .ba small{display:block;font-weight:500;font-size:11px;color:var(--muted)}
+  .chips.qa{justify-content:flex-end;margin:0 0 4px auto;max-width:94%}
+  .chips.qa .wr{border-style:dashed;color:var(--muted)}
+  .qw{display:flex;gap:6px;align-self:flex-end;width:90%} .qw button{flex:none}
   .x{background:none;border:0;color:var(--muted);min-height:30px;padding:0 4px}
   .q{font-size:13px;color:var(--accent);margin-top:8px;display:flex;gap:6px} .q svg.i{width:15px;height:15px;margin-top:2px}
   .two{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
@@ -99,7 +112,7 @@
 <body>
 <div class="drawer" id="drawer" hidden><div><b>Fotoğraftan kalori</b>
   <button data-go="p1"><svg class="i" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> 1 · Fotoğraf</button>
-  <button data-go="p2"><svg class="i" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/></svg> 2 · Detaylar</button>
+  <button data-go="p2"><svg class="i" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/></svg> 2 · Sorular</button>
   <button data-go="p3"><svg class="i" viewBox="0 0 24 24"><path d="M12 3c3 4 6 6.5 6 10a6 6 0 0 1-12 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-3 1-6 2-8.5z"/></svg> 3 · Sonuç ve ekle</button>
   <b style="margin-top:14px">Yemek danışma</b>
   <button data-go="dan"><svg class="i" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Seçenekler</button>
@@ -110,7 +123,7 @@
 
   <div id="vKal">
   <p class="sub">Fotoğrafı at, Claude yemekleri tanısın. Sonra her yemeğin detayını (yağ, kaç kişilik, ne kadarını yediğin) sen gir, kalori ona göre hesaplansın.</p>
-  <div class="steps"><button id="s1" data-go="p1" class="on">1 · Fotoğraf</button><button id="s2" data-go="p2">2 · Detaylar</button><button id="s3" data-go="p3">3 · Sonuç</button></div>
+  <div class="steps"><button id="s1" data-go="p1" class="on">1 · Fotoğraf</button><button id="s2" data-go="p2">2 · Sorular</button><button id="s3" data-go="p3">3 · Sonuç</button></div>
   <section class="card" id="p1">
     <h2><svg class="i" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Fotoğraf</h2>
     <label class="drop" id="drop"><input type="file" id="fileIn" accept="image/*" multiple><svg class="i" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>Fotoğraf çek ya da seç<small>En fazla 4 fotoğraf · tabakların tamamı görünsün</small></label>
@@ -130,12 +143,13 @@
     <div class="row end"><button class="ghost" data-go="p1">Geri</button><button class="pri" id="pmGo" disabled>Devam</button></div>
   </section>
   <section class="card" id="p2" hidden>
-    <h2><svg class="i" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/></svg> Detaylar</h2>
-    <p class="muted" style="margin:0">Claude bunları gördü. Miktarı düzelt, bildiklerini seç. Bilmediğini boş bırak, Claude tahmin eder.</p>
+    <h2><svg class="i" viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/></svg> Sorular</h2>
+    <p class="muted" style="margin:0">Claude fotoğraflarda bunları gördü. Ad ya da miktar yanlışsa üstüne dokunup düzelt, sonra Claude'un sorularını cevapla.</p>
     <div class="note" id="idNote" hidden></div>
+    <div class="fdl" id="fdl"></div>
+    <div class="row" style="margin-top:8px"><button class="ghost" id="addFd">+ Yemek ekle</button></div>
+    <div class="chat" id="chat"></div>
     <div class="fd" id="skipBox"><span id="skipT" class="muted"></span><div class="row" style="margin-top:8px"><button class="ghost" id="skipBtn">Bilmiyorum, direkt hesapla</button></div></div>
-    <div id="fds"></div>
-    <div class="row" style="margin-top:10px"><button class="ghost" id="addFd">+ Yemek ekle</button></div>
     <div class="row end"><button class="ghost" id="back1">Geri</button><button class="pri" id="calcBtn">Kalori hesapla</button></div>
     <p class="muted" id="st2" style="margin:8px 0 0"></p>
   </section>
@@ -145,7 +159,7 @@
     <div class="note" id="calcNote" hidden></div>
     <div id="items"></div>
     <div class="tot"><div>Toplam</div><div id="tot"></div></div>
-    <div class="row end"><button class="ghost" id="back2">Detaylara dön</button></div>
+    <div class="row end"><button class="ghost" id="back2">Sorulara dön</button></div>
   </section>
   <section class="card" id="p4" hidden>
     <h2><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Spor Defteri'ne ekle</h2>
@@ -255,7 +269,7 @@ Kurallar:
 - Ayrı görünen her yiyecek ayrı satır (köfte, patates, pilav, yoğurt, içecek...). Türkçe kısa ad, miktarı ada yazma.
 - "foto": yiyeceğin göründüğü fotoğraf numaraları.
 ${YER_RULE()}
-- ÖLÇEK: büyüklüğü tahmin ederken çatal/kaşığı (≈19–20 cm), yemek tabağını (≈26–28 cm), çorba kasesini (≈300 ml), tepsiyi ve su bardaklarını referans al. Parçalı yemeklerde (tavuk şeridi, köfte, patates dilimi) parçaları tek tek say, üst üste binenleri de tahmin et, parça başına gram ile çarp ve toplamı yaz (ör. "≈15 şerit, ≈165 g"). Pişmiş parça ağırlıkları: tavuk şeridi / sote parçası ≈ 10–12 g, kuşbaşı et ≈ 12–15 g, köfte ≈ 35–45 g, elma dilim patates ≈ 30–40 g, tavuk but ≈ 90–110 g (kemiksiz).
+- ÖLÇEK: büyüklüğü tahmin ederken çatal/kaşığı (≈19–20 cm), yemek tabağını (≈26–28 cm), çorba kasesini (≈300 ml), küçük yoğurt / tatlı kasesini (≈12–14 cm, ≈250 ml), tepsiyi ve su bardaklarını referans al. Küçük kasede yemek olduğundan çok görünür: miktarı kabın doluluğuna göre değil, parça sayısına ve parçaların kaşığa göre büyüklüğüne göre bul. Parçalı yemeklerde (tavuk şeridi, köfte, patates dilimi) parçaları tek tek say, üst üste binenleri de tahmin et, parça başına gram ile çarp ve toplamı yaz (ör. "≈15 şerit, ≈165 g"). Pişmiş parça ağırlıkları: tavuk şeridi / sote parçası ≈ 10–12 g, kuşbaşı et ≈ 12–15 g, köfte ≈ 35–45 g, elma dilim patates ≈ 30–40 g, tavuk but ≈ 90–110 g (kemiksiz).
 - Sonraki fotoğraf yemek sonrası (kalan) ise kalanı ayrı ayrı say (ör. "1 patates dilimi kaldı", "sos kaldı, tavuk bitmiş"); kalan sadece sosa benziyorsa et ve garnitür bitmiştir.
 - Meyveyi büyüklüğüne ve kabuğuna bakarak doğru adlandır (mandalina küçük ve gevşek kabuklu, portakal büyük).
 - SU, maden suyu, şekersiz çay/kahve yemek değildir: satır yazma; toplam su miktarını ml olarak "su_ml" alanına yaz (ör. 2 × 200 ml su = 400). Şekerli içecekleri ve ayranı yemek olarak yaz.
@@ -264,14 +278,15 @@ ${YER_RULE()}
 - "yag": yağla pişen ya da yağ eklenen bir yemekse true (kızartma, fırın, sote, salata); yoğurt, ayran, meyve, ekmek gibi ise false.
 - "tepsi": tencere/tepsiden paylaşılan ev yemeğiyse true (kaç kişilik olduğu yağ payını değiştirir); paket ürün, içecek, tek porsiyon ise false.
 - "pis": pişirme şekli tahminin, şunlardan biri: "Fırın / tepsi", "Tava (az yağ)", "Kızartma (bol yağ)", "Haşlama / su", "Izgara", "Çiğ / pişmemiş"; yağ ile ilgisi yoksa boş.
-- "soru": hesabı en çok değiştirecek, fotoğraftan anlaşılmayan tek kısa soru ya da boş.
-Sadece şu JSON'u döndür: {"items":[{"n":"Köfte","foto":[1],"miktar":"5 adet","yag":true,"tepsi":true,"pis":"Fırın / tepsi","soru":""},{"n":"Yoğurt","foto":[1],"miktar":"≈300 g (kase ağzına kadar dolu)","yag":false,"tepsi":false,"pis":"","soru":""},{"n":"Yoğurt","foto":[2],"miktar":"≈180 g (kase ~⅔ dolu)","yag":false,"tepsi":false,"pis":"","soru":"","es":1}],"su_ml":0,"not":"kısa genel yorum ya da boş"}`;
+- "sorular": kullanıcıya sorulacak EN FAZLA 3 kısa soru; sadece fotoğraftan anlaşılmayan ve kaloriyi belirgin değiştirecek şeyler. Her biri {"y": ilgili satırın sıra numarası (0'dan) ya da genel ise -1, "s": soru, "c": 2–4 çok kısa hazır cevap}. Öncelik: ev yemeğinde konan yağ (ör. "Tavuğa toplam ne kadar yağ kondu?" c:["Hiç","1 yk","2 yk","3+ yk"]) ve bu yağın ne kadar yemeğe konduğu (ör. "Bu yağ kaç kilo tavuğa kondu?" c:["500 g","1 kg","1,5 kg","2 kg+"]); pilavda tereyağı, içecekte şeker gibi gizli malzeme; tabak yarım bırakılmış olabilir mi. Yemekhane / restoran / fast food ise yağ sorma. Aynı yemek birden fazla fotoğrafta ise onu sorma (ayrıca soruluyor). Emin olduğun ya da kaloriyi az değiştiren şeyi sorma; gerek yoksa boş liste.
+Sadece şu JSON'u döndür: {"items":[{"n":"Köfte","foto":[1],"miktar":"5 adet","yag":true,"tepsi":true,"pis":"Fırın / tepsi"},{"n":"Yoğurt","foto":[1],"miktar":"≈300 g (kase ağzına kadar dolu)","yag":false,"tepsi":false,"pis":""},{"n":"Yoğurt","foto":[2],"miktar":"≈180 g (kase ~⅔ dolu)","yag":false,"tepsi":false,"pis":"","es":1}],"sorular":[{"y":0,"s":"Köftelere ne kadar yağ kondu?","c":["Hiç","1 yk","2 yk"]}],"su_ml":0,"not":"kısa genel yorum ya da boş"}`;
 $("idBtn").onclick = async () => {
   if(!files.length || !sample) return;
   const b = $("idBtn"); b.disabled = true; b.innerHTML = '<span class="spin"></span> Claude bakıyor…'; $("st1").textContent = "";
   try{
     const r = await sample.json(ID_PROMPT(), {images: await getImgs(), modelTier: tier()});
     foods = (Array.isArray(r && r.items) ? r.items : []).map(x => ({n: String(x.n || "Yemek").slice(0, 60), foto: Array.isArray(x.foto) ? x.foto.filter(n => +n > 0).map(Number) : [], miktar: String(x.miktar || "").slice(0, 60), yag: !!x.yag, tepsi: !!x.tepsi, es: Number.isInteger(x.es) ? x.es : null, soru: String(x.soru || "").slice(0, 160), pis: PIS.includes(x.pis) ? x.pis : "", pisG: PIS.includes(x.pis), oil: "", oilT: "", kisi: "", pay: "", ek: ""}));
+    const all = foods; qs = (Array.isArray(r && r.sorular) ? r.sorular : []).slice(0, 3).map(q => ({f: Number.isInteger(q.y) && q.y >= 0 ? all[q.y] || null : null, s: String(q.s || "").slice(0, 160), c: (Array.isArray(q.c) ? q.c : []).map(c => String(c).slice(0, 30)).filter(Boolean).slice(0, 4), a: ""})).filter(q => q.s); qOpen = qW = -1; qExtra = "";
     suMl = Math.max(0, Math.round(+(r && r.su_ml) || 0));
     foods = foods.filter(x => !/^(su|maden suyu|soda|çay|kahve)\b/i.test(x.n) || x.yag);
     const nt = [(r && r.not) || "", suMl ? `Su: ${suMl} ml (Spor Defteri'ne su olarak eklenir).` : ""].filter(Boolean).join(" ");
@@ -300,79 +315,52 @@ $("pmList").onclick = e => { const b = e.target.closest("[data-es]"); if(!b) ret
 $("pmGo").onclick = () => {
   const drop = new Set();
   foods.forEach((x, i) => { if(x.es == null) return; const a = foods[x.es];
+    if(x.esA === "ayni" || x.esA === "kalan") qs.forEach(q => { if(q.f === x) q.f = a; });
     if(x.esA === "ayni") drop.add(i);
     else if(x.esA === "kalan"){ a.ek = [a.ek, `Foto ${x.foto.join(", ")}'deki (${x.miktar}) bunun yedikten sonra kalanı; yediği = ${a.miktar} − ${x.miktar}`].filter(Boolean).join("; "); a.foto = [...new Set([...a.foto, ...x.foto])]; drop.add(i); }
     else x.n = /ikinci|2\./i.test(x.n) ? x.n : x.n + " (2. porsiyon)"; x.es = null; });
   foods = foods.filter((_, i) => !drop.has(i)); drawFoods(); go("p2"); };
 
-// 2) Detaylar
+// 2) Sorular: Claude sadece emin olmadığını sorar, cevaplar sohbet gibi akar
 const PIS = ["Fırın / tepsi", "Tava (az yağ)", "Kızartma (bol yağ)", "Haşlama / su", "Izgara", "Çiğ / pişmemiş"];
-const OILFOR = ["Sadece benim tabağım", "500 g", "1 kg", "1,5 kg", "2 kg+"];
-const OILS = ["Yok", "1 tatlı kaşığı", "1 yemek kaşığı", "2 yemek kaşığı", "3+ yemek kaşığı"], OILT = ["Zeytinyağı", "Ayçiçek yağı", "Tereyağı"], KISI = ["1", "2", "3", "4", "5", "6+"], PAY = ["Hepsini", "Yarısını", "Çeyreğini"];
-const chips = (i, k, L) => `<div class="chips">${L.map(v => `<button type="button" data-fi="${i}" data-fk="${k}" data-fv="${esc(v)}" class="${foods[i][k] === v ? "on" : ""}">${esc(v)}</button>`).join("")}</div>`;
-// Hepsi seçildiyse üstteki buton da "Kalori hesapla" olur (pişirme + ne kadarını yedin; yağ ve kişi isteğe bağlı)
+const BIL = "Bilmiyorum", CI = '<svg class="i" viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8zM19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>';
+let qs = [], qOpen = -1, qW = -1, qExtra = ""; // qs: {f: yemek (nesne) ya da null, s: soru, c: hazır cevaplar, a: cevap}
+const qPend = () => qs.findIndex(q => !q.a);
+const bub = (t, who) => `<div class="bq">${CI}<div>${who ? `<div class="who">${esc(who)}</div>` : ""}${esc(t)}</div></div>`;
 function upd2(){
-  const done = foods.length && foods.every(x => (!x.yag || x.pis) && x.pay);
+  const done = qPend() < 0;
   $("skipBtn").textContent = done ? "Kalori hesapla" : "Bilmiyorum, direkt hesapla"; $("skipBtn").className = done ? "pri" : "ghost";
-  $("skipT").hidden = done;
+  $("skipBox").hidden = done && foods.length > 0; $("skipT").hidden = done; $("skipT").textContent = done ? "" : `${qs.filter(q => q.a).length} / ${qs.length} soru cevaplandı. İstersen cevaplamadan hesaplat, Claude tahmin eder.`;
 }
-const SI = {
-  m: '<svg class="i" viewBox="0 0 24 24"><path d="M4 20h16M6 20V10m6 10V4m6 16v-7"/></svg>',
-  p: '<svg class="i" viewBox="0 0 24 24"><path d="M3 11h14v3a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5zM17 12h4M8 7c0-1 1-1.5 1-2.5M12 7c0-1 1-1.5 1-2.5"/></svg>',
-  y: '<svg class="i" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>',
-  n: '<svg class="i" viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/></svg>'};
-const CHEV = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
-const fdMiss = x => [x.yag && !x.pis ? "pişirme" : "", !x.pay ? "ne kadar yedin" : ""].filter(Boolean);
-const fdSum = x => [x.miktar, x.yag ? x.pis : "", x.yag && !outside() && x.oil ? x.oil + (x.oilFor ? " / " + x.oilFor : "") : "", x.pay].filter(Boolean).join(" · ") || "Detay yok";
 function drawFoods(){
-  if(foods.length && !foods.some(x => x.open)) { const f = foods.find(x => fdMiss(x).length) || foods[0]; f.open = true; }
-  const done = foods.filter(x => !fdMiss(x).length).length;
-  $("skipT").textContent = (foods.length ? `${done} / ${foods.length} yemek hazır. ` : "") + (outside() ? `${YER}: detayları bilmen gerekmiyor, miktarlar fotoğraftan, yağ ve pişirme standart tariften hesaplanır.` : "Bilmediklerini boş bırak ya da hepsini atla, Claude fotoğraftan tahmin etsin.");
-  $("fds").innerHTML = foods.map((x, i) => {
-    const miss = fdMiss(x), st = miss.length ? `<span class="stt">${miss.length} seçim eksik</span>` : `<span class="stt ok">Hazır</span>`, ph = x.foto.map(n => `<span class="ph">Foto ${n}</span>`).join("");
-    if(!x.open) return `<div class="fd cl${miss.length ? "" : " done"}"><div class="top" data-tog="${i}"><div class="nm">${esc(x.n || "Yemek")}<small>${esc(fdSum(x))}</small></div>${ph}${st}<button class="tg" type="button" aria-label="Aç">${CHEV}</button></div></div>`;
-    const home = x.yag && !outside();
-    return `<div class="fd">
-    <div class="top hd"><input value="${esc(x.n)}" data-fi="${i}" data-ft="n" aria-label="Yemek adı" placeholder="Yemek adı">${ph}${st}<button class="tg" type="button" data-tog="${i}" aria-label="Kapat">${CHEV}</button><button class="x" data-rmf="${i}" aria-label="Kaldır">✕</button></div>
-    ${x.soru ? `<div class="q">${Q}<span>${esc(x.soru)}</span></div>` : ""}
-    <div class="sec"><h4>${SI.m} Miktar</h4>
-      <label class="f">Tabakta ne kadar vardı?<input value="${esc(x.miktar)}" data-fi="${i}" data-ft="miktar" placeholder="ör. 4 adet, ≈200 g, kase yarım dolu"></label>
-      <p class="hint">Claude fotoğraftan saydı. Yanlışsa düzelt: adet, gram ya da kasenin ne kadar dolu olduğu.</p>
-      <label class="f">Tabaktakinin ne kadarını yedin?</label>${chips(i, "pay", PAY)}
-    </div>
-    ${x.yag ? `<div class="sec"><h4>${SI.p} Pişirme</h4>
-      <label class="f">Nasıl pişti?${x.pisG ? ' <span style="font-weight:500">(Claude tahmini, değiştirebilirsin)</span>' : ""}</label>${chips(i, "pis", PIS)}
-    </div>` : ""}
-    ${x.yag && outside() ? `<p class="hint">${YER}: yağ miktarını bilmen gerekmiyor, standart tarife göre hesaplanır.</p>` : ""}
-    ${home ? `<div class="sec"><h4>${SI.y} Yağ <span style="font-weight:600;text-transform:none;letter-spacing:0">· bilmiyorsan boş bırak</span></h4>
-      <label class="f">${x.pis === "Kızartma (bol yağ)" ? "Kızartma yağı (boş bırakırsan emilen yağ hesaplanır)" : "Yemeğe konan toplam yağ"}</label>${chips(i, "oil", OILS)}
-      ${x.pis !== "Kızartma (bol yağ)" ? `<label class="f">Bu yağ ne kadar yemeğe kondu?</label>${chips(i, "oilFor", OILFOR)}<p class="hint">Ör. annen 1 kg tavuğa 2 yemek kaşığı koyduysa “2 yemek kaşığı” + “1 kg” seç; Claude senin yediğin kadarını hesaplar.</p>` : ""}
-      ${x.tepsi ? `<label class="f">Tepsi / tencere kaç kişilikti?</label>${chips(i, "kisi", KISI)}` : ""}
-      <label class="f">Yağ türü</label>${chips(i, "oilT", OILT)}
-    </div>` : ""}
-    <div class="sec"><h4>${SI.n} Not</h4>
-      <label class="f">Ek bilgi (isteğe bağlı)<input value="${esc(x.ek)}" data-fi="${i}" data-ft="ek" placeholder="${x.soru ? "Sorunun cevabı ya da başka bir detay" : "ör. az tuzlu, yağsız kıyma, light yoğurt"}"></label>
-    </div>
-  </div>`; }).join("");
-  upd2();
+  qs = qs.filter(q => !q.f || foods.includes(q.f));
+  $("fdl").innerHTML = foods.map((x, i) => `<div class="fr"><input class="fn" value="${esc(x.n)}" data-fi="${i}" data-ft="n" aria-label="Yemek adı" placeholder="Yemek adı"><input class="mk" value="${esc(x.miktar)}" data-fi="${i}" data-ft="miktar" aria-label="Miktar" placeholder="miktar">${x.foto.map(n => `<span class="ph">Foto ${n}</span>`).join("")}<button class="x" data-rmf="${i}" aria-label="Kaldır">✕</button></div>`).join("");
+  const p = qPend(), last = p < 0 ? qs.length - 1 : p; let h = "";
+  if(!qs.length) h += bub(outside() ? `${YER} yemeği: standart tariflerle hesaplayacağım, sorum yok. Miktarlar doğruysa hesaplayabilirim.` : "Fotoğraflar yeterince net, sorum yok. Miktarlar doğruysa hesaplayabilirim.");
+  qs.forEach((q, i) => { if(i > last) return;
+    h += bub(q.s, q.f ? q.f.n : "");
+    if(qW === i) h += `<div class="qw"><input id="qwIn" placeholder="Cevabını yaz" value="${esc(q.a && !q.c.includes(q.a) && q.a !== BIL ? q.a : "")}"><button class="pri" data-qok="${i}">Tamam</button></div>`;
+    else if(q.a && qOpen !== i) h += `<div class="ba" data-qe="${i}">${esc(q.a)}<small>değiştir</small></div>`;
+    else h += `<div class="chips qa">${[...q.c, BIL].map(c => `<button type="button" data-qa="${i}" data-v="${esc(c)}" class="${q.a === c ? "on" : ""}">${esc(c)}</button>`).join("")}<button type="button" class="wr" data-qw="${i}">Yaz…</button></div>`; });
+  if(p < 0 && qs.length) h += bub("Tamam, hepsi bu kadar. Eklemek istediğin bir şey varsa yaz, yoksa hesapla.");
+  if(p < 0) h += `<div class="qw"><input id="qEx" placeholder="İsteğe bağlı not (ör. pilavı yarım bıraktım)" value="${esc(qExtra)}"></div>`;
+  $("chat").innerHTML = h; upd2();
 }
-$("fds").onclick = e => { const t = e.target.closest(".fd.cl [data-tog]"); if(t){ foods.forEach((x, j) => x.open = j === +t.dataset.tog); drawFoods(); t.scrollIntoView && $("fds").children[+t.dataset.tog].scrollIntoView({block: "nearest"}); return; }
-  const b = e.target.closest("button"); if(!b) return;
-  if(b.dataset.rmf != null){ foods.splice(+b.dataset.rmf, 1); drawFoods(); return; }
-  if(b.dataset.tog != null){ const x = foods[+b.dataset.tog]; x.open = !x.open; drawFoods(); return; }
-  if(b.dataset.fk){ const i = +b.dataset.fi, x = foods[i], k = b.dataset.fk, was = fdMiss(x).length; x[k] = x[k] === b.dataset.fv ? "" : b.dataset.fv; if(k === "pis") x.pisG = false;
-    // yemek bu seçimle hazır olduysa kapat, sıradaki eksik yemeği aç
-    if(was && !fdMiss(x).length){ const nx = foods.findIndex((y, j) => j > i && fdMiss(y).length); if(nx >= 0){ x.open = false; foods[nx].open = true; drawFoods(); const el = $("fds").children[nx]; el && el.scrollIntoView({block: "start", behavior: "smooth"}); return; } }
-    drawFoods(); } };
-$("fds").addEventListener("focusout", e => { if(e.target.dataset && e.target.dataset.ft === "miktar") { const el = e.target.closest(".fd"); const sm = el && el.querySelector(".nm small"); if(sm) sm.textContent = fdSum(foods[+e.target.dataset.fi]); } });
-$("fds").oninput = e => { const t = e.target; if(t.dataset.ft) foods[+t.dataset.fi][t.dataset.ft] = t.value; };
-$("addFd").onclick = () => { foods.forEach(x => x.open = false); foods.push({n: "", foto: [], miktar: "", yag: true, tepsi: false, soru: "", pis: "", pisG: false, oil: "", oilFor: "", oilT: "", kisi: "", pay: "", ek: "", open: true}); drawFoods(); const ins = $("fds").querySelectorAll("[data-ft=n]"); ins[ins.length - 1].focus(); };
+const qNext = () => { qOpen = qW = -1; drawFoods(); const c = $("chat"), l = c.lastElementChild; l && l.scrollIntoView({block: "nearest", behavior: "smooth"}); };
+$("chat").onclick = e => { const b = e.target.closest("[data-qa],[data-qe],[data-qw],[data-qok]"); if(!b) return;
+  if(b.dataset.qa != null){ qs[+b.dataset.qa].a = b.dataset.v; qNext(); }
+  else if(b.dataset.qe != null){ qOpen = +b.dataset.qe; drawFoods(); }
+  else if(b.dataset.qw != null){ qW = +b.dataset.qw; drawFoods(); $("qwIn").focus(); }
+  else if(b.dataset.qok != null){ const v = $("qwIn").value.trim(); if(v){ qs[+b.dataset.qok].a = v.slice(0, 160); qNext(); } else { qW = -1; drawFoods(); } } };
+$("chat").addEventListener("keydown", e => { if(e.key === "Enter" && e.target.id === "qwIn"){ e.preventDefault(); const b = $("chat").querySelector("[data-qok]"); b && b.click(); } });
+$("chat").oninput = e => { if(e.target.id === "qEx") qExtra = e.target.value.slice(0, 200); };
+$("fdl").onclick = e => { const b = e.target.closest("[data-rmf]"); if(!b) return; foods.splice(+b.dataset.rmf, 1); drawFoods(); };
+$("fdl").oninput = e => { const t = e.target; if(t.dataset.ft) foods[+t.dataset.fi][t.dataset.ft] = t.value; };
+$("addFd").onclick = () => { foods.push({n: "", foto: [], miktar: "", yag: false, tepsi: false, pis: "", ek: ""}); drawFoods(); const ins = $("fdl").querySelectorAll(".fn"); ins[ins.length - 1].focus(); };
 $("back1").onclick = () => go("p1");
-const foodLine = (x, i) => `${i + 1}) ${x.n || "Yemek"}${x.foto.length ? ` (Foto ${x.foto.join(", ")})` : ""} — yediği miktar: ${x.miktar || "fotoğraftan tahmin et"}`
-  + (x.yag && x.pis ? `; pişirme: ${x.pis}${x.pisG ? " (tahmin)" : " (kullanıcı söyledi)"}` : "")
-  + (x.yag ? `; yemeğe konan toplam yağ: ${x.oil || "bilinmiyor, makul tahmin et"}${x.oilT ? ` (${x.oilT})` : ""}${x.oil && x.oil !== "Yok" && x.oilFor ? (x.oilFor === "Sadece benim tabağım" ? "; bu yağın HEPSİ kullanıcının tabağına kondu" : `; bu yağ toplam ${x.oilFor} (çiğ) yemeğe kondu`) : ""}` : "")
-  + (x.tepsi ? `; tepsi/tencere ${x.kisi ? x.kisi + " kişilik" : "kaç kişilik bilinmiyor"}` : "")
-  + `; tabaktakinin ${x.pay ? x.pay.toLowerCase() + " yedi" : "hepsini yedi (aksi söylenmedi)"}` + (x.ek ? `; ek bilgi: ${x.ek}` : "");
+const foodLine = (x, i) => `${i + 1}) ${x.n || "Yemek"}${x.foto.length ? ` (Foto ${x.foto.join(", ")})` : ""} — miktar: ${x.miktar || "fotoğraftan tahmin et"}`
+  + (x.pis ? `; pişirme (Claude tahmini): ${x.pis}` : "") + (x.ek ? `; ek bilgi: ${x.ek}` : "");
+const qaLines = () => qs.map(q => `- ${q.f ? `[${q.f.n}] ` : ""}${q.s} → ${!q.a || q.a === BIL ? "bilmiyor, makul tahmin et" : q.a}`).join("\n");
 const ITEM_RULES = `- k = kcal, p = protein g, y = yağ g, c = karbonhidrat g (tam sayı). Kullanıcının verdiği miktarları ve sayıları AYNEN kullan, fotoğrafa göre değiştirme.
 - Yağ payı: 1 yemek kaşığı yağ ≈ 13 g / 120 kcal, 1 tatlı kaşığı ≈ 4,5 g / 40 kcal, tereyağı 1 yk ≈ 100 kcal. Yağ tepsinin tamamına konduysa kullanıcının payı = toplam yağ × (kullanıcının yediği / tepsinin tamamı); tepsinin tamamı ≈ kişi sayısı × bir porsiyon. "Tabaktakinin yarısını yedi" ise her şeyi yarıla.
 - Yağ belirli bir miktar yemeğe konduysa (ör. "2 yk, toplam 1 kg çiğ tavuğa"): kullanıcının payı = toplam yağ × (yediği pişmiş miktarın çiğ karşılığı / o miktar). Et ve tavuk pişince ≈ %25–30 su kaybeder (1 kg çiğ ≈ 700–750 g pişmiş); pilav ve bulgur pişince ≈ 2,5–3 katına çıkar; sebze ≈ %20 küçülür. Yağın hepsini kullanıcıya yazma. Ör. 1 kg çiğ tavuğa 2 yk (240 kcal), yenen ≈ 220 g pişmiş ≈ 300 g çiğ → 240 × 0,3 ≈ 72 kcal yağ.
@@ -386,7 +374,7 @@ const CALC_PROMPT = () => `Sen bir diyetisyen asistanısın. Kullanıcı fotoğr
 ${photoLine()}${userNote() ? `\nKullanıcının genel notu: "${userNote()}"` : ""}
 ${YER_RULE()}
 Yemekler:
-${foods.map(foodLine).join("\n")}
+${foods.map(foodLine).join("\n")}${qs.length ? "\nKullanıcının cevapları (kesin bilgi; cevap yoksa makul tahmin et, tabağın hepsini yediğini varsay):\n" + qaLines() : ""}${qExtra ? `\nKullanıcının ek notu (kesin): "${qExtra}"` : ""}
 Her yemek için ayrı satır döndür, sırayı koru. Ad kısa, sonunda parantez içinde miktar; adetle sayılmayanlarda gram yaz (ör. "Köfte (4 adet)", "Yoğurt (≈180 g)"), "1 kase / 1 porsiyon" yazma.
 ${ITEM_RULES}
 Sadece şu JSON'u döndür: {"items":[{"n":"Ad (miktar)","k":0,"p":0,"y":0,"c":0,"mi":[0,0,0,0,0,0,0,0,0,0],"v":"gerekçe"}],"not":"kısa yorum ya da boş"}`;
@@ -446,7 +434,7 @@ $("items").onclick = async e => { const b = e.target.closest("button"); if(!b) r
     if(items[i]) items[i].busy = false; draw(); } };
 
 $("copyBtn").onclick = async () => { try{ await navigator.clipboard.writeText($("code").value); $("copySt").textContent = "Kopyalandı"; }catch(e){ $("code").select(); $("copySt").textContent = "Seçildi, kopyala"; } };
-$("again").onclick = () => { files = []; imgs = null; foods = []; items = []; suMl = 0; setFiles([]); $("note").value = ""; $("st1").textContent = $("st2").textContent = ""; go("p1"); };
+$("again").onclick = () => { files = []; imgs = null; foods = []; items = []; qs = []; qExtra = ""; suMl = 0; setFiles([]); $("note").value = ""; $("st1").textContent = $("st2").textContent = ""; go("p1"); };
 
 // ================= YEMEK DANIŞMA =================
 function setDFiles(list){
