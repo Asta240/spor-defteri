@@ -110,3 +110,6 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Fotoğraftan kalori eşleşme sayfası (`pm`): 2+ eşleşmede “Hepsi için aynı” (`#pmAll`, `data-esall`) hepsine aynı `esA`yı verir.
 - Foto kalori ölçeği: parça ağırlıkları (tavuk şeridi 10–12 g, köfte 35–45 g, patates dilimi 30–40 g); yemekhane aralıkları alt uca çekilmez; kalan sadece sos ise et tam sayılır.
 - Foto kalori Detaylar (`p2`): üstte `#skipBox` + “Bilmiyorum, direkt hesapla” (`#skipBtn` → `calcBtn`), yazısı `outside()`a göre değişir.
+- Su: `WSIZES` ml sırasıyla (100,200,250,400,500,1000,1500). `d.wl` girdileri artık `{ml,t,h}` (eski sayı girdileri `wlMl()` ile okunur). Su sayfasında `#wLogBox` “Bugün eklenenler” + Düzenle (`data-wdel`); fotoğraftan gelen su `t:"Öğle yemeği fotosundan"`.
+- Yediklerin Düzenle modunda her satırda öğün seçimi (`.fmeal.emv`, `data-mv`).
+- Foto kalori: eşleşmede hepsi seçilince üstte `#pmGo2` Devam; Detaylar'da pişirme + pay seçilince `#skipBtn` “Kalori hesapla” olur (`upd2`).

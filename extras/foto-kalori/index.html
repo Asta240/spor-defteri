@@ -109,6 +109,7 @@
   <section class="card" id="pm" hidden>
     <h2><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5M12 17h0"/></svg> Önce bir şey sorayım</h2>
     <p class="muted" style="margin:0">Aynı yemeği birden fazla fotoğrafta gördüm. Hangisi olduğunu seç, ona göre hesaplayayım.</p>
+    <div class="row end" id="pmTop" hidden><button class="pri" id="pmGo2">Devam</button></div>
     <div class="fd" id="pmAll"><b>Hepsi için aynı</b><div class="chips" id="pmAllC"></div></div>
     <div id="pmList"></div>
     <div class="row end"><button class="ghost" data-go="p1">Geri</button><button class="pri" id="pmGo" disabled>Devam</button></div>
@@ -276,7 +277,9 @@ function drawPairs(){
     <p class="muted" style="margin:6px 0 0">Foto ${esc(foods[x.es].foto.join(", ") || "?")}: ${esc(foods[x.es].miktar)}<br>Foto ${esc(x.foto.join(", ") || "?")}: ${esc(x.miktar)}<br>İkisi arasındaki ilişki ne?</p>
     <div class="chips">${ES.map(([k, t]) => `<button type="button" data-es="${i}" data-ev="${k}" class="${x.esA === k ? "on" : ""}">${t}</button>`).join("")}</div></div>`).join("");
   $("pmGo").disabled = foods.some(x => x.es != null && !x.esA);
+  $("pmTop").hidden = $("pmGo").disabled;
 }
+$("pmGo2").onclick = () => $("pmGo").click();
 $("pmAllC").onclick = e => { const b = e.target.closest("[data-esall]"); if(!b) return; foods.forEach(x => { if(x.es != null) x.esA = b.dataset.esall; }); drawPairs(); };
 $("pmList").onclick = e => { const b = e.target.closest("[data-es]"); if(!b) return; foods[+b.dataset.es].esA = b.dataset.ev; drawPairs(); };
 $("pmGo").onclick = () => {
@@ -291,6 +294,12 @@ $("pmGo").onclick = () => {
 const PIS = ["Fırın / tepsi", "Tava (az yağ)", "Kızartma (bol yağ)", "Haşlama / su", "Izgara", "Çiğ / pişmemiş"];
 const OILS = ["Yok", "1 tatlı kaşığı", "1 yemek kaşığı", "2 yemek kaşığı", "3+ yemek kaşığı"], OILT = ["Zeytinyağı", "Ayçiçek yağı", "Tereyağı"], KISI = ["1", "2", "3", "4", "5", "6+"], PAY = ["Hepsini", "Yarısını", "Çeyreğini"];
 const chips = (i, k, L) => `<div class="chips">${L.map(v => `<button type="button" data-fi="${i}" data-fk="${k}" data-fv="${esc(v)}" class="${foods[i][k] === v ? "on" : ""}">${esc(v)}</button>`).join("")}</div>`;
+// Hepsi seçildiyse üstteki buton da "Kalori hesapla" olur (pişirme + ne kadarını yedin; yağ ve kişi isteğe bağlı)
+function upd2(){
+  const done = foods.length && foods.every(x => (!x.yag || x.pis) && x.pay);
+  $("skipBtn").textContent = done ? "Kalori hesapla" : "Bilmiyorum, direkt hesapla"; $("skipBtn").className = done ? "pri" : "ghost";
+  $("skipT").hidden = done;
+}
 function drawFoods(){
   $("skipT").textContent = outside() ? `${YER}: detayları bilmen gerekmiyor. Miktarlar fotoğraftan, yağ ve pişirme standart tariften hesaplanır.` : "Detayları bilmiyorsan hepsini atla, Claude fotoğraftan tahmin etsin.";
   $("fds").innerHTML = foods.map((x, i) => `<div class="fd">
@@ -304,10 +313,11 @@ function drawFoods(){
     <label class="f">Tabaktakinin ne kadarını yedin?</label>${chips(i, "pay", PAY)}
     <label class="f">Ek bilgi (isteğe bağlı)<input value="${esc(x.ek)}" data-fi="${i}" data-ft="ek" placeholder="${x.soru ? "Sorunun cevabı ya da başka bir detay" : "ör. az tuzlu, yağsız kıyma, light yoğurt"}"></label>
   </div>`).join("");
+  upd2();
 }
 $("fds").onclick = e => { const b = e.target.closest("button"); if(!b) return;
   if(b.dataset.rmf != null){ foods.splice(+b.dataset.rmf, 1); drawFoods(); return; }
-  if(b.dataset.fk){ const x = foods[+b.dataset.fi], k = b.dataset.fk; x[k] = x[k] === b.dataset.fv ? "" : b.dataset.fv; if(k === "pis"){ x.pisG = false; drawFoods(); return; } for(const c of b.parentNode.children) c.classList.toggle("on", c.dataset.fv === x[k]); } };
+  if(b.dataset.fk){ const x = foods[+b.dataset.fi], k = b.dataset.fk; x[k] = x[k] === b.dataset.fv ? "" : b.dataset.fv; if(k === "pis"){ x.pisG = false; drawFoods(); return; } for(const c of b.parentNode.children) c.classList.toggle("on", c.dataset.fv === x[k]); upd2(); } };
 $("fds").oninput = e => { const t = e.target; if(t.dataset.ft) foods[+t.dataset.fi][t.dataset.ft] = t.value; };
 $("addFd").onclick = () => { foods.push({n: "", foto: [], miktar: "", yag: true, tepsi: false, soru: "", pis: "", pisG: false, oil: "", oilT: "", kisi: "", pay: "", ek: ""}); drawFoods(); const ins = $("fds").querySelectorAll("[data-ft=n]"); ins[ins.length - 1].focus(); };
 $("back1").onclick = () => go("p1");
