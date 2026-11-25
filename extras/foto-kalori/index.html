@@ -225,7 +225,7 @@ const drawYer = () => { $("yerC").innerHTML = YERS.map(y => `<button type="butto
 $("yerC").onclick = e => { const b = e.target.closest("[data-yer]"); if(!b) return; YER = YER === b.dataset.yer ? "" : b.dataset.yer; try{ localStorage.setItem("fk-yer", YER); }catch(e){} drawYer(); if(foods.length) drawFoods(); };
 try{ YER = localStorage.getItem("fk-yer") || ""; }catch(e){} drawYer();
 const outside = () => YER && YER !== "Ev";
-const YER_RULE = () => YER === "Yemekhane" ? `Yemek Türkiye'de bir üniversite / kamu YEMEKHANESİNDE yendi: standart toplu tarifler ve gramajlar geçerli (ana yemek pişmiş et/tavuk ≈ 100–160 g, pilav/makarna ≈ 150–200 g, çorba kasesi ≈ 250–300 ml, sebze yemeği ≈ 200 g). Toplu pişirmede yağ ortalamanın biraz üstüdür; tabakta kalan yağlı sos yenmediyse sayma.`
+const YER_RULE = () => YER === "Yemekhane" ? `Yemek Türkiye'de bir üniversite / kamu YEMEKHANESİNDE yendi: standart toplu tarifler ve gramajlar geçerli (ana yemek pişmiş et/tavuk ≈ 120–180 g, pilav/bulgur/makarna ≈ 170–220 g, çorba kasesi ≈ 250–300 ml, sebze yemeği ≈ 200 g). Bu aralıklar sadece kontrol içindir: miktarı fotoğraftaki parça sayısından bul, aralığın alt ucuna çekme. Toplu pişirmede yağ ortalamanın biraz üstüdür; et ve pilav sosundan yağ çeker. Tabakta kalan yağlı sos yenmediyse sosu sayma, ama et ve pilavın çektiği yağı say.`
   : YER === "Fast food" ? `Yemek bir FAST FOOD zincirinde yendi: zincirin resmi besin değerlerini kullan (ürünü tanıyabiliyorsan adını yaz).`
   : YER === "Restoran" ? `Yemek bir RESTORANDA yendi: porsiyonlar ev porsiyonundan büyük, yağ ve tereyağı bol kullanılır.`
   : YER === "Ev" ? `Yemek EVDE yendi; kullanıcının verdiği yağ ve tepsi bilgileri kesindir.` : "";
@@ -238,7 +238,8 @@ Kurallar:
 - Ayrı görünen her yiyecek ayrı satır (köfte, patates, pilav, yoğurt, içecek...). Türkçe kısa ad, miktarı ada yazma.
 - "foto": yiyeceğin göründüğü fotoğraf numaraları.
 ${YER_RULE()}
-- ÖLÇEK: büyüklüğü tahmin ederken çatal/kaşığı (≈19–20 cm), yemek tabağını (≈26–28 cm), çorba kasesini (≈300 ml), tepsiyi ve su bardaklarını referans al. Parçalı yemeklerde (tavuk şeridi, köfte, patates dilimi) parçaları tek tek say, parça başına gram tahmin et, toplamı yaz (ör. "≈14 şerit, ≈160 g").
+- ÖLÇEK: büyüklüğü tahmin ederken çatal/kaşığı (≈19–20 cm), yemek tabağını (≈26–28 cm), çorba kasesini (≈300 ml), tepsiyi ve su bardaklarını referans al. Parçalı yemeklerde (tavuk şeridi, köfte, patates dilimi) parçaları tek tek say, üst üste binenleri de tahmin et, parça başına gram ile çarp ve toplamı yaz (ör. "≈15 şerit, ≈165 g"). Pişmiş parça ağırlıkları: tavuk şeridi / sote parçası ≈ 10–12 g, kuşbaşı et ≈ 12–15 g, köfte ≈ 35–45 g, elma dilim patates ≈ 30–40 g, tavuk but ≈ 90–110 g (kemiksiz).
+- Sonraki fotoğraf yemek sonrası (kalan) ise kalanı ayrı ayrı say (ör. "1 patates dilimi kaldı", "sos kaldı, tavuk bitmiş"); kalan sadece sosa benziyorsa et ve garnitür bitmiştir.
 - Meyveyi büyüklüğüne ve kabuğuna bakarak doğru adlandır (mandalina küçük ve gevşek kabuklu, portakal büyük).
 - SU, maden suyu, şekersiz çay/kahve yemek değildir: satır yazma; toplam su miktarını ml olarak "su_ml" alanına yaz (ör. 2 × 200 ml su = 400). Şekerli içecekleri ve ayranı yemek olarak yaz.
 - "miktar": o fotoğrafta görünen miktar. Tane sayılabiliyorsa tek tek dikkatle say (ör. "5 adet"). Değilse ASLA sadece "1 kase" / "1 porsiyon" yazma: kabın büyüklüğüne ve ne kadar dolu olduğuna bakıp gram tahmin et ve doluluğu yaz (ör. "≈180 g (kase ~⅔ dolu)", "≈300 g (kase ağzına kadar dolu)", "≈120 g (tabağın yarısı)").
@@ -317,6 +318,7 @@ const ITEM_RULES = `- k = kcal, p = protein g, y = yağ g, c = karbonhidrat g (t
 - Yağ payı: 1 yemek kaşığı yağ ≈ 13 g / 120 kcal, 1 tatlı kaşığı ≈ 4,5 g / 40 kcal, tereyağı 1 yk ≈ 100 kcal. Yağ tepsinin tamamına konduysa kullanıcının payı = toplam yağ × (kullanıcının yediği / tepsinin tamamı); tepsinin tamamı ≈ kişi sayısı × bir porsiyon. "Tabaktakinin yarısını yedi" ise her şeyi yarıla.
 - Pişirme: kızartmada (bol yağ) yiyecek yağ emer — patates kızartması ≈ 12–15 g yağ / 100 g, hamurlu / panelı tavuk-köfte ≈ 10–15 g / 100 g; tavada az yağ ≈ 3–6 g / 100 g; fırın / tepsi sadece konan yağın payı; haşlama, ızgara ve çiğde ek yağ yok (konan yağ varsa onu say).
 - Yağ bilinmiyorsa ev yemeği için makul ortalama kullan, kaloriyi düşük tahmin etme.
+- Miktar parça sayısıyla verildiyse (ör. "15 şerit") gramı parça sayısı × parça ağırlığından hesapla, yemek türü ortalamasına yuvarlama. Yenen = önce − kalan; kalan sadece sos ise eti tam say.
 - Fast food ve zincir ürünlerde resmi değerler (Popchicken ≈692, Big Mac ≈525, Whopper ≈660, orta patates ≈330, 330 ml kola ≈140).
 - "mi": porsiyonun mikro besinleri, sırası sabit: [lif g, C vitamini mg, D vitamini µg, B12 µg, demir mg, kalsiyum mg, magnezyum mg, potasyum mg, çinko mg, sodyum mg]; tuz ve salçayı sodyuma kat.
 - "v": hesabın kısa gerekçesi, sayılarla (ör. "4 köfte ≈ 180 g; 1 yk zeytinyağının 1/4'ü ≈ 30 kcal").`;
