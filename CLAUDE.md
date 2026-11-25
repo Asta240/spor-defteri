@@ -109,3 +109,4 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Foto kalori: "Nerede yedin?" (Ev / Yemekhane / Restoran / Fast food, `YER`, `YER_RULE`): ev dışında yağ ve tepsi sorulmaz, standart gramaj/tarif (yemekhane ana yemek 100–160 g, pilav 150–200 g, çorba 250–300 ml). Ölçek kuralı (çatal ≈20 cm, tabak ≈27 cm, parçaları say). Su/şekersiz çay yemek satırı değil: `su_ml` → YMK kodunda `["__su__", ml]`, site `importYmk` bunu suya ekler.
 - Fotoğraftan kalori eşleşme sayfası (`pm`): 2+ eşleşmede “Hepsi için aynı” (`#pmAll`, `data-esall`) hepsine aynı `esA`yı verir.
 - Foto kalori ölçeği: parça ağırlıkları (tavuk şeridi 10–12 g, köfte 35–45 g, patates dilimi 30–40 g); yemekhane aralıkları alt uca çekilmez; kalan sadece sos ise et tam sayılır.
+- Foto kalori Detaylar (`p2`): üstte `#skipBox` + “Bilmiyorum, direkt hesapla” (`#skipBtn` → `calcBtn`), yazısı `outside()`a göre değişir.

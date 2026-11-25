@@ -1577,7 +1577,8 @@ const shift = (s, n) => { const d = new Date(s+"T12:00"); d.setDate(d.getDate()+
 const dayName = (s, o) => new Date(s+"T12:00").toLocaleDateString("tr-TR", o);
 const blankDay = () => ({f:[], w:0, wo:"", ca:"", st:"", bu:"", kg:""});
 // Yenilikler: siteyi açınca bir kez çıkar, "Tamam"a basınca bir daha çıkmaz. Yeni yenilik eklerken NEWS.id'yi değiştir.
-const NEWS = {id:"2026-11-25c", items:[
+const NEWS = {id:"2026-11-25d", items:[
+  ["camera", "Detayları bilmiyorsan atla", "Fotoğraftan kaloride Detaylar sayfasında “Bilmiyorum, direkt hesapla”: yemekhane, restoran gibi yerlerde soruları atlayıp hemen hesaplatırsın. Parçalar artık tek tek sayılıyor (tavuk şeridi, köfte, patates dilimi)."],
   ["camera", "Foto 1 / Foto 2 için tek seçim", "Aynı yemek iki fotoğrafta görününce tek tek seçmek zorunda değilsin: “Hepsi için aynı” ile hepsine birden ayrı porsiyon, kalan ya da aynı tabak de."],
   ["camera", "Fotoğraftan kalori daha doğru", "Nerede yediğini seç (ev, yemekhane, restoran, fast food): dışarıda yağ sorulmaz, standart porsiyonlar kullanılır. Parçaları sayıyor, su da ayrıca suya ekleniyor. Claude modeli: Güçlü varsayılan."],
   ["utensils", "Danışma otomatik dolar", "“Yemeden önce danış”a basınca doğrudan Yemek danışma açılır; kalan kalori, protein ve hedefin (hedef kilona göre) hesabından gelir."],
