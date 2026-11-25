@@ -1577,7 +1577,8 @@ const shift = (s, n) => { const d = new Date(s+"T12:00"); d.setDate(d.getDate()+
 const dayName = (s, o) => new Date(s+"T12:00").toLocaleDateString("tr-TR", o);
 const blankDay = () => ({f:[], w:0, wo:"", ca:"", st:"", bu:"", kg:""});
 // Yenilikler: siteyi açınca bir kez çıkar, "Tamam"a basınca bir daha çıkmaz. Yeni yenilik eklerken NEWS.id'yi değiştir.
-const NEWS = {id:"2026-11-24b", items:[
+const NEWS = {id:"2026-11-25a", items:[
+  ["utensils", "Danışma otomatik dolar", "“Yemeden önce danış”a basınca doğrudan Yemek danışma açılır; kalan kalori, protein ve hedefin (hedef kilona göre) hesabından gelir."],
   ["camera", "Fotoğraftan kalori yenilendi", "Claude önce yemekleri tanıyor, sen her birinin nasıl piştiğini (fırın, kızartma…), yağını, kaç kişilik olduğunu ve ne kadarını yediğini seçiyorsun, sonra hesaplıyor. Adımlar ayrı sayfa, ☰ menüden gezersin. Yanlış satırı “Düzelt” ile tek tek yeniden hesaplatabilirsin."],
   ["utensils", "Yemek danışma", "Kalori alımında “Yemeden önce danış” kartı: seçeneklerin fotoğrafını at, Claude neyi ne kadar yemeni söylesin."],
   ["pill", "Vitamin ve mineraller", "Kalori alımının altında: lif, C, D, B12, demir, kalsiyum, magnezyum, potasyum, çinko ve tuz; ihtiyacının ne kadarını aldığın."],
@@ -2161,6 +2162,12 @@ function weightOn(ds){
   return ks.length ? +root.days[ks[ks.length - 1]].kg : (+(root.profile || {}).w || 0);
 }
 // Son tartı günü (günlük kilo kaydı ya da profilde kilonun girildiği gün)
+// Yemek danışma linki için hedef: v = kilo vermek, k = korumak, m = kas yapmak (hedef kilo, yoksa haftalık kilo değişimi)
+function danGoal(){
+  const ld = lastWeighDay(), w = +((root.days[ld] || {}).kg) || +((root.profile || {}).w) || 0, T = +root.goals.kgT || 0, kw = +root.goals.kgW || 0;
+  const g = T && w ? (T < w - .3 ? "v" : T > w + .3 ? "m" : "k") : kw ? (kw < 0 ? "v" : "m") : "";
+  return g ? "-h" + g : "";
+}
 function lastWeighDay(){
   const ks = Object.keys(root.days).filter(k => +root.days[k].kg > 0).sort(), a = ks[ks.length - 1] || "", b = (root.profile || {}).wd || "";
   return a > b ? a : b;
@@ -2235,7 +2242,7 @@ function renderDay(){
       : `<div class="kstack" style="margin-top:0">${rows.map(r => `<i style="width:${r.kc / (s.k || 1) * 100}%;background:${MC[r.k]}" title="${r.t}"></i>`).join("")}</div>
         <div class="mtab"><div class="mtr mth"><span>Öğün</span><span>kcal</span><span>%</span><span>P</span><span>K</span><span>Y</span></div>
         ${rows.map(r => `<div class="mtr"><span><i style="background:${MC[r.k]}"></i>${r.t}</span><b>${fmt(r.kc)}</b><span>%${Math.round(r.kc / (s.k || 1) * 100)}</span><span>${fmt(r.p)}</span><span>${fmt(r.c)}</span><span>${fmt(r.y)}</span></div>`).join("")}</div>`; }
-  { const lk = Math.max(0, Math.round(g.k - s.k)), lp = Math.max(0, Math.round(g.p - s.p)); $("danLink").href = FOTO_URL + `#danis/k=${lk}/p=${lp}`; $("danLeft").innerHTML = `Kalan: <b style="color:var(--accent)">${fmt(lk)} kcal</b> · ${lp} g protein`; }
+  { const lk = Math.max(0, Math.round(g.k - s.k)), lp = Math.max(0, Math.round(g.p - s.p)); $("danLink").href = FOTO_URL + `#danis-k${lk}-p${lp}${danGoal()}`; $("danLeft").innerHTML = `Kalan: <b style="color:var(--accent)">${fmt(lk)} kcal</b> · ${lp} g protein`; }
   $("addLeft").innerHTML = s.k <= g.k ? `Kalan alınacak: <b style="color:var(--accent)">${fmt(g.k - s.k)} kcal</b> · Hangi öğün?` : `Hedefi <b style="color:var(--bad)">${fmt(s.k - g.k)} kcal</b> aştın · Hangi öğün?`;
   $("ymLeft").textContent = s.k <= g.k ? `${fmt(g.k - s.k)} kcal kaldı` : `${fmt(s.k - g.k)} kcal fazla`;
   $("ymBar").style.width = Math.min(100, s.k / (g.k || 1) * 100) + "%";

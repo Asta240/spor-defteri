@@ -388,12 +388,19 @@ $("dBtn").onclick = async () => {
   b.innerHTML = "Ne yiyeyim?"; b.disabled = !dFiles.length;
 };
 
-// Siteden gelen link: #danis/k=900/p=60 (kalan kalori ve protein)
-(() => { let h = ""; try{ h = decodeURIComponent(location.hash || ""); }catch(e){}
-  try{ dGoal = localStorage.getItem("fk-goal") || ""; }catch(e){} for(const c of $("dGoal").children) c.classList.toggle("on", c.dataset.g === dGoal);
-  const k = h.match(/k=(\d+)/), p = h.match(/p=(\d+)/); if(k) $("dK").value = k[1]; if(p) $("dP").value = p[1];
-  let v = "p1"; try{ v = localStorage.getItem("fk-view") || "p1"; }catch(e){} if(/danis/.test(h)) v = "dan"; else if(/kalori/.test(h)) v = "p1";
-  go(v === "dan" ? "dan" : "p1"); })();
+// Siteden gelen link: #danis-k900-p60-hv (kalan kalori, protein, hedef v/k/m). claude.ai sadece düz #ad geçiriyor (= / yok).
+const GOALS = {v: "Kilo vermek", k: "Kiloyu korumak", m: "Kas yapmak"};
+function setGoal(g){ dGoal = g; for(const c of $("dGoal").children) c.classList.toggle("on", c.dataset.g === dGoal); }
+function fromHash(first){ let h = ""; try{ h = decodeURIComponent(location.hash || ""); }catch(e){}
+  if(/danis/.test(h)){
+    const k = h.match(/k=?(\d+)/), p = h.match(/p=?(\d+)/), g = h.match(/-h([vkm])/);
+    if(k) $("dK").value = k[1]; if(p) $("dP").value = p[1]; if(g) setGoal(GOALS[g[1]]);
+    go("dan"); return; }
+  if(/kalori/.test(h)){ go("p1"); return; }
+  if(first){ let v = "p1"; try{ v = localStorage.getItem("fk-view") || "p1"; }catch(e){} go(v === "dan" ? "dan" : "p1"); } }
+{ let g0 = ""; try{ g0 = localStorage.getItem("fk-goal") || ""; }catch(e){} setGoal(g0); }
+fromHash(true);
+window.addEventListener("hashchange", () => fromHash(false));
 
 (async () => {
   try{ sample = window.claude && await window.claude.use("sample"); }catch(e){ sample = null; }
