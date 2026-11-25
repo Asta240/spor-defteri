@@ -55,8 +55,23 @@
   .fd .hd{display:flex;gap:8px;align-items:center}
   .fd .hd input{font-weight:700;background:transparent;padding:4px 0;border-radius:0;border-bottom:1px solid var(--line)}
   .fd .hd input:focus{box-shadow:none}
+  .fd .top.hd input{flex:1;min-width:0;width:auto} .fd .top>*{flex-shrink:0} .fd .top .nm,.fd .top.hd input{flex-shrink:1}
   .fd input{background:var(--card)}
   .ph{font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-soft);padding:2px 8px;border-radius:99px;white-space:nowrap}
+  .fd.cl{padding:0;border:1px solid transparent} .fd.cl.done{border-color:var(--line)}
+  .fd .top{display:flex;gap:8px;align-items:center;padding:12px 14px;cursor:pointer}
+  .fd:not(.cl) .top{padding:0 0 2px;cursor:default}
+  .fd .top .nm{flex:1;min-width:0;font-weight:700;font-size:15px}
+  .fd .top .nm small{display:block;font-weight:500;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+  .stt{font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap;border:1px solid var(--line);color:var(--muted)}
+  .stt.ok{border-color:var(--accent);color:var(--accent)}
+  .chev{width:18px;height:18px;color:var(--muted);flex:none;transition:transform .15s} .fd:not(.cl) .chev{transform:rotate(180deg)}
+  .fd .tg{background:none;border:0;min-height:30px;padding:0 2px}
+  .sec{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+  .sec>h4{margin:0;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px}
+  .sec>h4 svg.i{width:14px;height:14px;color:var(--accent)}
+  .sec label.f:first-of-type{margin-top:8px}
+  .hint{font-size:12.5px;color:var(--muted);margin:6px 0 0}
   .x{background:none;border:0;color:var(--muted);min-height:30px;padding:0 4px}
   .q{font-size:13px;color:var(--accent);margin-top:8px;display:flex;gap:6px} .q svg.i{width:15px;height:15px;margin-top:2px}
   .two{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
@@ -292,6 +307,7 @@ $("pmGo").onclick = () => {
 
 // 2) Detaylar
 const PIS = ["Fırın / tepsi", "Tava (az yağ)", "Kızartma (bol yağ)", "Haşlama / su", "Izgara", "Çiğ / pişmemiş"];
+const OILFOR = ["Sadece benim tabağım", "500 g", "1 kg", "1,5 kg", "2 kg+"];
 const OILS = ["Yok", "1 tatlı kaşığı", "1 yemek kaşığı", "2 yemek kaşığı", "3+ yemek kaşığı"], OILT = ["Zeytinyağı", "Ayçiçek yağı", "Tereyağı"], KISI = ["1", "2", "3", "4", "5", "6+"], PAY = ["Hepsini", "Yarısını", "Çeyreğini"];
 const chips = (i, k, L) => `<div class="chips">${L.map(v => `<button type="button" data-fi="${i}" data-fk="${k}" data-fv="${esc(v)}" class="${foods[i][k] === v ? "on" : ""}">${esc(v)}</button>`).join("")}</div>`;
 // Hepsi seçildiyse üstteki buton da "Kalori hesapla" olur (pişirme + ne kadarını yedin; yağ ve kişi isteğe bağlı)
@@ -300,34 +316,66 @@ function upd2(){
   $("skipBtn").textContent = done ? "Kalori hesapla" : "Bilmiyorum, direkt hesapla"; $("skipBtn").className = done ? "pri" : "ghost";
   $("skipT").hidden = done;
 }
+const SI = {
+  m: '<svg class="i" viewBox="0 0 24 24"><path d="M4 20h16M6 20V10m6 10V4m6 16v-7"/></svg>',
+  p: '<svg class="i" viewBox="0 0 24 24"><path d="M3 11h14v3a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5zM17 12h4M8 7c0-1 1-1.5 1-2.5M12 7c0-1 1-1.5 1-2.5"/></svg>',
+  y: '<svg class="i" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>',
+  n: '<svg class="i" viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/></svg>'};
+const CHEV = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
+const fdMiss = x => [x.yag && !x.pis ? "pişirme" : "", !x.pay ? "ne kadar yedin" : ""].filter(Boolean);
+const fdSum = x => [x.miktar, x.yag ? x.pis : "", x.yag && !outside() && x.oil ? x.oil + (x.oilFor ? " / " + x.oilFor : "") : "", x.pay].filter(Boolean).join(" · ") || "Detay yok";
 function drawFoods(){
-  $("skipT").textContent = outside() ? `${YER}: detayları bilmen gerekmiyor. Miktarlar fotoğraftan, yağ ve pişirme standart tariften hesaplanır.` : "Detayları bilmiyorsan hepsini atla, Claude fotoğraftan tahmin etsin.";
-  $("fds").innerHTML = foods.map((x, i) => `<div class="fd">
-    <div class="hd"><input value="${esc(x.n)}" data-fi="${i}" data-ft="n" aria-label="Yemek adı" placeholder="Yemek adı">${x.foto.map(n => `<span class="ph">Foto ${n}</span>`).join("")}<button class="x" data-rmf="${i}" aria-label="Kaldır">✕</button></div>
+  if(foods.length && !foods.some(x => x.open)) { const f = foods.find(x => fdMiss(x).length) || foods[0]; f.open = true; }
+  const done = foods.filter(x => !fdMiss(x).length).length;
+  $("skipT").textContent = (foods.length ? `${done} / ${foods.length} yemek hazır. ` : "") + (outside() ? `${YER}: detayları bilmen gerekmiyor, miktarlar fotoğraftan, yağ ve pişirme standart tariften hesaplanır.` : "Bilmediklerini boş bırak ya da hepsini atla, Claude fotoğraftan tahmin etsin.");
+  $("fds").innerHTML = foods.map((x, i) => {
+    const miss = fdMiss(x), st = miss.length ? `<span class="stt">${miss.length} seçim eksik</span>` : `<span class="stt ok">Hazır</span>`, ph = x.foto.map(n => `<span class="ph">Foto ${n}</span>`).join("");
+    if(!x.open) return `<div class="fd cl${miss.length ? "" : " done"}"><div class="top" data-tog="${i}"><div class="nm">${esc(x.n || "Yemek")}<small>${esc(fdSum(x))}</small></div>${ph}${st}<button class="tg" type="button" aria-label="Aç">${CHEV}</button></div></div>`;
+    const home = x.yag && !outside();
+    return `<div class="fd">
+    <div class="top hd"><input value="${esc(x.n)}" data-fi="${i}" data-ft="n" aria-label="Yemek adı" placeholder="Yemek adı">${ph}${st}<button class="tg" type="button" data-tog="${i}" aria-label="Kapat">${CHEV}</button><button class="x" data-rmf="${i}" aria-label="Kaldır">✕</button></div>
     ${x.soru ? `<div class="q">${Q}<span>${esc(x.soru)}</span></div>` : ""}
-    <label class="f">Yediğin miktar<input value="${esc(x.miktar)}" data-fi="${i}" data-ft="miktar" placeholder="ör. 4 adet, ≈200 g, kase yarım dolu"></label>
-    ${x.yag ? `<label class="f">Nasıl pişti?${x.pisG ? ' <span style="font-weight:500">(Claude tahmini, değiştirebilirsin)</span>' : ""}</label>${chips(i, "pis", PIS)}` : ""}
-    ${x.yag && outside() ? `<p class="muted" style="margin:8px 0 0">${YER}: yağ miktarını bilmen gerekmiyor, standart tarife göre hesaplanır.</p>` : ""}
-    ${x.yag && !outside() ? `<label class="f">${x.pis === "Kızartma (bol yağ)" ? "Kızartma yağı (bilmiyorsan boş bırak; emilen yağ hesaplanır)" : "Yemeğe konan toplam yağ" + (x.tepsi ? " (tepsinin / tencerenin tamamına)" : "")}</label>${chips(i, "oil", OILS)}<label class="f">Yağ türü</label>${chips(i, "oilT", OILT)}` : ""}
-    ${x.tepsi && !outside() ? `<label class="f">Tepsi / tencere kaç kişilikti? <span style="font-weight:500">(bilmiyorsan boş bırak)</span></label>${chips(i, "kisi", KISI)}` : ""}
-    <label class="f">Tabaktakinin ne kadarını yedin?</label>${chips(i, "pay", PAY)}
-    <label class="f">Ek bilgi (isteğe bağlı)<input value="${esc(x.ek)}" data-fi="${i}" data-ft="ek" placeholder="${x.soru ? "Sorunun cevabı ya da başka bir detay" : "ör. az tuzlu, yağsız kıyma, light yoğurt"}"></label>
-  </div>`).join("");
+    <div class="sec"><h4>${SI.m} Miktar</h4>
+      <label class="f">Tabakta ne kadar vardı?<input value="${esc(x.miktar)}" data-fi="${i}" data-ft="miktar" placeholder="ör. 4 adet, ≈200 g, kase yarım dolu"></label>
+      <p class="hint">Claude fotoğraftan saydı. Yanlışsa düzelt: adet, gram ya da kasenin ne kadar dolu olduğu.</p>
+      <label class="f">Tabaktakinin ne kadarını yedin?</label>${chips(i, "pay", PAY)}
+    </div>
+    ${x.yag ? `<div class="sec"><h4>${SI.p} Pişirme</h4>
+      <label class="f">Nasıl pişti?${x.pisG ? ' <span style="font-weight:500">(Claude tahmini, değiştirebilirsin)</span>' : ""}</label>${chips(i, "pis", PIS)}
+    </div>` : ""}
+    ${x.yag && outside() ? `<p class="hint">${YER}: yağ miktarını bilmen gerekmiyor, standart tarife göre hesaplanır.</p>` : ""}
+    ${home ? `<div class="sec"><h4>${SI.y} Yağ <span style="font-weight:600;text-transform:none;letter-spacing:0">· bilmiyorsan boş bırak</span></h4>
+      <label class="f">${x.pis === "Kızartma (bol yağ)" ? "Kızartma yağı (boş bırakırsan emilen yağ hesaplanır)" : "Yemeğe konan toplam yağ"}</label>${chips(i, "oil", OILS)}
+      ${x.pis !== "Kızartma (bol yağ)" ? `<label class="f">Bu yağ ne kadar yemeğe kondu?</label>${chips(i, "oilFor", OILFOR)}<p class="hint">Ör. annen 1 kg tavuğa 2 yemek kaşığı koyduysa “2 yemek kaşığı” + “1 kg” seç; Claude senin yediğin kadarını hesaplar.</p>` : ""}
+      ${x.tepsi ? `<label class="f">Tepsi / tencere kaç kişilikti?</label>${chips(i, "kisi", KISI)}` : ""}
+      <label class="f">Yağ türü</label>${chips(i, "oilT", OILT)}
+    </div>` : ""}
+    <div class="sec"><h4>${SI.n} Not</h4>
+      <label class="f">Ek bilgi (isteğe bağlı)<input value="${esc(x.ek)}" data-fi="${i}" data-ft="ek" placeholder="${x.soru ? "Sorunun cevabı ya da başka bir detay" : "ör. az tuzlu, yağsız kıyma, light yoğurt"}"></label>
+    </div>
+  </div>`; }).join("");
   upd2();
 }
-$("fds").onclick = e => { const b = e.target.closest("button"); if(!b) return;
+$("fds").onclick = e => { const t = e.target.closest(".fd.cl [data-tog]"); if(t){ foods.forEach((x, j) => x.open = j === +t.dataset.tog); drawFoods(); t.scrollIntoView && $("fds").children[+t.dataset.tog].scrollIntoView({block: "nearest"}); return; }
+  const b = e.target.closest("button"); if(!b) return;
   if(b.dataset.rmf != null){ foods.splice(+b.dataset.rmf, 1); drawFoods(); return; }
-  if(b.dataset.fk){ const x = foods[+b.dataset.fi], k = b.dataset.fk; x[k] = x[k] === b.dataset.fv ? "" : b.dataset.fv; if(k === "pis"){ x.pisG = false; drawFoods(); return; } for(const c of b.parentNode.children) c.classList.toggle("on", c.dataset.fv === x[k]); upd2(); } };
+  if(b.dataset.tog != null){ const x = foods[+b.dataset.tog]; x.open = !x.open; drawFoods(); return; }
+  if(b.dataset.fk){ const i = +b.dataset.fi, x = foods[i], k = b.dataset.fk, was = fdMiss(x).length; x[k] = x[k] === b.dataset.fv ? "" : b.dataset.fv; if(k === "pis") x.pisG = false;
+    // yemek bu seçimle hazır olduysa kapat, sıradaki eksik yemeği aç
+    if(was && !fdMiss(x).length){ const nx = foods.findIndex((y, j) => j > i && fdMiss(y).length); if(nx >= 0){ x.open = false; foods[nx].open = true; drawFoods(); const el = $("fds").children[nx]; el && el.scrollIntoView({block: "start", behavior: "smooth"}); return; } }
+    drawFoods(); } };
+$("fds").addEventListener("focusout", e => { if(e.target.dataset && e.target.dataset.ft === "miktar") { const el = e.target.closest(".fd"); const sm = el && el.querySelector(".nm small"); if(sm) sm.textContent = fdSum(foods[+e.target.dataset.fi]); } });
 $("fds").oninput = e => { const t = e.target; if(t.dataset.ft) foods[+t.dataset.fi][t.dataset.ft] = t.value; };
-$("addFd").onclick = () => { foods.push({n: "", foto: [], miktar: "", yag: true, tepsi: false, soru: "", pis: "", pisG: false, oil: "", oilT: "", kisi: "", pay: "", ek: ""}); drawFoods(); const ins = $("fds").querySelectorAll("[data-ft=n]"); ins[ins.length - 1].focus(); };
+$("addFd").onclick = () => { foods.forEach(x => x.open = false); foods.push({n: "", foto: [], miktar: "", yag: true, tepsi: false, soru: "", pis: "", pisG: false, oil: "", oilFor: "", oilT: "", kisi: "", pay: "", ek: "", open: true}); drawFoods(); const ins = $("fds").querySelectorAll("[data-ft=n]"); ins[ins.length - 1].focus(); };
 $("back1").onclick = () => go("p1");
 const foodLine = (x, i) => `${i + 1}) ${x.n || "Yemek"}${x.foto.length ? ` (Foto ${x.foto.join(", ")})` : ""} — yediği miktar: ${x.miktar || "fotoğraftan tahmin et"}`
   + (x.yag && x.pis ? `; pişirme: ${x.pis}${x.pisG ? " (tahmin)" : " (kullanıcı söyledi)"}` : "")
-  + (x.yag ? `; yemeğe konan toplam yağ: ${x.oil || "bilinmiyor, makul tahmin et"}${x.oilT ? ` (${x.oilT})` : ""}` : "")
+  + (x.yag ? `; yemeğe konan toplam yağ: ${x.oil || "bilinmiyor, makul tahmin et"}${x.oilT ? ` (${x.oilT})` : ""}${x.oil && x.oil !== "Yok" && x.oilFor ? (x.oilFor === "Sadece benim tabağım" ? "; bu yağın HEPSİ kullanıcının tabağına kondu" : `; bu yağ toplam ${x.oilFor} (çiğ) yemeğe kondu`) : ""}` : "")
   + (x.tepsi ? `; tepsi/tencere ${x.kisi ? x.kisi + " kişilik" : "kaç kişilik bilinmiyor"}` : "")
   + `; tabaktakinin ${x.pay ? x.pay.toLowerCase() + " yedi" : "hepsini yedi (aksi söylenmedi)"}` + (x.ek ? `; ek bilgi: ${x.ek}` : "");
 const ITEM_RULES = `- k = kcal, p = protein g, y = yağ g, c = karbonhidrat g (tam sayı). Kullanıcının verdiği miktarları ve sayıları AYNEN kullan, fotoğrafa göre değiştirme.
 - Yağ payı: 1 yemek kaşığı yağ ≈ 13 g / 120 kcal, 1 tatlı kaşığı ≈ 4,5 g / 40 kcal, tereyağı 1 yk ≈ 100 kcal. Yağ tepsinin tamamına konduysa kullanıcının payı = toplam yağ × (kullanıcının yediği / tepsinin tamamı); tepsinin tamamı ≈ kişi sayısı × bir porsiyon. "Tabaktakinin yarısını yedi" ise her şeyi yarıla.
+- Yağ belirli bir miktar yemeğe konduysa (ör. "2 yk, toplam 1 kg çiğ tavuğa"): kullanıcının payı = toplam yağ × (yediği pişmiş miktarın çiğ karşılığı / o miktar). Et ve tavuk pişince ≈ %25–30 su kaybeder (1 kg çiğ ≈ 700–750 g pişmiş); pilav ve bulgur pişince ≈ 2,5–3 katına çıkar; sebze ≈ %20 küçülür. Yağın hepsini kullanıcıya yazma. Ör. 1 kg çiğ tavuğa 2 yk (240 kcal), yenen ≈ 220 g pişmiş ≈ 300 g çiğ → 240 × 0,3 ≈ 72 kcal yağ.
 - Pişirme: kızartmada (bol yağ) yiyecek yağ emer — patates kızartması ≈ 12–15 g yağ / 100 g, hamurlu / panelı tavuk-köfte ≈ 10–15 g / 100 g; tavada az yağ ≈ 3–6 g / 100 g; fırın / tepsi sadece konan yağın payı; haşlama, ızgara ve çiğde ek yağ yok (konan yağ varsa onu say).
 - Yağ bilinmiyorsa ev yemeği için makul ortalama kullan, kaloriyi düşük tahmin etme.
 - Miktar parça sayısıyla verildiyse (ör. "15 şerit") gramı parça sayısı × parça ağırlığından hesapla, yemek türü ortalamasına yuvarlama. Yenen = önce − kalan; kalan sadece sos ise eti tam say.

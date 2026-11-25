@@ -113,3 +113,4 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Su: `WSIZES` ml sırasıyla (100,200,250,400,500,1000,1500). `d.wl` girdileri artık `{ml,t,h}` (eski sayı girdileri `wlMl()` ile okunur). Su sayfasında `#wLogBox` “Bugün eklenenler” + Düzenle (`data-wdel`); fotoğraftan gelen su `t:"Öğle yemeği fotosundan"`.
 - Yediklerin Düzenle modunda her satırda öğün seçimi (`.fmeal.emv`, `data-mv`).
 - Foto kalori: eşleşmede hepsi seçilince üstte `#pmGo2` Devam; Detaylar'da pişirme + pay seçilince `#skipBtn` “Kalori hesapla” olur (`upd2`).
+- Foto kalori Detaylar yeniden: yemek kartları açılır/kapanır (`x.open`, `data-tog`), bölümler `.sec` (Miktar/Pişirme/Yağ/Not), durum `fdMiss` (pişirme + pay), hazır olunca sıradakine geçer. Yeni `oilFor` (`OILFOR`): yağ ne kadar çiğ yemeğe kondu → `ITEM_RULES` payı çiğ/pişmiş oranıyla böler.
