@@ -101,6 +101,7 @@
     <label class="drop" id="drop"><input type="file" id="fileIn" accept="image/*" multiple><svg class="i" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>Fotoğraf çek ya da seç<small>En fazla 4 fotoğraf · tabakların tamamı görünsün</small></label>
     <div class="thumbs" id="thumbs"></div>
     <label class="f">Fotoğraflar hakkında not (isteğe bağlı)<textarea id="note" placeholder="ör. “2. foto ikinci tabak yoğurdum”, “2. foto yedikten sonraki hali”"></textarea></label>
+    <label class="f">Claude modeli</label><div class="chips tierc"><button type="button" data-tier="complex">Güçlü (daha doğru, biraz yavaş)</button><button type="button" data-tier="default">Normal (hızlı)</button></div>
     <div class="row end"><button class="pri" id="idBtn" disabled>Yemekleri tanı</button></div>
     <p class="muted" id="st1" style="margin:8px 0 0"></p>
   </section>
@@ -146,6 +147,7 @@
     <label class="f">Hedefin</label>
     <div class="chips" id="dGoal"><button type="button" data-g="Kilo vermek">Kilo vermek</button><button type="button" data-g="Kiloyu korumak">Kiloyu korumak</button><button type="button" data-g="Kas yapmak">Kas yapmak</button></div>
     <label class="f">Not (isteğe bağlı)<textarea id="dNote" placeholder="ör. antrenmandan yeni çıktım, çok açım; tatlı da almak istiyorum"></textarea></label>
+    <label class="f">Claude modeli</label><div class="chips tierc"><button type="button" data-tier="complex">Güçlü (daha doğru, biraz yavaş)</button><button type="button" data-tier="default">Normal (hızlı)</button></div>
     <div class="row end"><button class="pri" id="dBtn" disabled>Ne yiyeyim?</button></div>
     <p class="muted" id="dSt" style="margin:8px 0 0"></p>
   </section>
@@ -178,6 +180,12 @@ let dDone = false;
 const Q = '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5M12 17h0"/></svg>';
 let sample = null, canImg = false, files = [], imgs = null, foods = [], items = [], dFiles = [], dGoal = "";
 
+// ---------- Claude modeli: Güçlü (complex, varsayılan) ya da Normal (default) ----------
+let TIER = "complex"; try{ TIER = localStorage.getItem("fk-tier") || "complex"; }catch(e){}
+const tier = () => TIER;
+const drawTier = () => { for(const b of document.querySelectorAll("[data-tier]")) b.classList.toggle("on", b.dataset.tier === TIER); };
+document.addEventListener("click", e => { const b = e.target.closest("[data-tier]"); if(!b) return; TIER = b.dataset.tier; try{ localStorage.setItem("fk-tier", TIER); }catch(e){} drawTier(); });
+drawTier();
 // ---------- Menü (☰): her adım ayrı sayfa ----------
 $("menuBtn").onclick = () => { for(const b of document.querySelectorAll("[data-go]")) b.disabled = !avail(b.dataset.go); $("drawer").hidden = false; };
 $("drawBg").onclick = () => { $("drawer").hidden = true; };
@@ -226,7 +234,7 @@ $("idBtn").onclick = async () => {
   if(!files.length || !sample) return;
   const b = $("idBtn"); b.disabled = true; b.innerHTML = '<span class="spin"></span> Claude bakıyor…'; $("st1").textContent = "";
   try{
-    const r = await sample.json(ID_PROMPT(), {images: await getImgs(), modelTier: "default"});
+    const r = await sample.json(ID_PROMPT(), {images: await getImgs(), modelTier: tier()});
     foods = (Array.isArray(r && r.items) ? r.items : []).map(x => ({n: String(x.n || "Yemek").slice(0, 60), foto: Array.isArray(x.foto) ? x.foto.filter(n => +n > 0).map(Number) : [], miktar: String(x.miktar || "").slice(0, 60), yag: !!x.yag, tepsi: !!x.tepsi, es: Number.isInteger(x.es) ? x.es : null, soru: String(x.soru || "").slice(0, 160), pis: PIS.includes(x.pis) ? x.pis : "", pisG: PIS.includes(x.pis), oil: "", oilT: "", kisi: "", pay: "", ek: ""}));
     $("idNote").hidden = !(r && r.not); $("idNote").textContent = (r && r.not) || "";
     if(!foods.length) $("st1").textContent = (r && r.not) || "Fotoğrafta yemek bulunamadı.";
@@ -298,7 +306,7 @@ $("calcBtn").onclick = async () => {
   if(!foods.length || !sample) return;
   const b = $("calcBtn"); b.disabled = true; b.innerHTML = '<span class="spin"></span> Hesaplanıyor…'; $("st2").textContent = "";
   try{
-    const r = await sample.json(CALC_PROMPT(), {images: await getImgs(), modelTier: "default"});
+    const r = await sample.json(CALC_PROMPT(), {images: await getImgs(), modelTier: tier()});
     items = (Array.isArray(r && r.items) ? r.items : []).map(toItem);
     $("calcNote").hidden = !(r && r.not); $("calcNote").textContent = (r && r.not) || "";
     if(!items.length) $("st2").textContent = "Hesaplanamadı, tekrar dene.";
@@ -342,7 +350,7 @@ $("items").onclick = async e => { const b = e.target.closest("button"); if(!b) r
   if(b.dataset.det != null){ const x = items[+b.dataset.det]; x.open = !x.open; draw(); if(x.open) $("items").querySelector(`[data-dtxt="${b.dataset.det}"]`).focus(); return; }
   if(b.dataset.recalc != null){ const i = +b.dataset.recalc, x = items[i], d = (x.d || "").trim(); if(!d || x.busy || !sample) return;
     x.busy = true; draw();
-    try{ const r = await sample.json(ITEM_PROMPT(x, d), {images: await getImgs(), modelTier: "default"}); if(r && r.n != null) items[i] = Object.assign(toItem(r), {d, info: true}); }
+    try{ const r = await sample.json(ITEM_PROMPT(x, d), {images: await getImgs(), modelTier: tier()}); if(r && r.n != null) items[i] = Object.assign(toItem(r), {d, info: true}); }
     catch(err){ $("calcNote").hidden = false; $("calcNote").textContent = errTxt(err); }
     if(items[i]) items[i].busy = false; draw(); } };
 
@@ -372,7 +380,7 @@ $("dBtn").onclick = async () => {
   if(!dFiles.length || !sample) return;
   const b = $("dBtn"); b.disabled = true; b.innerHTML = '<span class="spin"></span> Claude bakıyor…'; $("dSt").textContent = "";
   try{
-    const r = await sample.json(D_PROMPT(), {images: await Promise.all(dFiles.map(shrink)), modelTier: "default"});
+    const r = await sample.json(D_PROMPT(), {images: await Promise.all(dFiles.map(shrink)), modelTier: tier()});
     const L = (Array.isArray(r && r.items) ? r.items : []).map(x => ({n: String(x.n || ""), karar: ["ye", "az", "yeme"].includes(x.karar) ? x.karar : "az", porsiyon: String(x.porsiyon || ""), k: Math.max(0, Math.round(+x.k || 0)), p: Math.max(0, Math.round(+x.p || 0)), neden: String(x.neden || "")}));
     if(!L.length){ $("dSt").textContent = "Fotoğrafta yemek seçeneği bulunamadı."; }
     else {
