@@ -124,4 +124,4 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Adım senkronu: `api/steps.js` aynı gün adımı düşürmez (kilitli iPhone 0/eksik gönderir), `root.stepLog` son 10 gönderim (k=1 korundu); Apple Sağlık penceresi logu ve “Uygulama açıldığında” otomasyon önerisini gösterir.
 - İlerleme → Haftalık: `wkPick` (Bu hafta / Geçen hafta, `data-wkp`); `weekReview` süren haftada “Henüz tamamlanmadı” + kalan güne göre öneri; `weekStats` ortalamalarda bugünü hariç tutar (antrenman sayısı dahil).
 - Tema: `root.theme` (yoksa "sec" = bölüm renkleri, `body.secc`), tek renk `body.th-<renk>`; `applyTheme()` setTab ve renderAll başında. Yan menü `#drawer` hep `--base-accent` (temanın ana rengi; varsayılan turuncu), menüdeki öğe ikonları bölüm renginde. Seçim Hesap penceresinde `#thC`.
-- Bölüm renkleri: Kalori grubu (yemek + kalori yakımı + menüdeki “Kalori” başlığı `data-v="kalori-g"`) pembe.
+- Bölüm renkleri gruba göre: Ana menü (ozet, gorev, hedef) mor, Kalori (yemek, kalori) pembe, Günlük giriş (su, adim, hab, supp, hareket) mavi, Antrenman (cards, lib, prog) turuncu; menü başlıkları `data-v="ana-g|kalori-g|gun-g|antr-g"`.
