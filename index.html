@@ -275,22 +275,38 @@
   .prof{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   .bmrl{display:block;font-size:11px;color:var(--muted);margin-top:2px;font-weight:500}
   #dnav button{border-color:transparent}
-  /* Her bölümün kendi rengi (antrenman ve diğerleri turuncu) */
-  body[data-sec=yemek],#dnav [data-v=yemek]{--accent:#f783ac;--accent-soft:rgba(247,131,172,.14)}
-  body[data-sec=su],#dnav [data-v=su]{--accent:#4dabf7;--accent-soft:rgba(77,171,247,.14)}
-  body[data-sec=adim],#dnav [data-v=adim]{--accent:#3bc9db;--accent-soft:rgba(59,201,219,.14)}
-  body[data-sec=hareket],#dnav [data-v=hareket]{--accent:#b197fc;--accent-soft:rgba(177,151,252,.14)}
-  body[data-sec=hab],#dnav [data-v=hab]{--accent:#ffd43b;--accent-soft:rgba(255,212,59,.14)}
-  body[data-sec=gorev],#dnav [data-v=gorev]{--accent:#ffd43b;--accent-soft:rgba(255,212,59,.14)}
-  body[data-sec=supp],#dnav [data-v=supp]{--accent:#91a7ff;--accent-soft:rgba(145,167,255,.14)}
+  /* Tema: varsayılan bölüm renkleri (body.secc), ya da tek renk (body.th-…); yan menü hep temanın ana rengi */
+  body.th-orange{--accent:#ff9f1c;--accent-soft:rgba(255,159,28,.14);--base-accent:#ff9f1c;--base-soft:rgba(255,159,28,.14)}
+  body.th-pink{--accent:#f783ac;--accent-soft:rgba(247,131,172,.14);--base-accent:#f783ac;--base-soft:rgba(247,131,172,.14)}
+  body.th-blue{--accent:#4dabf7;--accent-soft:rgba(77,171,247,.14);--base-accent:#4dabf7;--base-soft:rgba(77,171,247,.14)}
+  body.th-cyan{--accent:#3bc9db;--accent-soft:rgba(59,201,219,.14);--base-accent:#3bc9db;--base-soft:rgba(59,201,219,.14)}
+  body.th-purple{--accent:#b197fc;--accent-soft:rgba(177,151,252,.14);--base-accent:#b197fc;--base-soft:rgba(177,151,252,.14)}
+  body.th-yellow{--accent:#ffd43b;--accent-soft:rgba(255,212,59,.14);--base-accent:#ffd43b;--base-soft:rgba(255,212,59,.14)}
+  body.th-indigo{--accent:#91a7ff;--accent-soft:rgba(145,167,255,.14);--base-accent:#91a7ff;--base-soft:rgba(145,167,255,.14)}
+  body.secc[data-sec=yemek],body.secc #dnav [data-v=yemek]{--accent:#f783ac;--accent-soft:rgba(247,131,172,.14)}
+  body.secc[data-sec=su],body.secc #dnav [data-v=su]{--accent:#4dabf7;--accent-soft:rgba(77,171,247,.14)}
+  body.secc[data-sec=adim],body.secc #dnav [data-v=adim]{--accent:#3bc9db;--accent-soft:rgba(59,201,219,.14)}
+  body.secc[data-sec=hareket],body.secc #dnav [data-v=hareket]{--accent:#b197fc;--accent-soft:rgba(177,151,252,.14)}
+  body.secc[data-sec=hab],body.secc #dnav [data-v=hab]{--accent:#ffd43b;--accent-soft:rgba(255,212,59,.14)}
+  body.secc[data-sec=gorev],body.secc #dnav [data-v=gorev]{--accent:#ffd43b;--accent-soft:rgba(255,212,59,.14)}
+  body.secc[data-sec=supp],body.secc #dnav [data-v=supp]{--accent:#91a7ff;--accent-soft:rgba(145,167,255,.14)}
+  #drawer{--accent:var(--base-accent,#ff9f1c);--accent-soft:var(--base-soft,rgba(255,159,28,.14))}
   @media (prefers-color-scheme: light){
-    body[data-sec=yemek],#dnav [data-v=yemek]{--accent:#d6336c;--accent-soft:#ffe3ec}
-    body[data-sec=su],#dnav [data-v=su]{--accent:#1c7ed6;--accent-soft:#e7f5ff}
-    body[data-sec=adim],#dnav [data-v=adim]{--accent:#0c8599;--accent-soft:#e3fafc}
-    body[data-sec=hareket],#dnav [data-v=hareket]{--accent:#7048e8;--accent-soft:#f3f0ff}
-    body[data-sec=hab],#dnav [data-v=hab]{--accent:#e67700;--accent-soft:#fff4e6}
-    body[data-sec=gorev],#dnav [data-v=gorev]{--accent:#e67700;--accent-soft:#fff4e6}
-    body[data-sec=supp],#dnav [data-v=supp]{--accent:#4263eb;--accent-soft:#edf2ff}
+    body.th-orange{--accent:#e8590c;--accent-soft:#fff0e3;--base-accent:#e8590c;--base-soft:#fff0e3}
+    body.th-pink{--accent:#d6336c;--accent-soft:#ffe3ec;--base-accent:#d6336c;--base-soft:#ffe3ec}
+    body.th-blue{--accent:#1c7ed6;--accent-soft:#e7f5ff;--base-accent:#1c7ed6;--base-soft:#e7f5ff}
+    body.th-cyan{--accent:#0c8599;--accent-soft:#e3fafc;--base-accent:#0c8599;--base-soft:#e3fafc}
+    body.th-purple{--accent:#7048e8;--accent-soft:#f3f0ff;--base-accent:#7048e8;--base-soft:#f3f0ff}
+    body.th-yellow{--accent:#e67700;--accent-soft:#fff4e6;--base-accent:#e67700;--base-soft:#fff4e6}
+    body.th-indigo{--accent:#4263eb;--accent-soft:#edf2ff;--base-accent:#4263eb;--base-soft:#edf2ff}
+    body.secc[data-sec=yemek],body.secc #dnav [data-v=yemek]{--accent:#d6336c;--accent-soft:#ffe3ec}
+    body.secc[data-sec=su],body.secc #dnav [data-v=su]{--accent:#1c7ed6;--accent-soft:#e7f5ff}
+    body.secc[data-sec=adim],body.secc #dnav [data-v=adim]{--accent:#0c8599;--accent-soft:#e3fafc}
+    body.secc[data-sec=hareket],body.secc #dnav [data-v=hareket]{--accent:#7048e8;--accent-soft:#f3f0ff}
+    body.secc[data-sec=hab],body.secc #dnav [data-v=hab]{--accent:#e67700;--accent-soft:#fff4e6}
+    body.secc[data-sec=gorev],body.secc #dnav [data-v=gorev]{--accent:#e67700;--accent-soft:#fff4e6}
+    body.secc[data-sec=supp],body.secc #dnav [data-v=supp]{--accent:#4263eb;--accent-soft:#edf2ff}
+    #drawer{--accent:var(--base-accent,#e8590c);--accent-soft:var(--base-soft,#fff0e3)}
   }
   #dnav button[data-v] svg.i,#dnav button[data-v] .i{color:var(--accent)}
   .dlab{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:4px 12px 2px}
@@ -659,6 +675,15 @@
   .dpick strong{white-space:nowrap}
   .todayb{min-height:28px;padding:3px 10px;font-size:12px;border-radius:99px;background:var(--accent-soft);color:var(--accent);border:0;margin-left:6px}
   .todayb:hover{background:var(--accent);color:#1a1205}
+  .thdot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+  .thdot.th-orange{background:#ff9f1c}
+  .thdot.th-pink{background:#f783ac}
+  .thdot.th-blue{background:#4dabf7}
+  .thdot.th-cyan{background:#3bc9db}
+  .thdot.th-purple{background:#b197fc}
+  .thdot.th-yellow{background:#ffd43b}
+  .thdot.th-indigo{background:#91a7ff}
+
   .hklog{display:grid;gap:3px;font-size:12.5px} .hklog div{display:flex;gap:8px;flex-wrap:wrap;align-items:baseline} .hklog span{color:var(--muted);min-width:110px} .hklog small{flex-basis:100%;color:var(--warn);font-size:11.5px}
   .hkSteps{padding-left:20px;margin:12px 0;font-size:14px;display:flex;flex-direction:column;gap:6px}
   #hkUrl{font-size:13px}
@@ -1603,7 +1628,8 @@ const shift = (s, n) => { const d = new Date(s+"T12:00"); d.setDate(d.getDate()+
 const dayName = (s, o) => new Date(s+"T12:00").toLocaleDateString("tr-TR", o);
 const blankDay = () => ({f:[], w:0, wo:"", ca:"", st:"", bu:"", kg:""});
 // Yenilikler: siteyi açınca bir kez çıkar, "Tamam"a basınca bir daha çıkmaz. Yeni yenilik eklerken NEWS.id'yi değiştir.
-const NEWS = {id:"2026-11-26d", items:[
+const NEWS = {id:"2026-11-26e", items:[
+  ["sliders", "Tema seçimi", "Hesap'ta Tema: varsayılan “Bölüm renkleri” (her sayfa kendi renginde) ya da tek renk (Turuncu, Pembe, Mavi, Camgöbeği, Mor, Sarı, Lacivert). Yan menü sayfaya göre renk değiştirmez."],
   ["chartbar", "Haftalık sekmesi düzeldi", "Haftanın özeti artık Bu hafta / Geçen hafta seçilebiliyor (eskiden hafta ortasında geçen haftayı gösteriyordu). Haftalık rapor ortalamaları yarım kalan bugünü saymıyor; süren hafta için “kalan N günde ne lazım” yazıyor."],
   ["shoe", "Adım senkronu düzeldi", "Telefon kilitliyken gelen 0 ya da eksik adım artık günün adımını düşürmüyor. Hesap → Apple Sağlık'ta son 10 gönderim görünür; otomasyonu “uygulama açıldığında” olarak kurman önerilir."],
   ["sliders", "Her bölümün kendi rengi", "Antrenman turuncu; Kalori alımı pembe, Su mavi, Adım camgöbeği, Kilo ve ölçüler mor, Alışkanlıklar sarı, Takviyeler lacivert. Menüde de aynı renkler."],
@@ -1813,7 +1839,9 @@ async function renderAccount(){
           <button>Ekle</button></form>`) +
     (w.google ? `<div class="it"><span>Google</span><b>${esc(w.google)}</b></div>` : GID ? `<div id="gLinkWrap"><div class="small muted" style="margin-bottom:6px">Google hesabını bağla:</div><div id="gLinkBtn" class="gbtn"></div></div>` : "") +
     `<div class="it"><span>Yedek kod</span><b style="letter-spacing:.12em">${esc(CUR)}</b></div>` +
+    `<div class="small" style="font-weight:700;margin-top:6px">Tema</div><div class="chips" id="thC">${THEMES.map(([k, t]) => `<button type="button" data-theme="${k}" class="${((root.theme || "sec") === k) ? "on" : ""}">${k === "sec" ? "" : `<i class="thdot th-${k}"></i>`}${t}${k === "sec" ? " (varsayılan)" : ""}</button>`).join("")}</div>` +
     `<button class="ghost" id="hkBtn">${I("heart")} Apple Sağlık'tan otomatik adım</button>` + profForm();
+  $("thC").onclick = e => { const b = e.target.closest("[data-theme]"); if(!b) return; if(b.dataset.theme === "sec") delete root.theme; else root.theme = b.dataset.theme; save(); applyTheme(); for(const x of $("thC").children) x.classList.toggle("on", x === b); };
   $("hkBtn").onclick = showHealthSync;
   const lf = $("linkForm");
   if(lf) lf.onsubmit = ev => { ev.preventDefault(); $("accMsg").textContent = ""; busyBtn(lf, async () => {
@@ -1906,9 +1934,12 @@ function ask(text, yes, onYes){
 // ================= MENÜ / SAYFALAR =================
 const VIEWS = {ozet:["vOzet","Günün özeti"], yemek:["vYemek","Kalori alımı"], su:["vSu","Su"], adim:["vAdim","Adım"], hareket:["vHareket","Kilo ve ölçüler"], hedef:["vHedef","Hedefler"], gorev:["vGorev","Görevler"], hesap:["vHesap","Hesap"], supp:["vSupp","Takviyeler"], hab:["vHab","Alışkanlıklar"], kalori:["vKalori","Kalori yakımı"], cards:["tCards","Antrenman"], lib:["tLib","Hareketler"], prog:["tProg","İlerleme"]};
 const DATED = ["ozet","gorev","kalori","yemek","su","adim","hareket","supp","hab"];
+const THEMES = [["sec","Bölüm renkleri"],["orange","Turuncu"],["pink","Pembe"],["blue","Mavi"],["cyan","Camgöbeği"],["purple","Mor"],["yellow","Sarı"],["indigo","Lacivert"]];
+function applyTheme(){ const t = (root && root.theme) || "sec", B = document.body;
+  B.classList.toggle("secc", t === "sec"); for(const [k] of THEMES) B.classList.toggle("th-" + k, t !== "sec" && k === t); }
 function setTab(t){
   if(!VIEWS[t]) t = "ozet";
-  tab = t; document.body.dataset.sec = t; try{ localStorage.setItem("sd-tab", t); localStorage.setItem("sd-cardpage", t === "cards" && cardPage ? cardPage : ""); }catch(e){}
+  tab = t; document.body.dataset.sec = t; applyTheme(); try{ localStorage.setItem("sd-tab", t); localStorage.setItem("sd-cardpage", t === "cards" && cardPage ? cardPage : ""); }catch(e){}
   for(const [k, [id]] of Object.entries(VIEWS)) $(id).hidden = k !== t;
   for(const b of $("dnav").querySelectorAll("button[data-v]")) b.classList.toggle("on", b.dataset.v === t);
   $("vTitle").textContent = VIEWS[t][1];
@@ -2166,7 +2197,7 @@ function renderBadges(){
   renderGym(); renderProgTabs();
   $("bdGrid").innerHTML = badgeList().map(([id, ic, name, desc, ok]) => `<div class="bdc ${ok ? "on" : ""}"><span>${I(ic)}</span><b>${esc(name)}</b><small>${ok && root.badges?.[id] ? dayName(root.badges[id], {day:"numeric", month:"short"}) : esc(desc)}</small></div>`).join("");
 }
-function renderAll(){ if(!root) return; checkBadges(); if(tab === "prog") renderBadges(); if(DATED.includes(tab)) renderDay(); if(tab === "cards") renderCards(); if(tab === "lib") renderLib(); if(tab === "prog") renderProg(); }
+function renderAll(){ if(!root) return; applyTheme(); checkBadges(); if(tab === "prog") renderBadges(); if(DATED.includes(tab)) renderDay(); if(tab === "cards") renderCards(); if(tab === "lib") renderLib(); if(tab === "prog") renderProg(); }
 
 // Hareket görselleri: tıklayınca oynar, tekrar tıklayınca durur (kütüphane kartında tıklama detayı açar)
 document.addEventListener("click", e => { const a = e.target.closest(".anim"); if(a && !a.closest(".exc")){ e.preventDefault(); a.classList.toggle("play"); } }, true);
