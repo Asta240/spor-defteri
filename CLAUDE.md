@@ -129,3 +129,5 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Çıkış yap `ask` ile onay ister.
 - Ana sayfa Bugünkü takip: alışkanlıklar `HSEG` alt başlıklarıyla (`.tseg`). `habHint` (uyku → “Uyanınca işaretle: dün geceki uykun”, erken yat → “Yatmadan işaretle”); “8 saat uyku” sabah grubunda (`mig.sleep`).
 - Seçmeli yemekler `FOPTS` (FOODS[4] anahtar: sand, tost, pide, pizza, omlet, makarna, kumpir, pogaca, acma, borek): gruplar `{t, one, def, mul, o:[[ad,kcal,p,y,c]]}`; `mul` grubu çarpan (pizza boyut/dilim, “Kaç porsiyon” gizlenir). FOODS[4] === 1 sadece Popeyes vb. EXTRAS.
+- Foto kalori: **Anlatarak** modu (`MODE`, `setMode`, `#story`, `#modeC`; localStorage `fk-mode`; hash `#anlat`, drawer “Anlatarak hesapla”): fotoğrafsız, ID_PROMPT “ANLATIM MODU”, tüm çağrılar `images: []`. Yemekhanede menü kalorisi porsiyonun tamamı olarak ölçü alınır (YER_RULE, ITEM_RULES, CHAT_PROMPT). Tema: pembe (Kalori) + turuncu geçiş (`--grad`).
+- Site: Kalori alımı → Ekle → “Claude” sekmesi: `#camLink` (#kalori) ve `#txtLink` (#anlat). Girişte “Misafir olarak gir” (`#lgLocal`, LOCAL hesap). Yeni hesapta bir kez `askTheme()` (`root.themeAsk`).

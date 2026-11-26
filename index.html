@@ -679,6 +679,9 @@
   .tseg{grid-column:1 / -1;font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:10px 2px 2px;padding-top:12px;border-top:1px solid var(--line)}
   .tseg:first-child{margin-top:0;padding-top:0;border-top:0}
   .hhint{color:var(--accent)!important;font-size:11.5px}
+  .orl{display:flex;align-items:center;gap:10px;margin:14px 0 10px;color:var(--muted);font-size:12px} .orl::before,.orl::after{content:"";flex:1;height:1px;background:var(--line)}
+  .thpick{display:grid;grid-template-columns:repeat(2,1fr);gap:8px} .thpick button{justify-content:flex-start;gap:8px;min-height:46px}
+  .thpick button.on{border-color:var(--accent);color:var(--accent)}
   .hklog{display:grid;gap:3px;font-size:12.5px} .hklog div{display:flex;gap:8px;flex-wrap:wrap;align-items:baseline} .hklog span{color:var(--muted);min-width:110px} .hklog small{flex-basis:100%;color:var(--warn);font-size:11.5px}
   .hkSteps{padding-left:20px;margin:12px 0;font-size:14px;display:flex;flex-direction:column;gap:6px}
   #hkUrl{font-size:13px}
@@ -856,6 +859,9 @@
       </form>
       <p class="small err" id="inMsg"></p>
       <button class="linkish" id="toReg">Hesabın yok mu? <b>Kayıt ol</b></button>
+      <div class="orl"><span>ya da</span></div>
+      <button class="ghost" id="lgLocal" style="width:100%">Misafir olarak gir</button>
+      <p class="small muted" style="margin:6px 0 0;text-align:center">Kayıt gerekmez; veriler sadece bu cihazda durur.</p>
     </div>
     <div class="card" id="cReg" hidden>
       <h2>Kayıt ol</h2>
@@ -889,7 +895,6 @@
       </form>
       <p class="small err" id="lgMsg"></p>
     </details>
-    <button class="ghost" id="lgLocal">Hesapsız dene (sadece bu cihazda)</button>
   </section>
 
   <!-- UYGULAMA -->
@@ -944,7 +949,7 @@
       <div class="card" id="addCard">
         <div class="hhead"><span class="hico"><i data-i="utensils"></i></span><div style="flex:1"><h2 style="margin:0">Yemek ekle</h2><div class="small muted" id="addLeft">Hangi öğün?</div></div></div>
         <div class="chips" id="mealSeg" style="margin:12px 0"></div>
-        <div class="seg atabs"><button data-at="ara" class="on">Listeden</button><button data-at="elle">Elle</button><button data-at="foto">Fotoğraf</button></div>
+        <div class="seg atabs"><button data-at="ara" class="on">Listeden</button><button data-at="elle">Elle</button><button data-at="foto">Claude</button></div>
         <div class="apane" data-ap="ara">
           <input id="fq" type="search" placeholder="Ara: mercimek, whopper, kola…" aria-label="Yemek ara">
           <ul class="fres" id="fres"></ul>
@@ -961,8 +966,9 @@
           </form>
         </div>
         <div class="apane" data-ap="foto" hidden>
-          <p class="small muted" style="margin:0 0 10px">Fotoğrafı Claude'a gönder: önce yemekleri tanır, sen her birinin detayını (yağ, kaç kişilik, ne kadarını yediğin) seçersin, sonra kaloriyi hesaplar. “Bugünkü yemeklerime ekle”ye basınca yemekler buraya gelir.</p>
-          <a class="camBtn" id="camLink" target="_blank" rel="noopener" style="display:inline-flex"><i data-i="camera"></i> Fotoğraftan kalori aç</a>
+          <p class="small muted" style="margin:0 0 10px">Fotoğrafını at ya da ne yediğini yazıyla anlat: Claude yemekleri çıkarır, bilmediklerini sorar, kaloriyi hesaplar. Sonra tek tuşla buraya eklenir.</p>
+          <div class="row" style="gap:8px;flex-wrap:wrap"><a class="camBtn" id="camLink" target="_blank" rel="noopener" style="display:inline-flex"><i data-i="camera"></i> Fotoğraftan kalori aç</a>
+          <a class="camBtn" id="txtLink" target="_blank" rel="noopener" style="display:inline-flex"><i data-i="edit"></i> Anlatarak hesapla</a></div>
           <form id="ymkForm" class="row" style="margin-top:12px"><input id="ymkIn" placeholder="Açılmazsa kodu yapıştır: YMK1.…" autocomplete="off" aria-label="Yemek kodu" style="flex:1 1 180px"><button class="small-btn">Yapıştır</button></form>
         </div>
       </div>
@@ -1641,7 +1647,9 @@ const shift = (s, n) => { const d = new Date(s+"T12:00"); d.setDate(d.getDate()+
 const dayName = (s, o) => new Date(s+"T12:00").toLocaleDateString("tr-TR", o);
 const blankDay = () => ({f:[], w:0, wo:"", ca:"", st:"", bu:"", kg:""});
 // Yenilikler: okunmamış maddeler siteyi açınca çıkar, "Tamam"a basınca o maddeler bir daha çıkmaz. Yeni madde EN ÜSTE, başlığı benzersiz olsun.
-const NEWS = {id:"2026-11-26i", items:[
+const NEWS = {id:"2026-11-26j", items:[
+  ["edit", "Anlatarak kalori hesapla", "Kalori alımı → Ekle → Claude: “Anlatarak hesapla” ile fotoğraf olmadan ne yediğini yaz (ör. “kaşarlı sucuklu tost, yanında avokado ve zeytin”). Claude bilmediklerini sorar, hesaplar. Yemekhanede menüdeki kaloriyi yazarsan onu ölçü alır."],
+  ["user", "Misafir giriş", "Giriş ekranında “Misafir olarak gir”: kayıt olmadan dene, veriler sadece o cihazda durur. Yeni hesaplarda ilk açılışta tema seçimi çıkar."],
   ["utensils", "İçini seçerek ekle", "Sandviç (ekmek: susamlı, francala, tombik, kantin, pastane… + içindekiler), Kantin sandviçi (paketli), Tost, Poğaça, Açma, Börek, Pide (çeşidi), Pizza (çeşit, boyut, kaç dilim), Omlet (yumurta + içine), Makarna (sos) ve Kumpir (malzemeler): seçtikçe kalori kendiliğinden hesaplanır."],
   ["utensils", "62 yeni yemek", "Yemek aramada artık sandviçler (kaşarlı, tavuklu, ton balıklı, hindi füme…), karışık tost, kumru, gözleme, bazlama, sucuk/salam, tavuk but/şiş, kıyma, somon, patates, brokoli, bolonez, kek, kurabiye, leblebi gibi temel şeyler de var."],
   ["check", "Takipte Sabah / Gün içi / Akşam", "Ana sayfadaki Bugünkü takipte alışkanlıklar Sabah, Gün içi ve Akşam diye ayrıldı. “8 saat uyku” artık sabahta: uyanınca dün geceki uykun için işaretle. “Erken yat” akşamda: yatmadan işaretle."],
@@ -1671,6 +1679,17 @@ const NEWS = {id:"2026-11-26i", items:[
   ["edit", "Silmek için Düzenle", "Yediklerin ve kardiyo listesinde ✕ artık sadece “Düzenle”ye basınca çıkıyor; yanlışlıkla silinmiyor."],
   ["target", "Görevler ve su", "Görevler kendi sayfasında (ana sayfada sağ üstteki hedef). Su: çay bardağı, büyük bardak, yarım / 1 / 1,5 L şişe."]]};
 // Okunan yenilikler başlığıyla tutulur (root.newsRead); pencerede sadece okunmamışlar çıkar
+// Kayıttan sonra bir kez: tema seçimi
+function askTheme(){
+  if(!root || !$("modal").hidden) return;
+  const cur0 = root.theme || "sec";
+  openSheet(`<h2 style="margin:0 0 4px">${I("sliders")} Temanı seç</h2><p class="small muted" style="margin:0 0 12px">Sonra Hesap → Tema'dan istediğin zaman değiştirebilirsin.</p>
+    <div class="thpick" id="thPick">${THEMES.map(([k, t]) => `<button type="button" class="ghost${cur0 === k ? " on" : ""}" data-thp="${k}">${k === "sec" ? `<i class="thdot th-pink"></i><i class="thdot th-blue" style="margin-left:-9px"></i><i class="thdot th-orange" style="margin-left:-9px"></i>` : `<i class="thdot th-${k}"></i>`}${t}${k === "sec" ? " (önerilen)" : ""}</button>`).join("")}</div>
+    <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="small-btn" id="thOk">Tamam</button></div>`);
+  $("thPick").onclick = e => { const b = e.target.closest("[data-thp]"); if(!b) return; if(b.dataset.thp === "sec") delete root.theme; else root.theme = b.dataset.thp; applyTheme(); for(const x of $("thPick").children) x.classList.toggle("on", x === b); };
+  delete root.themeAsk; save(); // tek seferlik: kapatılsa da bir daha sorulmaz
+  $("thOk").onclick = () => { save(); closeSheet(); };
+}
 function maybeNews(){
   if(!root || !$("modal").hidden) return;
   let lsr = []; try{ lsr = JSON.parse(localStorage.getItem("sd-news-read") || "[]"); }catch(e){}
@@ -1708,7 +1727,7 @@ function migWk(r){
 }
 function fixRoot(r){
   const f = freshRoot();
-  if(!r){ f.newsSeen = NEWS.id; f.newsRead = NEWS.items.map(x => x[1]); } // yeni hesap yenilikleri görmez
+  if(!r){ f.newsSeen = NEWS.id; f.newsRead = NEWS.items.map(x => x[1]); f.themeAsk = 1; } // yeni hesap yenilikleri görmez, bir kez tema seçer
   r = Object.assign(f, r || {});
   r.goals = Object.assign({k:2100, p:130, w:12, st:8000, bu:2500, woW:3, caW:60, weW:2}, r.goals || {});
   r.days = r.days || {}; r.lifts = r.lifts || {}; r.cards = Array.isArray(r.cards) ? r.cards : [];
@@ -1781,11 +1800,11 @@ function startApp(code, r){
   const pend = () => { applyPendingYmk(); applyPendingVeri(); };
   if(ONLINE()){ Promise.resolve(poll()).catch(() => {}).then(pend); setInterval(() => { if(!document.hidden) poll(); }, 30000); document.addEventListener("visibilitychange", () => { if(!document.hidden) poll(); }); }
   else{ lsSet(storeKey(), JSON.stringify(root)); pend(); }
-  setTimeout(maybeNews, 800);
+  setTimeout(() => { if(root && root.themeAsk) askTheme(); else maybeNews(); }, 800);
 }
 // Giriş yolları: kullanıcı adı + şifre, Google, eski kod. Hepsi sonunda hesabın koduna çıkar.
 let GID = null;
-const label = () => lsGet("sd-user") || (CUR === "LOCAL" ? "Hesapsız" : CUR);
+const label = () => lsGet("sd-user") || (CUR === "LOCAL" ? "Misafir" : CUR);
 const errMsg = e => typeof e === "string" ? e : "Sunucuya bağlanılamadı.";
 async function api(body){
   const r = await fetch("/api/auth", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)});
@@ -1980,7 +1999,7 @@ $("drawerBg").onclick = closeDrawer;
 document.addEventListener("keydown", e => { if(e.key === "Escape") closeDrawer(); });
 document.addEventListener("click", e => { const b = e.target.closest(".kseg button[data-v]"); if(b) setTab(b.dataset.v); });
 $("dnav").onclick = e => { const b = e.target.closest("button[data-v]"); if(b){ listOverride = false; if(b.dataset.v === "cards"){ cardPage = null; editCard = null; } setTab(b.dataset.v); } };
-$("camLink").href = FOTO_URL;
+$("camLink").href = FOTO_URL + "#kalori"; $("txtLink").href = FOTO_URL + "#anlat";
 document.addEventListener("click", e => { const g = e.target.closest("[data-go]"); if(g) setTab(g.dataset.go); });
 document.addEventListener("keydown", e => { const g = e.target.closest && e.target.closest("[data-go][role=button]"); if(g && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); setTab(g.dataset.go); } });
 // ================= SERİLER + ROZETLER =================

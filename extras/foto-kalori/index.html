@@ -6,30 +6,33 @@
 <title>Fotoğraftan Kalori · Spor Defteri</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  /* Spor Defteri ile aynı görünüm: koyu + turuncu, emojisiz */
-  :root{--bg:#0f1013;--card:#18191d;--card-2:#202227;--line:#2b2e35;--ink:#eceef2;--muted:#9a9fab;--accent:#ff9f1c;--accent-soft:rgba(255,159,28,.14);--bad:#ff6b6b;--bad-soft:rgba(255,107,107,.13);--r:18px;color-scheme:dark}
+  /* Spor Defteri'nin Kalori bölümü: koyu + pembe (geçişte turuncu), emojisiz */
+  :root{--bg:#0d0e12;--card:#17181d;--card-2:#1f2127;--line:#2a2d35;--ink:#eef0f4;--muted:#9a9fab;--accent:#f783ac;--accent-2:#ff9f1c;--accent-soft:rgba(247,131,172,.14);--grad:linear-gradient(135deg,#f783ac,#ff9f1c);--bad:#ff6b6b;--bad-soft:rgba(255,107,107,.13);--r:18px;color-scheme:dark}
   *{box-sizing:border-box;min-width:0;touch-action:manipulation} [hidden]{display:none!important}
-  body{margin:0;font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:radial-gradient(900px 400px at 0% -10%,rgba(255,159,28,.07),transparent 60%),var(--bg);color:var(--ink);line-height:1.45;overflow-x:clip;-webkit-font-smoothing:antialiased}
+  body{margin:0;font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:radial-gradient(700px 380px at -10% -8%,rgba(247,131,172,.13),transparent 60%),radial-gradient(600px 320px at 110% -5%,rgba(255,159,28,.08),transparent 60%),var(--bg) fixed;color:var(--ink);line-height:1.45;overflow-x:clip;-webkit-font-smoothing:antialiased}
   .wrap{max-width:640px;margin:0 auto;padding:18px 14px 60px}
   .top{display:flex;align-items:center;gap:12px;margin-bottom:4px}
-  .mb{width:44px;height:44px;min-height:0;padding:0;border-radius:12px;background:var(--card);border:1px solid var(--line)}
-  h1{font-size:24px;font-weight:800;margin:0;letter-spacing:-.02em} h1 span{color:var(--accent)}
+  .mb{width:44px;height:44px;min-height:0;padding:0;border-radius:14px;background:var(--card);border:1px solid rgba(255,255,255,.07)}
+  h1{font-size:25px;font-weight:800;margin:0;letter-spacing:-.025em} h1 span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
   h2{font-size:15px;font-weight:700;margin:0 0 4px;display:flex;align-items:center;gap:8px}
   .sub{color:var(--muted);margin:8px 0 14px;font-size:13.5px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:14px}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.028),rgba(255,255,255,0) 120px),var(--card);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:18px;margin-bottom:14px;box-shadow:0 12px 32px rgba(0,0,0,.28)}
+  .card>h2:first-child{font-size:16px} h2 svg.i{width:30px;height:30px;padding:6px;border-radius:10px;background:var(--accent-soft)}
   .muted{color:var(--muted);font-size:13px}
   svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
   h2 svg.i{color:var(--accent)}
+  .modec{margin:2px 0 12px}
   .drawer{position:fixed;inset:0;z-index:50;display:flex} .drawer>div{width:260px;max-width:82vw;background:var(--card);border-right:1px solid var(--line);padding:18px 12px;display:flex;flex-direction:column;gap:4px}
   .drawer .bg{flex:1;background:rgba(0,0,0,.55);width:auto;border:0;padding:0}
   .drawer b{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:4px 8px 8px}
   .drawer button{justify-content:flex-start;background:transparent;font-size:15px;min-height:44px;width:100%}
   .drawer button.on{background:var(--accent-soft);color:var(--accent)} .drawer button:disabled{opacity:.35}
   .steps button{font-size:12px;font-weight:700;padding:5px 11px;min-height:0;border-radius:99px;background:var(--card);border:1px solid var(--line);color:var(--muted)}
-  .steps button.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+  .steps button.on{background:var(--grad);border-color:transparent;color:#1d0f14}
   .steps{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
   .steps span{font-size:12px;font-weight:700;padding:5px 11px;border-radius:99px;background:var(--card);border:1px solid var(--line);color:var(--muted)}
   .steps span.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+  .drop:hover{border-color:var(--accent)}
   .drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:110px;padding:18px;border-radius:14px;border:1.5px dashed var(--line);background:var(--card-2);cursor:pointer;font-weight:700;text-align:center;margin-top:10px}
   .drop svg.i{width:26px;height:26px;color:var(--accent)} .drop small{font-weight:500;color:var(--muted)}
   .drop.over{border-color:var(--accent)} .drop input{display:none}
@@ -43,7 +46,7 @@
   input:focus,textarea:focus,select:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
   label.f{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-top:12px} label.f>*{margin-top:5px}
   button,.btn{font:inherit;font-size:14px;font-weight:700;border:1px solid transparent;border-radius:12px;padding:8px 14px;cursor:pointer;background:var(--card-2);color:var(--ink);min-height:40px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
-  button.pri,.btn.pri{background:var(--accent);color:#1a1206}
+  button.pri,.btn.pri{background:var(--grad);color:#1d0f14;box-shadow:0 6px 18px rgba(247,131,172,.22)}
   button.ghost{background:transparent;border-color:var(--line);color:var(--muted)}
   button:disabled,.btn.off{opacity:.45;cursor:default;pointer-events:none}
   .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -114,6 +117,7 @@
 <body>
 <div class="drawer" id="drawer" hidden><div><b>Fotoğraftan kalori</b>
   <button data-go="p1"><svg class="i" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> 1 · Fotoğraf</button>
+  <button data-go="anlat"><svg class="i" viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/></svg> Anlatarak hesapla</button>
   <button data-go="p2"><svg class="i" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/></svg> 2 · Sorular</button>
   <button data-go="p3"><svg class="i" viewBox="0 0 24 24"><path d="M12 3c3 4 6 6.5 6 10a6 6 0 0 1-12 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-3 1-6 2-8.5z"/></svg> 3 · Sonuç ve ekle</button>
   <b style="margin-top:14px">Yemek danışma</b>
@@ -124,14 +128,18 @@
   <div class="warn" id="noClaude" hidden>Bu sayfa senin Claude hesabınla çalışır (fotoğrafı Claude okur). claude.ai'ye giriş yapıp sayfayı yenile.</div>
 
   <div id="vKal">
-  <p class="sub">Fotoğrafı at, Claude yemekleri tanısın. Sonra her yemeğin detayını (yağ, kaç kişilik, ne kadarını yediğin) sen gir, kalori ona göre hesaplansın.</p>
-  <div class="steps"><button id="s1" data-go="p1" class="on">1 · Fotoğraf</button><button id="s2" data-go="p2">2 · Sorular</button><button id="s3" data-go="p3">3 · Sonuç</button></div>
+  <p class="sub">Fotoğrafı at ya da ne yediğini anlat. Claude yemekleri çıkarsın, bilmediklerini sorsun, kaloriyi hesaplasın.</p>
+  <div class="steps"><button id="s1" data-go="p1" class="on">1 · Fotoğraf / Anlat</button><button id="s2" data-go="p2">2 · Sorular</button><button id="s3" data-go="p3">3 · Sonuç</button></div>
   <section class="card" id="p1">
-    <h2><svg class="i" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Fotoğraf</h2>
+    <h2 id="p1h"><svg class="i" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Fotoğraf</h2>
+    <div class="chips modec" id="modeC"><button type="button" data-mode="foto">Fotoğrafla</button><button type="button" data-mode="anlat">Anlatarak</button></div>
+    <label class="f" id="storyL" hidden>Ne yedin? Anlat
+      <textarea id="story" rows="6" placeholder="ör. File'den uzun baget aldım, kaşarlı sucuklu tost yaptım, yanına avokado ve lutenitsa sosu, yeşil zeytin. 2 çay içtim, sonra 2 çikolatalı mısır patlağı yedim."></textarea></label>
+    <p class="muted" id="storyH" hidden style="margin:4px 0 0">Ne kadar yediğini biliyorsan yaz (ör. “ekmeğin yarısı”, “3 dilim sucuk”). Bilmediklerini Claude soracak.</p>
     <label class="drop" id="drop"><input type="file" id="fileIn" accept="image/*" multiple><svg class="i" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>Fotoğraf çek ya da seç<small>En fazla 4 fotoğraf · tabakların tamamı görünsün</small></label>
     <div class="thumbs" id="thumbs"></div>
     <label class="f">Nerede yedin?</label><div class="chips" id="yerC"></div>
-    <label class="f">Fotoğraflar hakkında not (isteğe bağlı)<textarea id="note" placeholder="ör. “2. foto ikinci tabak yoğurdum”, “2. foto yedikten sonraki hali”"></textarea></label>
+    <label class="f">Fotoğraflar hakkında not (isteğe bağlı)<textarea id="note" placeholder="ör. “2. foto ikinci tabak yoğurdum”, “2. foto yedikten sonraki hali”, yemekhanede “köfte menüde 389 kcal”"></textarea></label>
     <label class="f">Claude modeli</label><div class="chips tierc"><button type="button" data-tier="complex">Güçlü (daha doğru, biraz yavaş)</button><button type="button" data-tier="default">Normal (hızlı)</button></div>
     <div class="row end"><button class="pri" id="idBtn" disabled>Yemekleri tanı</button></div>
     <p class="muted" id="st1" style="margin:8px 0 0"></p>
@@ -205,7 +213,7 @@ const $ = id => document.getElementById(id);
 const esc = t => String(t ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let page = "p1";
 const avail = g => g === "p2" ? foods.length > 0 && !foods.some(x => x.es != null) : g === "pm" ? foods.some(x => x.es != null) : g === "p3" ? items.length > 0 : g === "dres" ? !!dDone : true;
-function go(g){ if(!avail(g)) return; page = g; const kal = ["p1","pm","p2","p3"].includes(g);
+function go(g){ if(g === "anlat"){ setMode("anlat"); g = "p1"; } if(!avail(g)) return; page = g; const kal = ["p1","pm","p2","p3"].includes(g);
   $("vKal").hidden = !kal; $("vDan").hidden = kal;
   $("p1").hidden = g !== "p1"; $("p2").hidden = g !== "p2"; $("pm").hidden = g !== "pm"; $("p3").hidden = $("p4").hidden = g !== "p3";
   $("dForm").hidden = g !== "dan"; $("dRes").hidden = g !== "dres";
@@ -246,12 +254,24 @@ const getImgs = async () => imgs || (imgs = await Promise.all(files.map(shrink))
 function setFiles(list){
   files = [...files, ...[...list].filter(f => f.type.startsWith("image/"))].slice(0, 4); imgs = null;
   $("thumbs").innerHTML = thumbs(files, "rm");
-  $("idBtn").disabled = !files.length || !sample || !canImg;
+  $("idBtn").disabled = !canGo();
 }
 $("fileIn").onchange = e => { setFiles(e.target.files); e.target.value = ""; };
 $("thumbs").onclick = e => { const b = e.target.closest("button[data-rm]"); if(!b) return; files.splice(+b.dataset.rm, 1); const f = files; files = []; setFiles(f); };
 dropOn($("drop"), setFiles);
-const photoLine = () => files.length > 1 ? `Fotoğraflar sırayla: ${files.map((_, i) => "Foto " + (i + 1)).join(", ")}.` : "Tek fotoğraf var (Foto 1).";
+let MODE = "foto"; try{ MODE = localStorage.getItem("fk-mode") === "anlat" ? "anlat" : "foto"; }catch(e){}
+const story = () => $("story").value.trim();
+const anlat = () => MODE === "anlat";
+const canGo = () => !!sample && (anlat() ? story().length >= 4 : files.length && canImg);
+function setMode(m){ MODE = m; try{ localStorage.setItem("fk-mode", m); }catch(e){}
+  for(const b of $("modeC").children) b.classList.toggle("on", b.dataset.mode === m);
+  $("drop").hidden = $("thumbs").hidden = anlat(); $("storyL").hidden = $("storyH").hidden = !anlat();
+  $("note").closest("label").hidden = anlat();
+  $("p1h").lastChild.textContent = anlat() ? " Anlat" : " Fotoğraf";
+  $("idBtn").textContent = anlat() ? "Yemekleri çıkar" : "Yemekleri tanı"; $("idBtn").disabled = !canGo(); }
+$("modeC").onclick = e => { const b = e.target.closest("[data-mode]"); if(b) setMode(b.dataset.mode); };
+$("story").oninput = () => { $("idBtn").disabled = !canGo(); };
+const photoLine = () => anlat() ? `FOTOĞRAF YOK. Kullanıcı ne yediğini yazıyla anlattı (bu anlatım kesin bilgidir): "${story()}"` : files.length > 1 ? `Fotoğraflar sırayla: ${files.map((_, i) => "Foto " + (i + 1)).join(", ")}.` : "Tek fotoğraf var (Foto 1).";
 const userNote = () => $("note").value.trim();
 
 // Nerede yenildi: yemekhane / restoran / fast food'da yağ ve tepsi sorulmaz, standart tarif kullanılır
@@ -260,14 +280,15 @@ const drawYer = () => { $("yerC").innerHTML = YERS.map(y => `<button type="butto
 $("yerC").onclick = e => { const b = e.target.closest("[data-yer]"); if(!b) return; YER = YER === b.dataset.yer ? "" : b.dataset.yer; try{ localStorage.setItem("fk-yer", YER); }catch(e){} drawYer(); if(foods.length) drawFoods(); };
 try{ YER = localStorage.getItem("fk-yer") || ""; }catch(e){} drawYer();
 const outside = () => YER && YER !== "Ev";
-const YER_RULE = () => YER === "Yemekhane" ? `Yemek Türkiye'de bir üniversite / kamu YEMEKHANESİNDE yendi: standart toplu tarifler ve gramajlar geçerli (ana yemek pişmiş et/tavuk ≈ 120–180 g, pilav/bulgur/makarna ≈ 170–220 g, çorba kasesi ≈ 250–300 ml, sebze yemeği ≈ 200 g). Bu aralıklar sadece kontrol içindir: miktarı fotoğraftaki parça sayısından bul, aralığın alt ucuna çekme. Toplu pişirmede yağ ortalamanın biraz üstüdür; et ve pilav sosundan yağ çeker. Tabakta kalan yağlı sos yenmediyse sosu sayma, ama et ve pilavın çektiği yağı say.`
+const YER_RULE = () => YER === "Yemekhane" ? `Yemek Türkiye'de bir üniversite / kamu YEMEKHANESİNDE yendi. Kullanıcı menüde yazan kaloriyi verdiyse (ör. "köfte menüde 389") bunu o yemeğin standart porsiyonunun TAMAMI say (garnitür ve sos dahil; ör. ekşili köfte = köfte + patates + sos) ve porsiyon ölçüsü olarak kullan: hepsi yendiyse bu değer, bir kısmı bırakıldıysa bırakılan kısmı (garnitür, sos) düşerek orantıla; fotoğraftan bunun çok üstüne çıkma. Menü kalorisi yoksa: standart toplu tarifler ve gramajlar geçerli (ana yemek pişmiş et/tavuk ≈ 120–180 g, pilav/bulgur/makarna ≈ 170–220 g, çorba kasesi ≈ 250–300 ml, sebze yemeği ≈ 200 g). Bu aralıklar sadece kontrol içindir: miktarı fotoğraftaki parça sayısından bul, aralığın alt ucuna çekme. Toplu pişirmede yağ ortalamanın biraz üstüdür; et ve pilav sosundan yağ çeker. Tabakta kalan yağlı sos yenmediyse sosu sayma, ama et ve pilavın çektiği yağı say.`
   : YER === "Fast food" ? `Yemek bir FAST FOOD zincirinde yendi: zincirin resmi besin değerlerini kullan (ürünü tanıyabiliyorsan adını yaz).`
   : YER === "Restoran" ? `Yemek bir RESTORANDA yendi: porsiyonlar ev porsiyonundan büyük, yağ ve tereyağı bol kullanılır.`
   : YER === "Ev" ? `Yemek EVDE yendi; kullanıcının verdiği yağ ve tepsi bilgileri kesindir.` : "";
 
 // 1) Tanı
-const ID_PROMPT = () => `Sen bir diyetisyen asistanısın. Önce sadece fotoğraflardaki yemekleri TANI, kalori hesaplama.
+const ID_PROMPT = () => `Sen bir diyetisyen asistanısın. Önce sadece ${anlat() ? "kullanıcının anlattığı" : "fotoğraflardaki"} yemekleri TANI, kalori hesaplama.
 ${photoLine()}
+${anlat() ? `ANLATIM MODU: fotoğraf yok, "foto" alanını boş liste yaz, ölçek kurallarını atla. Anlatımdaki her yiyecek ve içecek ayrı satır (ekmek, tost içindekiler ayrı değil: "Kaşarlı sucuklu tost" tek satır; ama yanında yenen avokado, sos, zeytin ayrı satır). Markalı/özel ürünleri tanı (ör. Lutenitsa = Balkan közlenmiş biber-domates sosu, çikolatalı mısır patlağı = çikolata kaplı patlamış mısır). Miktar anlatımda varsa aynen yaz; yoksa Türkiye'de tipik porsiyonu yaz ve kaloriyi belirgin değiştirecekse SOR (ör. ekmeğin ne kadarı, kaç dilim sucuk/kaşar, avokadonun ne kadarı, sostan kaç kaşık, çayda şeker). Şekersiz çay su sayılır (bardak ≈ 100 ml); şekerliyse yemek satırı yaz.` : ""}
 ${userNote() ? `KULLANICININ NOTU (kesin bilgi, fotoğraf yorumundan önce gelir): "${userNote()}". Ör. "2. foto ikinci tabak yoğurt" diyorsa o ayrı bir porsiyondur, ayrı satır yaz; "yedikten sonraki hali / kalan" diyorsa o fotoğraf kalan kısımdır, yenen = önce − kalan.` : ""}
 Kurallar:
 - Ayrı görünen her yiyecek ayrı satır (köfte, patates, pilav, yoğurt, içecek...). Türkçe kısa ad, miktarı ada yazma.
@@ -290,20 +311,20 @@ ${YER_RULE()}
   Yemekhane / restoran / fast food ise yağ, tencere ve kişi sorma. Aynı yemek birden fazla fotoğrafta ise onu sorma (ayrıca soruluyor). Aynı soruyu iki yemek için tekrarlama: kişi sayısı tek soru olsun; aynı tencerede pişmediği sürece yağ sorusu her yemeğe ayrı.
 Sadece şu JSON'u döndür: {"items":[{"n":"Köfte","foto":[1],"miktar":"5 adet","yag":true,"tepsi":true,"pis":"Fırın / tepsi"},{"n":"Yoğurt","foto":[1],"miktar":"≈300 g (kase ağzına kadar dolu)","yag":false,"tepsi":false,"pis":""},{"n":"Yoğurt","foto":[2],"miktar":"≈180 g (kase ~⅔ dolu)","yag":false,"tepsi":false,"pis":"","es":1}],"sorular":[{"y":0,"s":"Köftelere ne kadar yağ kondu?","c":["Hiç","1 yk","2 yk"]}],"su_ml":0,"not":"kısa genel yorum ya da boş"}`;
 $("idBtn").onclick = async () => {
-  if(!files.length || !sample) return;
-  const b = $("idBtn"); b.disabled = true; b.innerHTML = '<span class="spin"></span> Claude bakıyor…'; $("st1").textContent = "";
+  if(!canGo()) return;
+  const b = $("idBtn"); b.disabled = true; b.innerHTML = `<span class="spin"></span> ${anlat() ? "Claude okuyor…" : "Claude bakıyor…"}`; $("st1").textContent = "";
   try{
-    const r = await sample.json(ID_PROMPT(), {images: await getImgs(), modelTier: tier()});
+    const r = await sample.json(ID_PROMPT(), {images: anlat() ? [] : await getImgs(), modelTier: tier()});
     foods = (Array.isArray(r && r.items) ? r.items : []).map(x => ({n: String(x.n || "Yemek").slice(0, 60), foto: Array.isArray(x.foto) ? x.foto.filter(n => +n > 0).map(Number) : [], miktar: String(x.miktar || "").slice(0, 60), yag: !!x.yag, tepsi: !!x.tepsi, es: Number.isInteger(x.es) ? x.es : null, soru: String(x.soru || "").slice(0, 160), pis: PIS.includes(x.pis) ? x.pis : "", pisG: PIS.includes(x.pis), oil: "", oilT: "", kisi: "", pay: "", ek: ""}));
     const all = foods; qs = (Array.isArray(r && r.sorular) ? r.sorular : []).slice(0, 5).map(q => ({f: Number.isInteger(q.y) && q.y >= 0 ? all[q.y] || null : null, s: String(q.s || "").slice(0, 160), c: (Array.isArray(q.c) ? q.c : []).map(c => String(c).slice(0, 30)).filter(Boolean).slice(0, 5), a: ""})).filter(q => q.s); qOpen = qW = -1; qExtra = "";
     suMl = Math.max(0, Math.round(+(r && r.su_ml) || 0));
     foods = foods.filter(x => !/^(su|maden suyu|soda|çay|kahve)\b/i.test(x.n) || x.yag);
     const nt = [(r && r.not) || "", suMl ? `Su: ${suMl} ml (Spor Defteri'ne su olarak eklenir).` : ""].filter(Boolean).join(" ");
     $("idNote").hidden = !nt; $("idNote").textContent = nt;
-    if(!foods.length) $("st1").textContent = (r && r.not) || "Fotoğrafta yemek bulunamadı.";
+    if(!foods.length) $("st1").textContent = (r && r.not) || (anlat() ? "Anlatımda yemek bulunamadı." : "Fotoğrafta yemek bulunamadı.");
     else { items = []; foods.forEach((x, i) => { if(x.es != null && !(x.es >= 0 && x.es < i)) x.es = null; x.esA = ""; }); if(foods.some(x => x.es != null)){ drawPairs(); go("pm"); } else { drawFoods(); go("p2"); } }
   }catch(e){ $("st1").textContent = errTxt(e); }
-  b.innerHTML = "Yemekleri tanı"; b.disabled = !files.length;
+  b.innerHTML = anlat() ? "Yemekleri çıkar" : "Yemekleri tanı"; b.disabled = !canGo();
 };
 
 // 1,5) Aynı yemek birden fazla fotoğrafta: önce kullanıcıya sor
@@ -376,6 +397,7 @@ const ITEM_RULES = `- k = kcal, p = protein g, y = yağ g, c = karbonhidrat g (t
 - Tencere / tavadaki toplam miktar ve kişi sayısı biliniyorsa ÜST SINIR: pişmiş toplam ≈ çiğ × 0,72 (et/tavuk); kullanıcının yediği bunun makul payını geçemez (kişi başı ortalama; ikinci porsiyon aldıysa en fazla ≈ 1,7 katı). Fotoğraftan tahminin bunu aşıyorsa sınırı kullan ve gerekçede yaz. Ör. 1 kg çiğ tavuk, 4 kişi → ≈720 g pişmiş, kişi başı ≈180 g, ikinci porsiyonla ≈300 g.
 - Pilav/bulgur/makarna: kuru miktar ve kişi sayısı biliniyorsa pişmiş toplam ≈ kuru × 2,7 (pirinç) / × 2,5 (bulgur) / × 2,2 (makarna); konan tüm yağ ve tereyağı bu toplama yayılır, kullanıcıya düşen pay = yediği pişmiş / pişmiş toplam. Tereyağı 1 yk ≈ 14 g ≈ 100 kcal, 50 g ≈ 360 kcal.
 - Kişi sayısı tencere yemeklerinin hepsinde payı belirler; kullanıcı ikinci porsiyon aldıysa payı ortalamanın üstünde olabilir.
+- Kullanıcı bir yemeğin paket, menü ya da etiket kalorisini verdiyse onu temel al (porsiyon ve yenen kısma göre orantıla).
 - Pişirme: kızartmada (bol yağ) yiyecek yağ emer — patates kızartması ≈ 12–15 g yağ / 100 g, hamurlu / panelı tavuk-köfte ≈ 10–15 g / 100 g; tavada az yağ ≈ 3–6 g / 100 g; fırın / tepsi sadece konan yağın payı; haşlama, ızgara ve çiğde ek yağ yok (konan yağ varsa onu say).
 - Yağ bilinmiyorsa ev yemeği için makul ortalama kullan, kaloriyi düşük tahmin etme.
 - Miktar parça sayısıyla verildiyse (ör. "15 şerit") gramı parça sayısı × parça ağırlığından hesapla, yemek türü ortalamasına yuvarlama. Yenen = önce − kalan; kalan sadece sos ise eti tam say.
@@ -396,7 +418,7 @@ $("calcBtn").onclick = async () => {
   if(!foods.length || !sample) return;
   const b = $("calcBtn"); b.disabled = true; b.innerHTML = '<span class="spin"></span> Hesaplanıyor…'; $("st2").textContent = "";
   try{
-    const r = await sample.json(CALC_PROMPT(), {images: await getImgs(), modelTier: tier()});
+    const r = await sample.json(CALC_PROMPT(), {images: anlat() ? [] : await getImgs(), modelTier: tier()});
     items = (Array.isArray(r && r.items) ? r.items : []).map(toItem);
     $("calcNote").hidden = !(r && r.not); $("calcNote").textContent = (r && r.not) || "";
     if(!items.length) $("st2").textContent = "Hesaplanamadı, tekrar dene.";
@@ -441,14 +463,14 @@ $("items").onclick = async e => { const b = e.target.closest("button"); if(!b) r
   if(b.dataset.det != null){ const x = items[+b.dataset.det]; x.open = !x.open; draw(); if(x.open) $("items").querySelector(`[data-dtxt="${b.dataset.det}"]`).focus(); return; }
   if(b.dataset.recalc != null){ const i = +b.dataset.recalc, x = items[i], d = (x.d || "").trim(); if(!d || x.busy || !sample) return;
     x.busy = true; draw();
-    try{ const r = await sample.json(ITEM_PROMPT(x, d), {images: await getImgs(), modelTier: tier()}); if(r && r.n != null) items[i] = Object.assign(toItem(r), {d, info: true}); }
+    try{ const r = await sample.json(ITEM_PROMPT(x, d), {images: anlat() ? [] : await getImgs(), modelTier: tier()}); if(r && r.n != null) items[i] = Object.assign(toItem(r), {d, info: true}); }
     catch(err){ $("calcNote").hidden = false; $("calcNote").textContent = errTxt(err); }
     if(items[i]) items[i].busy = false; draw(); } };
 
 // Sonuçta mini sohbet: kullanıcı düzeltmeyi yazar, Claude eksik bilgiyi sorar ya da tüm listeyi yeniden hesaplar
 let rMsgs = [], rBusy = false; // {u: true|false, t: metin, q: {s, c} (Claude sorusu)}
 const sumTxt = () => { const k = items.reduce((a, x) => a + (+x.k || 0), 0), p = items.reduce((a, x) => a + (+x.p || 0), 0); return `${k.toLocaleString("tr-TR")} kcal · ${p} g protein`; };
-const CHAT_PROMPT = m => `Sen bir diyetisyen asistanısın. Kullanıcıyla kısa sohbet ederek fotoğraftaki yemeğin kalori hesabını düzeltiyorsun.
+const CHAT_PROMPT = m => `Sen bir diyetisyen asistanısın. Kullanıcıyla kısa sohbet ederek ${anlat() ? "anlattığı" : "fotoğraftaki"} yemeğin kalori hesabını düzeltiyorsun.
 ${photoLine()}${userNote() ? `\nKullanıcının genel notu: "${userNote()}"` : ""}
 ${YER_RULE()}
 Şu anki hesap:
@@ -456,7 +478,7 @@ ${items.map((x, i) => `${i + 1}) ${x.n} — ${x.k} kcal, ${x.p} g protein, yağ 
 ${rMsgs.length ? "Sohbet şimdiye kadar:\n" + rMsgs.map(x => `${x.u ? "Kullanıcı" : "Sen"}: ${x.t}${x.q ? ` [soru: ${x.q.s}]` : ""}`).join("\n") : ""}
 Kullanıcının yeni mesajı: "${m}"
 Kurallar:
-- Kullanıcının söylediği miktarlar, kişi sayısı, yağ KESİN bilgidir; fotoğraf sadece yardımcıdır.
+- Kullanıcının söylediği miktarlar, kişi sayısı, yağ, menü kalorisi KESİN bilgidir; fotoğraf sadece yardımcıdır. Yemekhane menüsündeki kalori porsiyonun tamamıdır (garnitür ve sos dahil).
 - Doğru hesap için kritik bir bilgi eksikse ÖNCE SOR, listeyi değiştirme ("items": null). Özellikle: yağ miktarı söylendi ama ne kadar yemeğe konduğu / tencerede toplam ne kadar olduğu bilinmiyorsa onu sor; tencere toplamı söylendi ama kaç kişi yendiği bilinmiyorsa onu sor; "ikinci tabak aldım" dendi ama ne kadar olduğu belli değilse onu sor. Tek seferde tek soru, 2–5 çok kısa hazır cevapla (kişi sayısı sorarken 2, 3, 4, 5 gibi hepsini ver; tereyağı gram olabilir, ör. "50 g tereyağı"). Önemsiz şeyleri sorma; zaten bilinen şeyi tekrar sorma.
 - Bilgi yeterliyse TÜM listeyi güncel haliyle döndür: değişmeyen satırları aynen koru, yeni söylenen yemeği ekle, yenmediği söyleneni çıkar.
 - "cevap": Türkçe, samimi, 1–3 kısa cümle. Değiştirdiysen neyi neden değiştirdiğini sayıyla söyle (ör. "Tavuğu 330 g'dan 200 g'a indirdim: 1 kg çiğ ≈ 720 g pişmiş, 4 kişiye ≈ 180 g düşüyor, ikinci porsiyonla 300 g."). Soru soruyorsan cevap kısa bir giriş olsun.
@@ -480,7 +502,7 @@ async function rSend(m){
   rMsgs.push({u: true, t: m.slice(0, 400)}); rBusy = true; $("rTxt").value = ""; drawChat();
   $("rIn").scrollIntoView({block: "nearest", behavior: "smooth"});
   try{
-    const r = await sample.json(prompt, {images: await getImgs(), modelTier: tier()});
+    const r = await sample.json(prompt, {images: anlat() ? [] : await getImgs(), modelTier: tier()});
     const q = r && r.soru && r.soru.s ? {s: String(r.soru.s).slice(0, 200), c: (Array.isArray(r.soru.c) ? r.soru.c : []).map(c => String(c).slice(0, 30)).filter(Boolean).slice(0, 4)} : null;
     const msg = {u: false, t: String((r && r.cevap) || (q ? "" : "Tamam.")).slice(0, 500), q};
     if(!q && Array.isArray(r && r.items) && r.items.length){ items = r.items.map(toItem); draw(); const after = sumTxt(); if(after !== before) msg.d = `${before} → ${after}`; }
@@ -542,7 +564,8 @@ function fromHash(first){ let h = ""; try{ h = decodeURIComponent(location.hash 
     const k = h.match(/k=?(\d+)/), p = h.match(/p=?(\d+)/), g = h.match(/-h([vkm])/);
     if(k) $("dK").value = k[1]; if(p) $("dP").value = p[1]; if(g) setGoal(GOALS[g[1]]);
     go("dan"); return; }
-  if(/kalori/.test(h)){ go("p1"); return; }
+  if(/anlat/.test(h)){ setMode("anlat"); go("p1"); return; }
+  if(/kalori/.test(h)){ setMode("foto"); go("p1"); return; }
   if(first){ let v = "p1"; try{ v = localStorage.getItem("fk-view") || "p1"; }catch(e){} go(v === "dan" ? "dan" : "p1"); } }
 { let g0 = ""; try{ g0 = localStorage.getItem("fk-goal") || ""; }catch(e){} setGoal(g0); }
 fromHash(true);
@@ -552,7 +575,7 @@ window.addEventListener("hashchange", () => fromHash(false));
   try{ sample = window.claude && await window.claude.use("sample"); }catch(e){ sample = null; }
   if(sample){ try{ const l = await sample.limits(); canImg = !!(l && l.images); }catch(e){} }
   if(!sample || !canImg) $("noClaude").hidden = false;
-  $("idBtn").disabled = !files.length || !sample || !canImg; $("dBtn").disabled = !dFiles.length || !sample || !canImg;
+  setMode(MODE); $("dBtn").disabled = !dFiles.length || !sample || !canImg;
 })();
 }
 </script>
