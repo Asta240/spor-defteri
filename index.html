@@ -283,7 +283,7 @@
   body.th-purple{--accent:#b197fc;--accent-soft:rgba(177,151,252,.14);--base-accent:#b197fc;--base-soft:rgba(177,151,252,.14)}
   body.th-yellow{--accent:#ffd43b;--accent-soft:rgba(255,212,59,.14);--base-accent:#ffd43b;--base-soft:rgba(255,212,59,.14)}
   body.th-indigo{--accent:#91a7ff;--accent-soft:rgba(145,167,255,.14);--base-accent:#91a7ff;--base-soft:rgba(145,167,255,.14)}
-  body.secc[data-sec=yemek],body.secc #dnav [data-v=yemek]{--accent:#f783ac;--accent-soft:rgba(247,131,172,.14)}
+  body.secc[data-sec=kalori],body.secc #dnav [data-v=kalori],body.secc #dnav [data-v=kalori-g],body.secc[data-sec=yemek],body.secc #dnav [data-v=yemek]{--accent:#f783ac;--accent-soft:rgba(247,131,172,.14)}
   body.secc[data-sec=su],body.secc #dnav [data-v=su]{--accent:#4dabf7;--accent-soft:rgba(77,171,247,.14)}
   body.secc[data-sec=adim],body.secc #dnav [data-v=adim]{--accent:#3bc9db;--accent-soft:rgba(59,201,219,.14)}
   body.secc[data-sec=hareket],body.secc #dnav [data-v=hareket]{--accent:#b197fc;--accent-soft:rgba(177,151,252,.14)}
@@ -299,7 +299,7 @@
     body.th-purple{--accent:#7048e8;--accent-soft:#f3f0ff;--base-accent:#7048e8;--base-soft:#f3f0ff}
     body.th-yellow{--accent:#e67700;--accent-soft:#fff4e6;--base-accent:#e67700;--base-soft:#fff4e6}
     body.th-indigo{--accent:#4263eb;--accent-soft:#edf2ff;--base-accent:#4263eb;--base-soft:#edf2ff}
-    body.secc[data-sec=yemek],body.secc #dnav [data-v=yemek]{--accent:#d6336c;--accent-soft:#ffe3ec}
+    body.secc[data-sec=kalori],body.secc #dnav [data-v=kalori],body.secc #dnav [data-v=kalori-g],body.secc[data-sec=yemek],body.secc #dnav [data-v=yemek]{--accent:#d6336c;--accent-soft:#ffe3ec}
     body.secc[data-sec=su],body.secc #dnav [data-v=su]{--accent:#1c7ed6;--accent-soft:#e7f5ff}
     body.secc[data-sec=adim],body.secc #dnav [data-v=adim]{--accent:#0c8599;--accent-soft:#e3fafc}
     body.secc[data-sec=hareket],body.secc #dnav [data-v=hareket]{--accent:#7048e8;--accent-soft:#f3f0ff}
@@ -1245,7 +1245,7 @@
     <button data-v="gorev"><i data-i="target"></i> Görevler</button>
     <button data-v="hedef"><i data-i="sliders"></i> Hedefler</button>
     <div class="sep"></div>
-    <div class="dlab">Kalori</div>
+    <div class="dlab" data-v="kalori-g">Kalori</div>
     <button data-v="yemek"><i data-i="utensils"></i> Kalori alımı</button>
     <button data-v="kalori"><i data-i="flame"></i> Kalori yakımı</button>
     <div class="sep"></div>
@@ -1632,7 +1632,7 @@ const NEWS = {id:"2026-11-26e", items:[
   ["sliders", "Tema seçimi", "Hesap'ta Tema: varsayılan “Bölüm renkleri” (her sayfa kendi renginde) ya da tek renk (Turuncu, Pembe, Mavi, Camgöbeği, Mor, Sarı, Lacivert). Yan menü sayfaya göre renk değiştirmez."],
   ["chartbar", "Haftalık sekmesi düzeldi", "Haftanın özeti artık Bu hafta / Geçen hafta seçilebiliyor (eskiden hafta ortasında geçen haftayı gösteriyordu). Haftalık rapor ortalamaları yarım kalan bugünü saymıyor; süren hafta için “kalan N günde ne lazım” yazıyor."],
   ["shoe", "Adım senkronu düzeldi", "Telefon kilitliyken gelen 0 ya da eksik adım artık günün adımını düşürmüyor. Hesap → Apple Sağlık'ta son 10 gönderim görünür; otomasyonu “uygulama açıldığında” olarak kurman önerilir."],
-  ["sliders", "Her bölümün kendi rengi", "Antrenman turuncu; Kalori alımı pembe, Su mavi, Adım camgöbeği, Kilo ve ölçüler mor, Alışkanlıklar sarı, Takviyeler lacivert. Menüde de aynı renkler."],
+  ["sliders", "Her bölümün kendi rengi", "Antrenman turuncu; Kalori (alımı ve yakımı) pembe, Su mavi, Adım camgöbeği, Kilo ve ölçüler mor, Alışkanlıklar sarı, Takviyeler lacivert. Menüde de aynı renkler."],
   ["check", "Alışkanlıkları düzenle", "Alışkanlıklar'da Sabah / Gün içi / Akşam kartında “Düzenle”: sil, başka bölüme taşı, ↑↓ ile sırala; Kaydet ya da Vazgeç. 18 yeni hazır alışkanlık da eklendi."],
   ["edit", "Düzenle'de Kaydet / Vazgeç", "Yediklerin, su geçmişi ve kardiyoda “Düzenle”ye basınca Kaydet ve Vazgeç çıkar. Yanlışlıkla sildiysen Vazgeç'e bas, her şey geri gelir."],
   ["camera", "Sonuçta Claude ile konuş", "Fotoğraftan kaloride sonucun altına yaz: “tavada 1 kg tavuk vardı, 4 kişi yedik”. Claude eksik bilgiyi sorar (yağ dersen kaç kilo yemeğe kondu gibi), sonra hepsini yeniden hesaplar."],
