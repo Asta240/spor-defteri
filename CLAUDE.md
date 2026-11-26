@@ -128,3 +128,4 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Yenilikler: `root.newsRead` (okunan madde başlıkları, + localStorage `sd-news-read`); `maybeNews` sadece okunmamış maddeleri gösterir, Tamam hepsini okundu yapar. Eski kullanıcılar (newsSeen var) geçişte o ana kadarkileri okunmuş sayar. Yeni madde başlığı benzersiz olmalı.
 - Çıkış yap `ask` ile onay ister.
 - Ana sayfa Bugünkü takip: alışkanlıklar `HSEG` alt başlıklarıyla (`.tseg`). `habHint` (uyku → “Uyanınca işaretle: dün geceki uykun”, erken yat → “Yatmadan işaretle”); “8 saat uyku” sabah grubunda (`mig.sleep`).
+- Seçmeli yemekler `FOPTS` (FOODS[4] anahtar: sand, tost, pide, pizza, omlet, makarna, kumpir, pogaca, acma, borek): gruplar `{t, one, def, mul, o:[[ad,kcal,p,y,c]]}`; `mul` grubu çarpan (pizza boyut/dilim, “Kaç porsiyon” gizlenir). FOODS[4] === 1 sadece Popeyes vb. EXTRAS.

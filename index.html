@@ -1534,20 +1534,20 @@ function showTemplates(){
 // Hazır yemekler: [ad, porsiyon, kcal, protein g] — ortalama porsiyon, yaklaşık değerler
 const FOTO_URL = "https://claude.ai/artifact/HVWojZ4iDYbMFdYLVAc9kw";
 const FOODS = [
-  ["Haşlanmış yumurta","1 adet",75,6,0,5,2],["Omlet","2 yumurta",200,13,0,15,3],["Menemen","1 porsiyon",250,13,0,17,11],["Sucuklu yumurta","1 porsiyon",400,22,0,32,6],
+  ["Haşlanmış yumurta","1 adet",75,6,0,5,2],["Omlet","1 porsiyon",0,0,"omlet",0,0],["Menemen","1 porsiyon",250,13,0,17,11],["Sucuklu yumurta","1 porsiyon",400,22,0,32,6],
   ["Beyaz peynir","1 dilim (30 g)",90,5,0,7,2],["Kaşar peyniri","1 dilim (20 g)",75,5,0,6,0],["Lor peyniri","100 g",100,12,0,4,4],["Zeytin","5 adet",50,0,0,5,1],
   ["Bal","1 yemek kaşığı",65,0,0,0,16],["Tereyağı","1 tatlı kaşığı",35,0,0,4,0],["Fıstık ezmesi","1 yemek kaşığı",95,4,0,8,2],["Yulaf ezmesi","40 g",150,5,0,3,26],
-  ["Süt","1 bardak (200 ml)",120,6,0,6,10],["Simit","1 adet",300,9,0,7,50],["Poğaça","1 adet",280,6,0,15,30],["Açma","1 adet",320,6,0,17,36],
-  ["Ekmek","1 dilim (50 g)",130,4,0,1,26],["Tam buğday ekmeği","1 dilim (50 g)",120,5,0,2,20],["Lavaş","1 adet",250,8,0,4,46],["Tost (kaşarlı)","1 adet",350,15,0,15,39],
+  ["Süt","1 bardak (200 ml)",120,6,0,6,10],["Simit","1 adet",300,9,0,7,50],["Poğaça","1 adet",0,0,"pogaca",0,0],["Açma","1 adet",0,0,"acma",0,0],
+  ["Ekmek","1 dilim (50 g)",130,4,0,1,26],["Tam buğday ekmeği","1 dilim (50 g)",120,5,0,2,20],["Lavaş","1 adet",250,8,0,4,46],["Sandviç (içini seç)","1 adet",0,0,"sand",0,0],["Tost (çeşidini seç)","1 adet",0,0,"tost",0,0],["Pide (çeşidini seç)","1 adet",0,0,"pide",0,0],["Tost (kaşarlı)","1 adet",350,15,0,15,39],
   ["Kaşarlı sandviç","1 adet (yarım ekmek)",380,16,0,14,48],["Beyaz peynirli sandviç","1 adet (yarım ekmek)",340,14,0,12,44],["Tavuklu sandviç","1 adet",420,28,0,13,46],["Ton balıklı sandviç","1 adet",400,25,0,13,45],["Hindi füme sandviç","1 adet",330,18,0,9,42],["Yumurtalı sandviç","1 adet",350,16,0,15,38],["Sucuklu sandviç","1 adet",450,17,0,22,45],["Karışık tost","1 adet",420,20,0,18,44],["Kumru","1 adet",550,24,0,25,55],["Kaşarlı simit","1 adet",400,15,0,14,52],["Bazlama","1 adet",350,10,0,6,65],["Pişi","1 adet",250,4,0,12,30],["Gözleme (peynirli)","1 adet",450,16,0,18,55],["Gözleme (patatesli)","1 adet",420,9,0,15,62],["Krep / pankek","2 adet",230,7,0,8,32],["Sucuk","3 dilim (30 g)",130,5,0,12,0],["Hindi füme","3 dilim (30 g)",45,8,0,1,1],["Salam","3 dilim (30 g)",90,4,0,8,1],["Labne","1 yemek kaşığı",50,1,0,5,1],["Krem peynir","1 yemek kaşığı",50,1,0,5,1],["Nutella / kakaolu krema","1 yemek kaşığı",100,1,0,6,11],["Reçel","1 yemek kaşığı",50,0,0,0,13],["Tahin pekmez","1 yemek kaşığı",110,2,0,6,12],["Mısır gevreği","40 g (sütsüz)",150,3,0,1,33],["Granola","50 g",230,5,0,9,32],["Tavuk but (fırın)","1 adet (150 g, kemikli)",280,26,0,19,0],["Tavuk şiş","1 porsiyon",350,45,0,15,6],["Tavuk kanat","5 adet",350,30,0,25,0],["Kıyma (pişmiş)","100 g",250,26,0,16,0],["Biftek / antrikot","150 g",330,40,0,19,0],["Adana kebap","1 porsiyon",550,30,0,42,8],["Somon","150 g",310,33,0,19,0],["Haşlanmış nohut","100 g",160,9,0,3,27],["Haşlanmış mercimek","100 g",115,9,0,0,20],["Haşlanmış patates","1 orta (150 g)",130,3,0,0,30],["Fırın patates","1 porsiyon (200 g)",260,4,0,10,38],["Patates püresi","1 porsiyon (200 g)",220,4,0,9,30],["Haşlanmış brokoli","1 porsiyon (150 g)",50,4,0,1,7],["Sebze sote","1 porsiyon",150,4,0,9,14],["Domates","1 adet",20,1,0,0,4],["Salatalık","1 adet",15,1,0,0,3],["Avokado","yarım",160,2,0,15,9],["Haşlanmış mısır","1 koçan",120,4,0,2,25],["Spagetti bolonez","1 tabak",600,28,0,20,75],["Fırın makarna","1 porsiyon",450,17,0,18,52],["Etli kuru fasulye","1 porsiyon",380,22,0,16,36],["Tavuk haşlama","1 porsiyon",250,35,0,10,4],["Kıymalı patates","1 porsiyon",380,18,0,22,26],["Musakka","1 porsiyon",400,17,0,28,20],["Etli nohut","1 porsiyon",400,22,0,17,40],["Sulu köfte","1 porsiyon",350,20,0,16,30],["Kek","1 dilim",250,4,0,12,32],["Kurabiye","2 adet",160,2,0,8,20],["Bisküvi","4 adet",140,2,0,5,22],["Kraker","1 avuç (30 g)",130,3,0,5,19],["Kuru üzüm","1 avuç (30 g)",90,1,0,0,22],["Kuru kayısı","5 adet",80,1,0,0,19],["Leblebi","1 avuç (30 g)",110,6,0,2,17],["Ay çekirdeği","1 avuç (30 g)",170,6,0,15,6],["Patlamış mısır","1 kase (30 g)",120,3,0,4,20],["Künefe","1 porsiyon",650,15,0,32,75],["Revani","1 dilim",300,4,0,10,48],
   ["Mercimek çorbası","1 kase",200,11,0,6,26],["Ezogelin çorbası","1 kase",200,9,0,7,25],["Tavuk suyu çorba","1 kase",150,9,0,5,17],["Yayla çorbası","1 kase",160,6,0,7,18],["Domates çorbası","1 kase",150,4,0,6,20],
   ["Tavuk göğsü (pişmiş)","200 g",330,62,0,7,5],["Tavuk sote","1 porsiyon",300,30,0,15,11],["Izgara köfte","6 adet (150 g)",400,30,0,27,9],["Et kavurma","150 g",400,40,0,27,0],
   ["Izgara balık","200 g",350,45,0,17,4],["Ton balığı (süzülmüş)","1 kutu",180,38,0,2,2],["Kuru fasulye","1 porsiyon",300,15,0,10,38],["Nohut yemeği","1 porsiyon",300,13,0,10,40],
   ["Karnıyarık","1 porsiyon",350,14,0,24,20],["Zeytinyağlı taze fasulye","1 porsiyon",180,4,0,12,14],["Mantı","1 porsiyon",600,25,0,25,69],
-  ["Pirinç pilavı","1 porsiyon (150 g)",280,5,0,6,52],["Bulgur pilavı","1 porsiyon",220,6,0,5,38],["Makarna","1 tabak (100 g kuru)",380,13,0,2,78],["Tavuklu pilav (sokak)","1 porsiyon",600,27,0,22,74],
+  ["Pirinç pilavı","1 porsiyon (150 g)",280,5,0,6,52],["Bulgur pilavı","1 porsiyon",220,6,0,5,38],["Makarna","1 tabak (100 g kuru)",0,0,"makarna",0,0],["Tavuklu pilav (sokak)","1 porsiyon",600,27,0,22,74],
   ["Tavuk döner dürüm","1 adet",600,35,1,25,59],["Et döner dürüm","1 adet",700,38,1,32,65],["İskender","1 porsiyon",900,45,0,55,56],["Lahmacun","1 adet",300,14,0,10,38],
   ["Kıymalı pide","1 adet",800,38,0,30,94],["Çiğ köfte dürüm","1 adet",450,10,0,10,80],["Çiğ köfte","1 parça",50,1,0,1,9],["Mercimek köftesi","1 adet",45,2,0,1,7],
-  ["Yaprak sarma","1 adet",45,1,0,2,6],["Börek","1 parça",300,8,0,17,29],["Hamburger","1 adet",550,28,1,28,46],["Pizza","1 dilim",280,12,0,11,33],["Patates kızartması","orta porsiyon",350,4,0,17,45],
+  ["Yaprak sarma","1 adet",45,1,0,2,6],["Börek","1 porsiyon",0,0,"borek",0,0],["Hamburger","1 adet",550,28,1,28,46],["Pizza","dilim",0,0,"pizza",0,0],["Patates kızartması","orta porsiyon",350,4,0,17,45],
   ["Yemekhane tepsisi","çorba + ana yemek + pilav",850,40,0,30,105],
   ["Çoban salata","1 kase (az yağlı)",80,2,0,5,7],["Mevsim salata","1 kase (zeytinyağlı)",120,2,0,10,6],["Cacık","1 kase",80,4,0,4,7],
   ["Yoğurt","1 kase (200 g)",130,8,0,6,11],["Süzme yoğurt","150 g",150,15,0,8,4],["Ayran","200 ml",70,4,0,3,7],["Kefir","200 ml",120,7,0,6,10],
@@ -1561,7 +1561,7 @@ const FOODS = [
   ["Whopper","1 adet",660,30,1,38,50],["Whopper Jr.","1 adet",330,15,1,18,27],["Double Whopper","1 adet",940,52,1,59,50],["Chicken Royale","1 adet",600,25,1,33,51],["King Chicken","1 adet",380,15,1,18,40],["Big King","1 adet",520,27,1,29,38],
   ["KFC Zinger burger","1 adet",450,24,1,20,44],["KFC tavuk parça","1 parça",250,20,1,15,9],["KFC Hot Wings","5 adet",350,26,1,22,12],
   ["Patates kızartması (küçük)","küçük",230,3,0,11,30],["Patates kızartması (büyük)","büyük",450,5,0,22,58],["Soğan halkası","6 adet",250,3,0,13,30],
-  ["Pide (kıymalı)","1 adet",650,30,0,24,78],["Kokoreç","yarım ekmek",600,25,1,38,40],["Kumpir","1 adet",800,20,0,45,79],["Islak hamburger","1 adet",300,12,1,12,36],["Tavuk wrap","1 adet",450,25,1,18,47],["Pizza (orta, tamamı)","1 adet",1700,70,0,70,198],
+  ["Pide (kıymalı)","1 adet",650,30,0,24,78],["Kokoreç","yarım ekmek",600,25,1,38,40],["Kumpir","1 adet",370,7,"kumpir",14,55],["Islak hamburger","1 adet",300,12,1,12,36],["Tavuk wrap","1 adet",450,25,1,18,47],["Pizza (orta, tamamı)","1 adet",1700,70,0,70,198],
   ["Milkshake","orta boy",400,10,0,12,63],
   ["Kola","1 kutu (330 ml)",140,0,0,0,35],["Meyve suyu","200 ml",90,0,0,0,22],["Çay (1 şekerli)","1 bardak",20,0,0,0,5],["Türk kahvesi (şekersiz)","1 fincan",10,0,0,1,0],["Latte","1 orta boy",200,10,0,8,22],
   // İçecekler
@@ -1612,6 +1612,22 @@ function renderMicro(d){
     + (na ? `<div class="tipl">${I("alert")}<span><b>Tuz fazla</b>: ${NUTR[na.i][5]}</span></div>` : "")
     + `<p class="small muted" style="margin:10px 0 0">Yaklaşık değerlerdir. ${miss ? `Elle girdiğin ${miss} yemeğin vitamin bilgisi yok, hesaba katılmadı. ` : ""}Takviyeler, adı ve dozu yazılıysa sayılır (ör. “D vitamini” · “1000 IU”).</p>`;
 }
+// Seçmeli yemekler: FOODS[4] bir anahtar ise ekleme penceresinde bu gruplar çıkar. one: tek seçim (def varsayılan). Seçenek: [ad, kcal, protein, yağ, karb]
+const FOPTS = {
+  sand: [{t: "Ekmek", one: 1, def: 0, o: [["Tombik ekmek",290,10,3,56],["Normal ekmek (yarım)",330,11,2,66],["Çeyrek ekmek",165,6,1,33],["Tam buğday (yarım)",280,12,3,50],["Sandviç ekmeği (küçük)",200,7,3,38],["Lavaş",180,5,4,30]]},
+         {t: "İçindekiler", o: [["Beyaz peynir",90,5,7,1],["Kaşar",150,10,12,0],["Salam",90,4,8,1],["Sucuk",130,5,12,0],["Hindi füme",45,8,1,1],["Haşlanmış yumurta",75,6,5,0],["Ton balığı",100,20,2,0],["Tavuk",100,18,3,0],["Domates",10,0,0,2],["Salatalık",5,0,0,1],["Marul / yeşillik",5,0,0,1],["Zeytin",50,0,5,1],["Turşu",5,0,0,1],["Tereyağı",35,0,4,0],["Labne / krem peynir",50,1,5,1],["Mayonez",100,0,11,0],["Ketçap",20,0,0,5],["Hardal",10,1,0,1]]}],
+  pogaca: [{t: "Çeşit", one: 1, def: 0, o: [["Sade",300,6,15,35],["Peynirli",320,9,16,35],["Kaşarlı",340,10,18,35],["Patatesli",310,6,15,38],["Zeytinli",320,6,17,36],["Dereotlu peynirli",320,9,16,35]]}],
+  acma: [{t: "Çeşit", one: 1, def: 0, o: [["Sade",330,6,17,38],["Peynirli",350,9,18,38],["Kaşarlı",360,10,19,37],["Zeytinli",350,7,19,38],["Çikolatalı",400,6,20,48]]}],
+  pizza: [{t: "Çeşit (1 orta dilim)", one: 1, def: 0, o: [["Margarita",200,9,8,24],["Karışık",250,11,11,26],["Sucuklu",260,11,13,25],["Pepperoni",260,11,13,25],["Mantarlı",210,9,8,25],["Tavuklu",230,13,9,25],["Ton balıklı",230,12,9,25],["Dört peynirli",270,12,14,24],["Sebzeli",200,8,8,26]]},
+          {t: "Boyut", one: 1, def: 1, mul: 1, o: [["Küçük boy",.7],["Orta boy",1],["Büyük boy",1.35]]},
+          {t: "Kaç dilim?", one: 1, def: 1, mul: 1, o: [["1 dilim",1],["2 dilim",2],["3 dilim",3],["4 dilim",4],["6 dilim",6],["8 dilim (bütün)",8]]}],
+  tost: [{t: "Çeşit", one: 1, def: 0, o: [["Kaşarlı",350,15,15,39],["Karışık (sucuk + kaşar)",420,18,21,39],["Sucuklu",400,15,19,39],["Beyaz peynirli",330,13,13,40],["Bazlama tost",500,20,22,55],["Ayvalık tostu",600,25,30,55]]}],
+  pide: [{t: "Çeşit", one: 1, def: 0, o: [["Kıymalı",650,30,24,78],["Kaşarlı",700,30,28,80],["Kuşbaşılı",700,38,26,78],["Karışık",750,36,32,80],["Yumurtalı kaşarlı",720,34,30,80],["Sucuklu kaşarlı",760,32,36,80],["Ispanaklı",550,20,20,72]]}],
+  omlet: [{t: "Yumurta", one: 1, def: 0, o: [["2 yumurta",180,12,14,1],["3 yumurta",270,18,21,1],["4 yumurta",360,24,28,2]]},
+          {t: "İçine", o: [["Kaşar",75,5,6,0],["Beyaz peynir",90,5,7,1],["Sucuk",130,5,12,0],["Sosis",90,4,8,1],["Mantar",10,1,0,1],["Domates / biber",15,1,0,3],["Ispanak",10,1,0,1],["Patates",80,1,4,11]]}],
+  makarna: [{t: "Nasıl?", one: 1, def: 0, o: [["Sade / tereyağlı",420,13,8,76],["Domates soslu",400,13,6,78],["Peynirli",480,18,14,76],["Kıymalı (bolonez)",600,28,20,75],["Kremalı mantarlı",620,16,28,76],["Kremalı tavuklu",650,30,26,76],["Pesto soslu",560,15,22,76]]}],
+  kumpir: [{t: "İçine", o: [["Kaşar",120,8,9,0],["Mısır",30,1,0,6],["Zeytin",40,0,4,1],["Sosis",120,5,10,2],["Rus salatası",120,1,11,4],["Turşu",5,0,0,1],["Bezelye / havuç",20,1,0,4],["Kırmızı lahana",10,0,0,2],["Mayonez / ketçap",80,0,8,3],["Sucuk",130,5,12,0]]}],
+  borek: [{t: "Çeşit", one: 1, def: 0, o: [["Su böreği (peynirli)",380,15,20,35],["Kol böreği (peynirli)",400,13,22,38],["Kol böreği (kıymalı)",420,15,24,36],["Ispanaklı",330,10,17,34],["Patatesli",380,8,19,44],["Tepsi böreği (kıymalı)",400,15,22,36],["Sigara böreği (3 adet)",330,9,20,27],["Çiğ börek (1 adet)",450,14,26,40]]}]};
 const EXTRAS = [["Mayonez",90,0,10,0],["Ketçap",20,0,0,5],["Barbekü / ranch sos",70,0,5,6],["Acı sos",15,0,1,2],["Ekstra cheddar",60,3,5,0],["Bacon",50,3,4,0],["Ekstra köfte / tavuk",200,18,13,2],["Sossuz",-80,0,-9,0],
   ["Menü: orta patates + kola",500,4,17,80],["Menü: orta patates + zero kola",330,4,17,42],["Büyük patates + büyük kola (menü büyüt)",660,5,22,108]];
 const POPULAR = ["Haşlanmış yumurta","Tavuk göğsü (pişmiş)","Yoğurt","Ayran","Mercimek çorbası","Pirinç pilavı","Ekmek","Yemekhane tepsisi"];
@@ -1624,7 +1640,8 @@ const shift = (s, n) => { const d = new Date(s+"T12:00"); d.setDate(d.getDate()+
 const dayName = (s, o) => new Date(s+"T12:00").toLocaleDateString("tr-TR", o);
 const blankDay = () => ({f:[], w:0, wo:"", ca:"", st:"", bu:"", kg:""});
 // Yenilikler: okunmamış maddeler siteyi açınca çıkar, "Tamam"a basınca o maddeler bir daha çıkmaz. Yeni madde EN ÜSTE, başlığı benzersiz olsun.
-const NEWS = {id:"2026-11-26h", items:[
+const NEWS = {id:"2026-11-26i", items:[
+  ["utensils", "İçini seçerek ekle", "Sandviç (ekmek: tombik, normal yarım, çeyrek, lavaş… + içindekiler), Tost, Poğaça, Açma, Börek, Pide (çeşidi), Pizza (çeşit, boyut, kaç dilim), Omlet (yumurta + içine), Makarna (sos) ve Kumpir (malzemeler): seçtikçe kalori kendiliğinden hesaplanır."],
   ["utensils", "62 yeni yemek", "Yemek aramada artık sandviçler (kaşarlı, tavuklu, ton balıklı, hindi füme…), karışık tost, kumru, gözleme, bazlama, sucuk/salam, tavuk but/şiş, kıyma, somon, patates, brokoli, bolonez, kek, kurabiye, leblebi gibi temel şeyler de var."],
   ["check", "Takipte Sabah / Gün içi / Akşam", "Ana sayfadaki Bugünkü takipte alışkanlıklar Sabah, Gün içi ve Akşam diye ayrıldı. “8 saat uyku” artık sabahta: uyanınca dün geceki uykun için işaretle. “Erken yat” akşamda: yatmadan işaretle."],
   ["bell", "Sadece yeni yenilikler", "Bu pencerede artık yalnızca okumadığın yenilikler çıkıyor. Hesaptan çıkarken de onay soruluyor."],
@@ -2694,7 +2711,7 @@ function renderFoods(){
   const q = norm($("fq").value.trim());
   if(!q){ $("fres").innerHTML = ""; return; }
   const list = FOODS.filter(f => norm(f[0]).includes(q)).slice(0, 30);
-  $("fres").innerHTML = list.length ? list.map(f => `<li><button type="button" data-food="${esc(f[0])}"><b>${esc(f[0])}</b><small>${esc(f[1])} · ${f[2]} kcal · P ${f[3]} · K ${f[6] ?? "?"} · Y ${f[5] ?? "?"}</small></button></li>`).join("")
+  $("fres").innerHTML = list.length ? list.map(f => `<li><button type="button" data-food="${esc(f[0])}"><b>${esc(f[0])}</b><small>${typeof f[4] === "string" ? `${esc(f[1])} · ${f[4] === "sand" ? "ekmeği ve içini seç" : FOPTS[f[4]].some(g => !g.one) ? "içini seç" : "çeşidini seç"}` : `${esc(f[1])} · ${f[2]} kcal · P ${f[3]} · K ${f[6] ?? "?"} · Y ${f[5] ?? "?"}`}</small></button></li>`).join("")
     : `<li class="empty">Bulunamadı. Aşağıdan elle ekleyebilirsin.</li>`;
 }
 $("fq").oninput = renderFoods;
@@ -2702,23 +2719,31 @@ $("fres").onclick = e => {
   const b = e.target.closest("button[data-food]"); if(!b) return;
   const f = FOODS.find(x => x[0] === b.dataset.food); if(!f) return;
   const M = [[0.5,"½"],[1,"1"],[1.5,"1½"],[2,"2"],[3,"3"]];
-  openSheet(`<h2>${esc(f[0])}</h2><p class="small muted" style="margin:0 0 12px">1 porsiyon = ${esc(f[1])} · ${f[2]} kcal · ${f[3]} g protein</p>
-    <div class="small muted" style="margin-bottom:6px">Kaç porsiyon?</div>
-    <div class="chips" id="mul">${M.map(([m, t]) => `<button type="button" data-m="${m}" class="${m === 1 ? "on" : ""}">${t}</button>`).join("")}</div>
-    ${f[4] ? `<div class="small muted" style="margin:12px 0 6px">Detay (birden fazla seçebilirsin)</div>
+  const O = typeof f[4] === "string" ? FOPTS[f[4]] : null, OS = O ? O.map(g => new Set(g.one ? [g.def] : [])) : [];
+  openSheet(`<h2>${esc(f[0].replace(/ \((içini|çeşidini) seç\)$/, ""))}</h2><p class="small muted" style="margin:0 0 12px">${O ? `${esc(f[1])}${f[2] ? ` · sade ${f[2]} kcal` : ""} · aşağıdan seç, kalori kendiliğinden hesaplanır` : `1 porsiyon = ${esc(f[1])} · ${f[2]} kcal · ${f[3]} g protein`}</p>
+    ${O ? O.map((g, gi) => `<div class="small muted" style="margin:0 0 6px">${esc(g.t)}${g.one ? "" : " (birden fazla seçebilirsin)"}</div><div class="chips" data-og="${gi}" style="margin-bottom:12px">${g.o.map((x, oi) => `<button type="button" data-oi="${oi}">${esc(x[0])}${g.mul ? "" : ` <span class="muted">${x[1]}</span>`}</button>`).join("")}</div>`).join("") : ""}
+    <div class="small muted" style="margin-bottom:6px"${O && O.some(g => g.mul) ? " hidden" : ""}>Kaç porsiyon?</div>
+    <div class="chips" id="mul"${O && O.some(g => g.mul) ? " hidden" : ""}>${M.map(([m, t]) => `<button type="button" data-m="${m}" class="${m === 1 ? "on" : ""}">${t}</button>`).join("")}</div>
+    ${f[4] === 1 ? `<div class="small muted" style="margin:12px 0 6px">Detay (birden fazla seçebilirsin)</div>
     <div class="chips" id="ext">${EXTRAS.map((x, i) => `<button type="button" data-x="${i}">${esc(x[0])} <span class="muted">${x[1] > 0 ? "+" : ""}${x[1]}</span></button>`).join("")}</div>` : ""}
     <p style="font-weight:700;margin:14px 0 4px" id="mulTot"></p><p class="small" id="mulLeft" style="margin:0 0 14px"></p>
     <div class="row"><button class="ghost" data-close style="flex:1">Vazgeç</button><button id="mulAdd" style="flex:2">Ekle</button></div>`);
   let m = 1; const X = new Set();
-  const tot = () => { let k = f[2], p = f[3], y = f[5] || 0, c = f[6] || 0; for(const i of X){ k += EXTRAS[i][1]; p += EXTRAS[i][2]; y += EXTRAS[i][3]; c += EXTRAS[i][4]; } return [Math.max(0, Math.round(k*m)), Math.round(p*m), Math.max(0, Math.round(y*m)), Math.max(0, Math.round(c*m))]; };
+  const tot = () => { let k = f[2], p = f[3], y = f[5] || 0, c = f[6] || 0; for(const i of X){ k += EXTRAS[i][1]; p += EXTRAS[i][2]; y += EXTRAS[i][3]; c += EXTRAS[i][4]; }
+    if(O){ let mm = 1; O.forEach((g, gi) => { for(const oi of OS[gi]){ const x = g.o[oi]; if(g.mul) mm *= x[1]; else { k += x[1]; p += x[2]; y += x[3]; c += x[4]; } } }); k *= mm; p *= mm; y *= mm; c *= mm; } return [Math.max(0, Math.round(k*m)), Math.round(p*m), Math.max(0, Math.round(y*m)), Math.max(0, Math.round(c*m))]; };
   const upd = () => { const [k, p, y, c] = tot(); $("mulTot").textContent = `${fmt(k)} kcal · P ${fmt(p)} g · K ${fmt(c)} g · Y ${fmt(y)} g`; { const L = root.goals.k - sum(day(cur)).k - k; $("mulLeft").innerHTML = L >= 0 ? `<span class="muted">Ekleyince kalan:</span> <b style="color:var(--accent)">${fmt(L)} kcal</b>` : `<span class="muted">Ekleyince hedefi</span> <b style="color:var(--bad)">${fmt(-L)} kcal</b> <span class="muted">aşarsın</span>`; } for(const c of $("mul").children) c.classList.toggle("on", +c.dataset.m === m);
-    if($("ext")) for(const c of $("ext").children) c.classList.toggle("on", X.has(+c.dataset.x)); };
+    if($("ext")) for(const c of $("ext").children) c.classList.toggle("on", X.has(+c.dataset.x));
+    for(const el of document.querySelectorAll("#modal [data-og]")) for(const c of el.children) c.classList.toggle("on", OS[+el.dataset.og].has(+c.dataset.oi)); };
+  for(const el of document.querySelectorAll("#modal [data-og]")) el.onclick = ev => { const c = ev.target.closest("[data-oi]"); if(!c) return; const gi = +el.dataset.og, oi = +c.dataset.oi, S = OS[gi];
+    if(O[gi].one){ S.clear(); S.add(oi); } else if(S.has(oi)) S.delete(oi); else S.add(oi); upd(); };
   $("mul").onclick = ev => { const c = ev.target.closest("button[data-m]"); if(c){ m = +c.dataset.m; upd(); } };
   if($("ext")) $("ext").onclick = ev => { const c = ev.target.closest("button[data-x]"); if(!c) return; const i = +c.dataset.x;
     if(X.has(i)) X.delete(i); else { X.add(i); const menu = j => EXTRAS[j][0].includes("kola"); if(menu(i)) for(const j of [...X]) if(j !== i && menu(j)) X.delete(j); }
     upd(); };
   $("mulAdd").onclick = () => { const lbl = m === 1 ? f[1] : `${M.find(x => x[0] === m)[1]} × ${f[1]}`, ex = [...X].sort((a, b) => a - b).map(i => EXTRAS[i][0].replace(/^Menü: /, "menü: ").toLowerCase());
-    const [k, p, y, c] = tot(); day(cur).f.push({n: `${f[0]} (${[lbl, ...ex].join(", ")})`.slice(0, 120), k, p, y, c, m: meal, ...(MICRO[f[0]] ? {mi: MICRO[f[0]].map(v => Math.round(v * m * 10) / 10)} : {})}); save(); closeSheet(); renderDay(); toast("+ " + f[0]); };
+    const os = O ? O.flatMap((g, gi) => [...OS[gi]].sort((a, b) => a - b).map(oi => g.o[oi][0].toLocaleLowerCase("tr"))) : [];
+    if(O && !os.length && !f[2]) return toast("Bir şey seç");
+    const [k, p, y, c] = tot(); day(cur).f.push({n: `${f[0].replace(/ \((içini|çeşidini) seç\)$/, "")} (${[...os, ...(O && O.some(g => g.mul) ? [] : [lbl]), ...ex].join(", ")})`.slice(0, 120), k, p, y, c, m: meal, ...(MICRO[f[0]] ? {mi: MICRO[f[0]].map(v => Math.round(v * m * 10) / 10)} : {})}); save(); closeSheet(); renderDay(); toast("+ " + f[0]); };
   upd();
 };
 renderFoods();
