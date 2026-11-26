@@ -84,6 +84,8 @@
   .ba small{display:block;font-weight:500;font-size:11px;color:var(--muted)}
   .chips.qa{justify-content:flex-end;margin:0 0 4px auto;max-width:94%}
   .chips.qa .wr{border-style:dashed;color:var(--muted)}
+  .bq>div{white-space:pre-line}
+  .rdiff{align-self:flex-start;font-size:12.5px;font-weight:700;color:var(--accent);border:1px solid var(--accent);border-radius:99px;padding:3px 10px;margin-left:30px}
   .qw{display:flex;gap:6px;align-self:flex-end;width:90%} .qw button{flex:none}
   .x{background:none;border:0;color:var(--muted);min-height:30px;padding:0 4px}
   .q{font-size:13px;color:var(--accent);margin-top:8px;display:flex;gap:6px} .q svg.i{width:15px;height:15px;margin-top:2px}
@@ -155,10 +157,12 @@
   </section>
   <section class="card" id="p3" hidden>
     <h2><svg class="i" viewBox="0 0 24 24"><path d="M12 3c3 4 6 6.5 6 10a6 6 0 0 1-12 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-3 1-6 2-8.5z"/></svg> Sonuç</h2>
-    <p class="muted" style="margin:0">Yanlış bir şey varsa satırdaki “Düzelt” ile yaz, sadece o yemek yeniden hesaplansın.</p>
+    <p class="muted" style="margin:0">Yanlış bir şey varsa aşağıda Claude'a yaz (ör. “tavada 1 kg tavuk vardı, 4 kişi yedik”), ya da satırdaki “Düzelt”i kullan.</p>
     <div class="note" id="calcNote" hidden></div>
     <div id="items"></div>
     <div class="tot"><div>Toplam</div><div id="tot"></div></div>
+    <div class="chat" id="rChat"></div>
+    <div class="qw" id="rIn" style="width:100%;margin-top:8px"><input id="rTxt" placeholder="Claude'a yaz: ne kadar vardı, kaç kişi yediniz…" autocomplete="off"><button class="pri" id="rSend">Gönder</button></div>
     <div class="row end"><button class="ghost" id="back2">Sorulara dön</button></div>
   </section>
   <section class="card" id="p4" hidden>
@@ -389,7 +393,7 @@ $("calcBtn").onclick = async () => {
     items = (Array.isArray(r && r.items) ? r.items : []).map(toItem);
     $("calcNote").hidden = !(r && r.not); $("calcNote").textContent = (r && r.not) || "";
     if(!items.length) $("st2").textContent = "Hesaplanamadı, tekrar dene.";
-    else { draw(); go("p3"); }
+    else { rMsgs = []; draw(); drawChat(); go("p3"); }
   }catch(e){ $("st2").textContent = errTxt(e); }
   b.innerHTML = "Kalori hesapla"; b.disabled = false;
 };
@@ -434,8 +438,55 @@ $("items").onclick = async e => { const b = e.target.closest("button"); if(!b) r
     catch(err){ $("calcNote").hidden = false; $("calcNote").textContent = errTxt(err); }
     if(items[i]) items[i].busy = false; draw(); } };
 
+// Sonuçta mini sohbet: kullanıcı düzeltmeyi yazar, Claude eksik bilgiyi sorar ya da tüm listeyi yeniden hesaplar
+let rMsgs = [], rBusy = false; // {u: true|false, t: metin, q: {s, c} (Claude sorusu)}
+const sumTxt = () => { const k = items.reduce((a, x) => a + (+x.k || 0), 0), p = items.reduce((a, x) => a + (+x.p || 0), 0); return `${k.toLocaleString("tr-TR")} kcal · ${p} g protein`; };
+const CHAT_PROMPT = m => `Sen bir diyetisyen asistanısın. Kullanıcıyla kısa sohbet ederek fotoğraftaki yemeğin kalori hesabını düzeltiyorsun.
+${photoLine()}${userNote() ? `\nKullanıcının genel notu: "${userNote()}"` : ""}
+${YER_RULE()}
+Şu anki hesap:
+${items.map((x, i) => `${i + 1}) ${x.n} — ${x.k} kcal, ${x.p} g protein, yağ ${x.y} g, karb. ${x.c} g (gerekçe: ${x.v || "-"})`).join("\n")}
+${rMsgs.length ? "Sohbet şimdiye kadar:\n" + rMsgs.map(x => `${x.u ? "Kullanıcı" : "Sen"}: ${x.t}${x.q ? ` [soru: ${x.q.s}]` : ""}`).join("\n") : ""}
+Kullanıcının yeni mesajı: "${m}"
+Kurallar:
+- Kullanıcının söylediği miktarlar, kişi sayısı, yağ KESİN bilgidir; fotoğraf sadece yardımcıdır.
+- Doğru hesap için kritik bir bilgi eksikse ÖNCE SOR, listeyi değiştirme ("items": null). Özellikle: yağ miktarı söylendi ama ne kadar yemeğe konduğu / tencerede toplam ne kadar olduğu bilinmiyorsa onu sor; tencere toplamı söylendi ama kaç kişi yendiği bilinmiyorsa onu sor; "ikinci tabak aldım" dendi ama ne kadar olduğu belli değilse onu sor. Tek seferde tek soru, 2–4 çok kısa hazır cevapla. Önemsiz şeyleri sorma; zaten bilinen şeyi tekrar sorma.
+- Bilgi yeterliyse TÜM listeyi güncel haliyle döndür: değişmeyen satırları aynen koru, yeni söylenen yemeği ekle, yenmediği söyleneni çıkar.
+- "cevap": Türkçe, samimi, 1–3 kısa cümle. Değiştirdiysen neyi neden değiştirdiğini sayıyla söyle (ör. "Tavuğu 330 g'dan 200 g'a indirdim: 1 kg çiğ ≈ 720 g pişmiş, 4 kişiye ≈ 180 g düşüyor, ikinci porsiyonla 300 g."). Soru soruyorsan cevap kısa bir giriş olsun.
+${ITEM_RULES}
+Sadece şu JSON'u döndür: {"cevap":"...","soru":null,"items":[{"n":"Ad (miktar)","k":0,"p":0,"y":0,"c":0,"mi":[0,0,0,0,0,0,0,0,0,0],"v":"gerekçe"}]} — soru sorarken {"cevap":"...","soru":{"s":"Tavada toplam kaç kilo tavuk vardı?","c":["500 g","1 kg","1,5 kg","2 kg+"]},"items":null}`;
+function drawChat(){
+  let h = bub("Hesap bu. Yanlış bir şey varsa yaz: ne kadar vardı, kaç kişi yediniz, ne kadar yağ kondu, ne kadarını yedin. Gerekirse ben de soru sorarım.");
+  const last = rMsgs.length - 1;
+  rMsgs.forEach((x, i) => {
+    if(x.u){ h += `<div class="ba" style="cursor:default">${esc(x.t)}</div>`; return; }
+    h += bub(x.t + (x.q ? "\n" + x.q.s : ""));
+    if(x.d) h += `<div class="rdiff">${esc(x.d)}</div>`;
+    if(x.q && i === last && !rBusy) h += `<div class="chips qa">${[...x.q.c, BIL].map(c => `<button type="button" data-rq="${esc(c)}">${esc(c)}</button>`).join("")}</div>`;
+  });
+  if(rBusy) h += `<div class="bq">${CI}<div><span class="spin"></span> Claude düşünüyor…</div></div>`;
+  $("rChat").innerHTML = h; $("rSend").disabled = rBusy;
+}
+async function rSend(m){
+  m = (m || "").trim(); if(!m || rBusy || !sample) return;
+  const before = sumTxt(), prompt = CHAT_PROMPT(m);
+  rMsgs.push({u: true, t: m.slice(0, 400)}); rBusy = true; $("rTxt").value = ""; drawChat();
+  $("rIn").scrollIntoView({block: "nearest", behavior: "smooth"});
+  try{
+    const r = await sample.json(prompt, {images: await getImgs(), modelTier: tier()});
+    const q = r && r.soru && r.soru.s ? {s: String(r.soru.s).slice(0, 200), c: (Array.isArray(r.soru.c) ? r.soru.c : []).map(c => String(c).slice(0, 30)).filter(Boolean).slice(0, 4)} : null;
+    const msg = {u: false, t: String((r && r.cevap) || (q ? "" : "Tamam.")).slice(0, 500), q};
+    if(!q && Array.isArray(r && r.items) && r.items.length){ items = r.items.map(toItem); draw(); const after = sumTxt(); if(after !== before) msg.d = `${before} → ${after}`; }
+    rMsgs.push(msg);
+  }catch(e){ rMsgs.push({u: false, t: errTxt(e)}); }
+  rBusy = false; drawChat(); const l = $("rChat").lastElementChild; l && l.scrollIntoView({block: "nearest", behavior: "smooth"});
+}
+$("rSend").onclick = () => rSend($("rTxt").value);
+$("rTxt").onkeydown = e => { if(e.key === "Enter"){ e.preventDefault(); rSend($("rTxt").value); } };
+$("rChat").onclick = e => { const b = e.target.closest("[data-rq]"); if(b) rSend(b.dataset.rq); };
+
 $("copyBtn").onclick = async () => { try{ await navigator.clipboard.writeText($("code").value); $("copySt").textContent = "Kopyalandı"; }catch(e){ $("code").select(); $("copySt").textContent = "Seçildi, kopyala"; } };
-$("again").onclick = () => { files = []; imgs = null; foods = []; items = []; qs = []; qExtra = ""; suMl = 0; setFiles([]); $("note").value = ""; $("st1").textContent = $("st2").textContent = ""; go("p1"); };
+$("again").onclick = () => { files = []; imgs = null; foods = []; items = []; qs = []; qExtra = ""; rMsgs = []; suMl = 0; setFiles([]); $("note").value = ""; $("st1").textContent = $("st2").textContent = ""; go("p1"); };
 
 // ================= YEMEK DANIŞMA =================
 function setDFiles(list){
