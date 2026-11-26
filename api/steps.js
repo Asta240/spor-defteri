@@ -49,10 +49,13 @@ module.exports = async (req, res) => {
     const root = cur.json ? JSON.parse(cur.json) : { days: {} };
     root.days = root.days || {};
     const day = root.days[d] = root.days[d] || { f: [], w: 0, wo: "", ca: "", st: "", bu: "", kg: "" };
-    day.st = String(steps);
+    // Telefon kilitliyken Sağlık verisi okunamaz, kestirme 0 ya da eksik sayı gönderir: aynı gün adım azalmaz
+    const old = +day.st || 0, keep = steps < old;
+    if (!keep) day.st = String(steps);
     root.stepSync = { at: Date.now(), d, s: steps };
+    root.stepLog = [{ at: Date.now(), d, s: steps, k: keep ? 1 : 0 }, ...(root.stepLog || [])].slice(0, 10);
     const v = Math.max(Date.now(), (cur.updatedAt || 0) + 1);
     await redis("SET", `${P}u:${code}`, JSON.stringify({ json: JSON.stringify(root), updatedAt: v }));
-    return send(res, 200, { ok: true, tarih: d, adim: steps });
+    return send(res, 200, { ok: true, tarih: d, adim: keep ? old : steps, ...(keep ? { not: `Gelen ${steps} adım kayıtlı ${old} adımdan az, eski değer korundu.` } : {}) });
   } catch (e) { send(res, 500, { error: e.message }); }
 };

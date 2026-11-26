@@ -121,3 +121,4 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Foto kalori soruları: en fazla 5 soru, 5 hazır cevap; yağ (sıvı/tereyağı gram), tencere toplamı (et kilo / pilav kuru miktar), kişi sayısı (2–6+, tek soru), salata yağı. ITEM_RULES pilav kuru×2,7 / bulgur×2,5 / makarna×2,2, tereyağı 1 yk ≈ 14 g.
 - Bölüm renkleri: `body[data-sec=…]` (setTab yazar) ve `#dnav [data-v=…]` için `--accent` değişir: yemek pembe, su mavi, adim camgöbeği, hareket mor, hab/gorev sarı, supp lacivert; diğerleri turuncu.
 - Alışkanlık grupları (`#hg-s/g/a`) Düzenle: sil (onaysız), `data-hbmv` bölüm taşı, `data-hbup/dn` sırala; `EDSNAP` artık `{days, habits}` (`edState`), taşıma hedef grubu da aynı kopyayla düzenleme moduna sokar.
+- Adım senkronu: `api/steps.js` aynı gün adımı düşürmez (kilitli iPhone 0/eksik gönderir), `root.stepLog` son 10 gönderim (k=1 korundu); Apple Sağlık penceresi logu ve “Uygulama açıldığında” otomasyon önerisini gösterir.

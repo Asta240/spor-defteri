@@ -659,6 +659,7 @@
   .dpick strong{white-space:nowrap}
   .todayb{min-height:28px;padding:3px 10px;font-size:12px;border-radius:99px;background:var(--accent-soft);color:var(--accent);border:0;margin-left:6px}
   .todayb:hover{background:var(--accent);color:#1a1205}
+  .hklog{display:grid;gap:3px;font-size:12.5px} .hklog div{display:flex;gap:8px;flex-wrap:wrap;align-items:baseline} .hklog span{color:var(--muted);min-width:110px} .hklog small{flex-basis:100%;color:var(--warn);font-size:11.5px}
   .hkSteps{padding-left:20px;margin:12px 0;font-size:14px;display:flex;flex-direction:column;gap:6px}
   #hkUrl{font-size:13px}
   .kgoal{margin-top:10px;background:var(--card-2);border-radius:12px;padding:10px 12px;font-size:14px}
@@ -1602,7 +1603,8 @@ const shift = (s, n) => { const d = new Date(s+"T12:00"); d.setDate(d.getDate()+
 const dayName = (s, o) => new Date(s+"T12:00").toLocaleDateString("tr-TR", o);
 const blankDay = () => ({f:[], w:0, wo:"", ca:"", st:"", bu:"", kg:""});
 // Yenilikler: siteyi açınca bir kez çıkar, "Tamam"a basınca bir daha çıkmaz. Yeni yenilik eklerken NEWS.id'yi değiştir.
-const NEWS = {id:"2026-11-26b", items:[
+const NEWS = {id:"2026-11-26c", items:[
+  ["shoe", "Adım senkronu düzeldi", "Telefon kilitliyken gelen 0 ya da eksik adım artık günün adımını düşürmüyor. Hesap → Apple Sağlık'ta son 10 gönderim görünür; otomasyonu “uygulama açıldığında” olarak kurman önerilir."],
   ["sliders", "Her bölümün kendi rengi", "Antrenman turuncu; Kalori alımı pembe, Su mavi, Adım camgöbeği, Kilo ve ölçüler mor, Alışkanlıklar sarı, Takviyeler lacivert. Menüde de aynı renkler."],
   ["check", "Alışkanlıkları düzenle", "Alışkanlıklar'da Sabah / Gün içi / Akşam kartında “Düzenle”: sil, başka bölüme taşı, ↑↓ ile sırala; Kaydet ya da Vazgeç. 18 yeni hazır alışkanlık da eklendi."],
   ["edit", "Düzenle'de Kaydet / Vazgeç", "Yediklerin, su geçmişi ve kardiyoda “Düzenle”ye basınca Kaydet ve Vazgeç çıkar. Yanlışlıkla sildiysen Vazgeç'e bas, her şey geri gelir."],
@@ -1830,13 +1832,15 @@ async function showHealthSync(){
       <div class="small" style="font-weight:700;margin-bottom:6px">Senin adresin (kimseyle paylaşma):</div>
       <div class="fqrow"><input id="hkUrl" readonly value="${esc(url)}"><button id="hkCopy" class="small-btn">Kopyala</button></div>
       <p class="small muted" style="margin:6px 0 0">${S ? `Son gelen: ${fmt(S.s)} adım · ${new Date(S.at).toLocaleString("tr-TR", {day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"})}` : "Henüz adım gelmedi."}</p>
+      ${(root.stepLog || []).length ? `<div class="small" style="font-weight:700;margin:12px 0 4px">Son gönderimler</div><div class="hklog">${root.stepLog.map(x => `<div><span>${new Date(x.at).toLocaleString("tr-TR", {day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"})}</span><b>${fmt(x.s)} adım</b>${x.k ? `<small>kilitliyken gelmiş olabilir, eski değer korundu</small>` : ""}</div>`).join("")}</div>` : ""}
+      <div class="tipl" style="margin-top:10px">${I("alert")}<span><b>Önemli:</b> iPhone <b>kilitliyken</b> Kestirmeler Sağlık verisini okuyamaz, adımı 0 ya da eksik gönderir. Bu yüzden saatli otomasyon kilitli telefonda çalışmaz. En sağlamı: <b>Uygulama</b> otomasyonu (ör. WhatsApp ya da Instagram <b>açıldığında</b> → Adım gönder). Telefon o an açık olduğu için doğru sayı gider. Site artık aynı gün adımı hiç düşürmez.</span></div>
       <ol class="hkSteps">
         <li><b>Kestirmeler</b> → sağ üstte <b>+</b> → adını <b>Adım gönder</b> yap.</li>
         <li><b>Sağlık Örneklerini Bul</b> (Find Health Samples) ekle → <b>Tür: Adım</b>, filtre <b>Başlangıç Tarihi · bugün</b>.</li>
         <li><b>İstatistikleri Hesapla</b> (Calculate Statistics) ekle → <b>Toplam</b> (Sum).</li>
         <li><b>Metin</b> (Text) ekle → yukarıdaki adresi yapıştır, sonuna değişken olarak <b>İstatistik Sonucu</b>'nu ekle.</li>
         <li><b>URL'nin İçeriğini Al</b> (Get Contents of URL) ekle → URL olarak <b>Metin</b>'i seç. Bir kere ▶ ile çalıştır, Sağlık izni ver.</li>
-        <li><b>Saat başı:</b> Otomasyon → <b>+</b> → <b>Günün Saati</b> → 09:00 · <b>Her Gün</b> · <b>Hemen Çalıştır</b> → <b>Adım gönder</b>. iPhone'da "her saat" seçeneği yok; 10:00, 11:00 … 23:00 için aynısını tekrarla (en azından 13, 17, 21, 23:55).</li>
+        <li><b>Otomatik gönderim:</b> Kestirmeler → Otomasyon → <b>+</b> → <b>Uygulama</b> → sık açtığın uygulamaları seç (WhatsApp, Instagram…) → <b>Açıldığında</b> · <b>Hemen Çalıştır</b> → <b>Adım gönder</b>. Gün sonunda kaçmasın diye bir de <b>Günün Saati</b> 23:30 ekleyebilirsin (o saatte telefon açıksa çalışır).</li>
       </ol>
       <p class="small muted">Adım sitede açık değilken de yazılır, siteyi açınca görünür. Adres sızarsa <button class="linkish" id="hkReset" type="button">anahtarı yenile</button> (eski kestirmeyi yeni adresle güncellemen gerekir).</p>`;
     $("hkCopy").onclick = async () => { try{ await navigator.clipboard.writeText(url); toast("Adres kopyalandı"); }catch(e){ $("hkUrl").select(); } };
