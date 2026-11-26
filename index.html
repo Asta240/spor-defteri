@@ -275,6 +275,24 @@
   .prof{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   .bmrl{display:block;font-size:11px;color:var(--muted);margin-top:2px;font-weight:500}
   #dnav button{border-color:transparent}
+  /* Her bölümün kendi rengi (antrenman ve diğerleri turuncu) */
+  body[data-sec=yemek],#dnav [data-v=yemek]{--accent:#f783ac;--accent-soft:rgba(247,131,172,.14)}
+  body[data-sec=su],#dnav [data-v=su]{--accent:#4dabf7;--accent-soft:rgba(77,171,247,.14)}
+  body[data-sec=adim],#dnav [data-v=adim]{--accent:#3bc9db;--accent-soft:rgba(59,201,219,.14)}
+  body[data-sec=hareket],#dnav [data-v=hareket]{--accent:#b197fc;--accent-soft:rgba(177,151,252,.14)}
+  body[data-sec=hab],#dnav [data-v=hab]{--accent:#ffd43b;--accent-soft:rgba(255,212,59,.14)}
+  body[data-sec=gorev],#dnav [data-v=gorev]{--accent:#ffd43b;--accent-soft:rgba(255,212,59,.14)}
+  body[data-sec=supp],#dnav [data-v=supp]{--accent:#91a7ff;--accent-soft:rgba(145,167,255,.14)}
+  @media (prefers-color-scheme: light){
+    body[data-sec=yemek],#dnav [data-v=yemek]{--accent:#d6336c;--accent-soft:#ffe3ec}
+    body[data-sec=su],#dnav [data-v=su]{--accent:#1c7ed6;--accent-soft:#e7f5ff}
+    body[data-sec=adim],#dnav [data-v=adim]{--accent:#0c8599;--accent-soft:#e3fafc}
+    body[data-sec=hareket],#dnav [data-v=hareket]{--accent:#7048e8;--accent-soft:#f3f0ff}
+    body[data-sec=hab],#dnav [data-v=hab]{--accent:#e67700;--accent-soft:#fff4e6}
+    body[data-sec=gorev],#dnav [data-v=gorev]{--accent:#e67700;--accent-soft:#fff4e6}
+    body[data-sec=supp],#dnav [data-v=supp]{--accent:#4263eb;--accent-soft:#edf2ff}
+  }
+  #dnav button[data-v] svg.i,#dnav button[data-v] .i{color:var(--accent)}
   .dlab{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:4px 12px 2px}
   .estb{font-size:10px;font-weight:700;color:var(--warn);background:var(--warn-soft);border-radius:99px;padding:1px 6px;margin-left:2px;vertical-align:1px}
   .err{color:var(--bad);margin:8px 0 0;min-height:0}
@@ -694,7 +712,7 @@
 
   /* tamamlanan: yeşil tik yerine turuncu dolu kutu */
   .trow.on .tck,.tk.on .tki,.sp.on .spck,.tchip.on .tck{background:var(--accent)!important;border-color:var(--accent)!important;color:#1a1205!important}
-  .trow.on,.tchip.on,.xt.ok{border-color:rgba(255,159,28,.35)!important}
+  .trow.on,.tchip.on,.xt.ok{border-color:color-mix(in srgb,var(--accent) 35%,transparent)!important}
   .tk.on small,.tchip.on,.xt.ok small{color:var(--accent)!important}
   .tk.on .tkb i,.tbar i{background:var(--accent)!important}
   .stk i{color:var(--accent)!important}
@@ -758,7 +776,11 @@
   .dbh{display:flex;gap:6px;align-items:flex-start;margin-top:8px;line-height:1.4} .dbh svg.i{flex:none;width:15px;height:15px;margin-top:1px;color:var(--accent)} .dbh b{color:var(--ink)}
   .hfq{margin-top:6px;min-height:0;height:28px;padding:2px 8px;font-size:12px;width:auto;max-width:100%;background:var(--card-2);border:1px solid var(--line);border-radius:8px;color:var(--muted)}
   .htile{display:flex;align-items:center;gap:12px;background:var(--card-2);border-radius:14px;padding:10px 6px 10px 10px;border:1px solid transparent}
-  .htile.on{border-color:rgba(255,159,28,.3)}
+  .htile.on{border-color:color-mix(in srgb,var(--accent) 30%,transparent)}
+  .hgrp:not(.editing) .hed,.hgrp:not(.editing) [data-hbrm]{display:none}
+  .hgrp.editing .hfq,.hgrp.editing .spdots,.hgrp.editing .spck{display:none}
+  .hed{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px} .hed button{min-height:28px;padding:2px 9px;font-size:12px}
+  .hed button.on{border-color:var(--accent);color:var(--accent)}
   .htile.on .spck{background:var(--accent)!important;border-color:var(--accent)!important;color:#1a1205!important}
   .htile .spi small svg.i{color:var(--accent)}
   @media (max-width:600px){ .hsg{grid-template-columns:1fr 1fr} .hsg .hsc:last-child{grid-column:1 / -1} .hsc b{font-size:22px} }
@@ -1580,7 +1602,9 @@ const shift = (s, n) => { const d = new Date(s+"T12:00"); d.setDate(d.getDate()+
 const dayName = (s, o) => new Date(s+"T12:00").toLocaleDateString("tr-TR", o);
 const blankDay = () => ({f:[], w:0, wo:"", ca:"", st:"", bu:"", kg:""});
 // Yenilikler: siteyi açınca bir kez çıkar, "Tamam"a basınca bir daha çıkmaz. Yeni yenilik eklerken NEWS.id'yi değiştir.
-const NEWS = {id:"2026-11-26a", items:[
+const NEWS = {id:"2026-11-26b", items:[
+  ["star", "Her bölümün kendi rengi", "Antrenman turuncu; Kalori alımı pembe, Su mavi, Adım camgöbeği, Kilo ve ölçüler mor, Alışkanlıklar sarı, Takviyeler lacivert. Menüde de aynı renkler."],
+  ["check", "Alışkanlıkları düzenle", "Alışkanlıklar'da Sabah / Gün içi / Akşam kartında “Düzenle”: sil, başka bölüme taşı, ↑↓ ile sırala; Kaydet ya da Vazgeç. 18 yeni hazır alışkanlık da eklendi."],
   ["edit", "Düzenle'de Kaydet / Vazgeç", "Yediklerin, su geçmişi ve kardiyoda “Düzenle”ye basınca Kaydet ve Vazgeç çıkar. Yanlışlıkla sildiysen Vazgeç'e bas, her şey geri gelir."],
   ["camera", "Sonuçta Claude ile konuş", "Fotoğraftan kaloride sonucun altına yaz: “tavada 1 kg tavuk vardı, 4 kişi yedik”. Claude eksik bilgiyi sorar (yağ dersen kaç kilo yemeğe kondu gibi), sonra hepsini yeniden hesaplar."],
   ["camera", "Fotoğraftan kaloride soru-cevap", "Seçim listeleri yerine Claude sadece emin olmadığı 2–3 şeyi soruyor (ör. “Tavuğa ne kadar yağ kondu?”, “Kaç kilo tavuğa?”). Hazır cevaba dokun ya da kendin yaz; bilmiyorsan direkt hesaplat. Küçük kasedeki yemek artık olduğundan fazla sayılmıyor."],
@@ -1879,7 +1903,7 @@ const VIEWS = {ozet:["vOzet","Günün özeti"], yemek:["vYemek","Kalori alımı"
 const DATED = ["ozet","gorev","kalori","yemek","su","adim","hareket","supp","hab"];
 function setTab(t){
   if(!VIEWS[t]) t = "ozet";
-  tab = t; try{ localStorage.setItem("sd-tab", t); localStorage.setItem("sd-cardpage", t === "cards" && cardPage ? cardPage : ""); }catch(e){}
+  tab = t; document.body.dataset.sec = t; try{ localStorage.setItem("sd-tab", t); localStorage.setItem("sd-cardpage", t === "cards" && cardPage ? cardPage : ""); }catch(e){}
   for(const [k, [id]] of Object.entries(VIEWS)) $(id).hidden = k !== t;
   for(const b of $("dnav").querySelectorAll("button[data-v]")) b.classList.toggle("on", b.dataset.v === t);
   $("vTitle").textContent = VIEWS[t][1];
@@ -2449,9 +2473,11 @@ function renderMeas(){
 document.addEventListener("input", e => { const k = e.target.dataset?.meas; if(!k) return; root.meas = root.meas || {}; const m = root.meas[cur] = root.meas[cur] || {}; m[k] = e.target.value; const w = weightOn(cur); if(w) m._kg = w; save(); renderMeas(); });
 const HAB_PRE = ["Sabah diş fırçala","Akşam diş fırçala","Duş / banyo","Cilt bakımı","Esneme (10 dk)","Kitap oku","Erken yat (00:00 öncesi)","Telefonsuz 1 saat","Yürüyüş","Diş ipi","Tıraş ol","Tırnak kes","Yüz yıkama","Saç bakımı","Parfüm / deodorant",
   "Uyanınca 1 bardak su","Meyve ye","Sebze / salata ye","Şekerli içecek yok","Fast food yok","16:00'dan sonra kafein yok",
-  "Ders çalış (1 saat)","Günlük yaz","Meditasyon (5 dk)","Yatmadan ekran yok (30 dk)","8 saat uyku","Postür / boyun esnetme","Oda / masa topla","Güneş kremi"];
-const HAB_PRE_F = {"Tıraş ol": 3, "Tırnak kes": 1, "Duş / banyo": 4, "Kitap oku": 4, "Fast food yok": 5, "Günlük yaz": 3, "Oda / masa topla": 2}; // hazır alışkanlıkların varsayılan sıklığı (haftada)
-const HAB_PRE_T = {"Tıraş ol": "s", "Yüz yıkama": "s", "Parfüm / deodorant": "s", "Uyanınca 1 bardak su": "s", "Güneş kremi": "s", "Günlük yaz": "a", "Meditasyon (5 dk)": "a", "Yatmadan ekran yok (30 dk)": "a", "8 saat uyku": "a"};
+  "Ders çalış (1 saat)","Günlük yaz","Meditasyon (5 dk)","Yatmadan ekran yok (30 dk)","8 saat uyku","Postür / boyun esnetme","Oda / masa topla","Güneş kremi",
+  "Kahvaltı yap","Yatağı topla","10.000 adım","Su hedefini tamamla","Protein hedefini tuttur","Gece atıştırma yok","Soğuk duş","Nefes egzersizi (5 dk)",
+  "Dil çalış (15 dk)","Ders tekrarı (30 dk)","Yarının çantasını hazırla","Aileyi ara","Haftalık plan yap","Çamaşır","Ekran süresi 3 saatten az","Dışarıda 20 dk güneş"];
+const HAB_PRE_F = {"Aileyi ara": 2, "Haftalık plan yap": 1, "Çamaşır": 1, "Soğuk duş": 3, "Tıraş ol": 3, "Tırnak kes": 1, "Duş / banyo": 4, "Kitap oku": 4, "Fast food yok": 5, "Günlük yaz": 3, "Oda / masa topla": 2}; // hazır alışkanlıkların varsayılan sıklığı (haftada)
+const HAB_PRE_T = {"Kahvaltı yap": "s", "Yatağı topla": "s", "Soğuk duş": "s", "Gece atıştırma yok": "a", "Yarının çantasını hazırla": "a", "Haftalık plan yap": "a", "Tıraş ol": "s", "Yüz yıkama": "s", "Parfüm / deodorant": "s", "Uyanınca 1 bardak su": "s", "Güneş kremi": "s", "Günlük yaz": "a", "Meditasyon (5 dk)": "a", "Yatmadan ekran yok (30 dk)": "a", "8 saat uyku": "a"};
 const habStreak = id => { const x = (root.habits || []).find(y => y.id === id); return x && habW(x) ? wkStreakOf(habWeekOk(x)) : streak(ds => !!((root.days[ds] || {}).hb || {})[id]); };
 const habUnit = x => habW(x) ? "hafta" : "gün";
 const HSEG = [["s","Sabah","zap"],["g","Gün içi","clock"],["a","Akşam","moon"]];
@@ -2470,12 +2496,14 @@ function renderHab(){
   fillIcons($("hbSum"));
   $("hbGroups").innerHTML = HSEG.map(([k, t, ic]) => { const G = L.filter(x => habSeg(x) === k); if(!G.length) return "";
     const n = G.filter(x => hb[x.id]).length;
-    return `<div class="card hgrp"><div class="tch"><span class="hico sm">${I(ic)}</span><b>${t}</b><span class="tcn">${n}/${G.length}</span></div>
+    return `<div class="card hgrp${EDIT["hg-" + k] ? " editing" : ""}" id="hg-${k}"><div class="tch"><span class="hico sm">${I(ic)}</span><b>${t}</b><span class="tcn">${n}/${G.length}</span><span style="flex:1"></span><button type="button" class="ghost small-btn edtog" data-edit-for="hg-${k}">Düzenle</button></div>
       <div class="hgrid">${G.map(x => { const on = !!hb[x.id], st = habStreak(x.id), dots = Array.from({length: 7}, (_, i) => { const ds = shift(cur, i - 6); return `<i class="${((root.days[ds] || {}).hb || {})[x.id] ? "on" : ""}"></i>`; }).join("");
         return `<div class="htile ${on ? "on" : ""}"><button class="spck" data-hb="${x.id}" aria-label="${esc(x.name)} yaptım">${on ? I("check") : ""}</button>
           <div class="spi"><b>${esc(x.name)}</b><small>${habW(x) ? `Bu hafta ${habWeekN(x.id, mon)}/${x.f}${st > 0 ? ` · ${I("flame", "sm")} ${st} hafta seri` : ""}` : st > 1 ? `${I("flame", "sm")} ${st} gün seri` : on ? "Bugün tamam" : "Bugün yapılmadı"}</small><div class="spdots">${dots}</div>
+            <div class="hed">${HSEG.map(([k2, t2]) => `<button type="button" class="ghost ${k2 === k ? "on" : ""}" data-hbmv="${x.id}" data-seg="${k2}">${t2}</button>`).join("")}<button type="button" class="ghost" data-hbup="${x.id}" aria-label="Yukarı">↑</button><button type="button" class="ghost" data-hbdn="${x.id}" aria-label="Aşağı">↓</button></div>
             <select class="hfq" data-hbf="${x.id}" aria-label="${esc(x.name)} sıklığı">${[0, 1, 2, 3, 4, 5, 6].map(n => `<option value="${n}" ${(+x.f || 0) === n ? "selected" : ""}>${n ? `Haftada ${n} gün` : "Her gün"}</option>`).join("")}</select></div>
           <button class="icon" data-hbrm="${x.id}" aria-label="${esc(x.name)} kaldır">✕</button></div>`; }).join("")}</div></div>`; }).join("");
+  for(const [k] of HSEG) syncEd("hg-" + k);
   $("hbPre").innerHTML = HAB_PRE.filter(n => !L.some(x => x.name === n)).map(n => `<button type="button" data-hbadd="${esc(n)}">+ ${esc(n)}${HAB_PRE_F[n] ? ` <small>haftada ${HAB_PRE_F[n]}</small>` : ""}</button>`).join("");
 }
 // Ana sayfa: bugünkü takip (alışkanlıklar + takviyeler)
@@ -2493,8 +2521,12 @@ function renderTrack(){
     <div class="tcols">${H.length ? col("Alışkanlıklar", "check", H, hb, "data-hb", habStreak) : ""}${S.length ? col("Takviyeler", "pill", S, sp, "data-sp", suppStreak) : ""}</div>`;
 }
 document.addEventListener("click", e => {
-  const b = e.target.closest("[data-hb],[data-hbrm],[data-hbadd]"); if(!b) return;
+  const b = e.target.closest("[data-hb],[data-hbrm],[data-hbadd],[data-hbmv],[data-hbup],[data-hbdn]"); if(!b) return;
+  if(b.dataset.hbmv){ const x = (root.habits || []).find(y => y.id === b.dataset.hbmv); if(x){ const from = habSeg(x); x.t = b.dataset.seg; if(from !== x.t){ EDIT["hg-" + x.t] = true; if(!EDSNAP["hg-" + x.t]) EDSNAP["hg-" + x.t] = EDSNAP["hg-" + from]; } save(); renderHab(); renderTrack(); } return; }
+  if(b.dataset.hbup || b.dataset.hbdn){ const L = root.habits || [], id = b.dataset.hbup || b.dataset.hbdn, x = L.find(y => y.id === id), G = L.filter(y => habSeg(y) === habSeg(x)), gi = G.indexOf(x), o = G[gi + (b.dataset.hbup ? -1 : 1)];
+    if(o){ const i = L.indexOf(x), j = L.indexOf(o); L[i] = o; L[j] = x; save(); renderHab(); renderTrack(); } return; }
   if(b.dataset.hb){ const d = day(cur); d.hb = d.hb || {}; if(d.hb[b.dataset.hb]) delete d.hb[b.dataset.hb]; else d.hb[b.dataset.hb] = true; save(); renderHab(); renderTrack(); return; }
+  if(b.dataset.hbrm && b.closest(".hgrp.editing")){ root.habits = root.habits.filter(y => y.id !== b.dataset.hbrm); save(); renderHab(); renderTrack(); return; }
   if(b.dataset.hbrm){ const x = (root.habits || []).find(x => x.id === b.dataset.hbrm); return ask(`“${x?.name}” listeden kaldırılsın mı?`, "Kaldır", () => { root.habits = root.habits.filter(y => y.id !== b.dataset.hbrm); save(); renderHab(); renderTrack(); }); }
   if(b.dataset.hbadd){ root.habits = root.habits || []; const n = b.dataset.hbadd; root.habits.push({id: Math.random().toString(36).slice(2, 8), name: n, ...(HAB_PRE_T[n] ? {t: HAB_PRE_T[n]} : {}), ...(HAB_PRE_F[n] ? {f: HAB_PRE_F[n]} : {})}); save(); renderHab(); renderTrack(); }
 });
@@ -2564,7 +2596,7 @@ $("fReset").onclick = () => {
 $("fl").addEventListener("change", e => { const sel = e.target.closest("select[data-mv]"); if(!sel || !sel.value) return; const x = day(cur).f[+sel.dataset.mv]; if(x){ x.m = sel.value; save(); renderDay(); } });
 // Onaysız silmeler (yemek, kardiyo): ✕ sadece "Düzenle" modunda görünür
 // Düzenle modu: girerken günlerin kopyası alınır; Kaydet çıkar, Vazgeç kopyayı geri yükler
-const EDIT = {}, EDSNAP = {};
+const EDIT = {}, EDSNAP = {}, edState = () => JSON.stringify({days: root.days, habits: root.habits || []});
 function syncEd(id){
   for(const b of document.querySelectorAll(`[data-edit-for="${id}"]`)){
     b.textContent = EDIT[id] ? "Kaydet" : "Düzenle"; b.classList.toggle("edsave", !!EDIT[id]);
@@ -2576,10 +2608,10 @@ function syncEd(id){
 const edSet = (id, on) => { EDIT[id] = on; const el = $(id); if(el) el.classList.toggle("editing", on); syncEd(id); };
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-edit-for]");
-  if(b){ const id = b.dataset.editFor; if(!EDIT[id]) EDSNAP[id] = JSON.stringify(root.days); else delete EDSNAP[id]; edSet(id, !EDIT[id]); if(!EDIT[id]) renderAll(); return; }
+  if(b){ const id = b.dataset.editFor; if(!EDIT[id]){ EDSNAP[id] = edState(); edSet(id, true); } else { const snap = EDSNAP[id]; for(const k in EDSNAP) if(k !== id && snap && EDSNAP[k] === snap){ delete EDSNAP[k]; EDIT[k] = false; } delete EDSNAP[id]; edSet(id, false); } if(!EDIT[id]){ if(tab === "hab") renderHab(); renderAll(); } return; }
   const c = e.target.closest("[data-edit-cancel]"); if(!c) return; const id = c.dataset.editCancel;
-  if(EDSNAP[id]){ const changed = EDSNAP[id] !== JSON.stringify(root.days); root.days = JSON.parse(EDSNAP[id]); delete EDSNAP[id]; if(changed){ save(); toast("Değişiklikler geri alındı"); } }
-  edSet(id, false); renderAll(); });
+  if(EDSNAP[id]){ const snap = EDSNAP[id], changed = snap !== edState(), o = JSON.parse(snap); root.days = o.days; root.habits = o.habits; for(const k in EDSNAP) if(EDSNAP[k] === snap){ delete EDSNAP[k]; EDIT[k] = false; } if(changed){ save(); toast("Değişiklikler geri alındı"); } }
+  edSet(id, false); if(tab === "hab") renderHab(); renderTrack(); renderAll(); });
 $("fl").onclick = e => { const b = e.target.closest("button[data-del]"); if(!b) return; day(cur).f.splice(+b.dataset.del, 1); save(); renderDay(); };
 const MEALS = [["k","Kahvaltı"],["o","Öğle"],["a","Akşam"],["s","Ara öğün"]];
 const mealNow = () => { const h = new Date().getHours(); return h >= 5 && h < 11 ? "k" : h >= 11 && h < 16 ? "o" : h >= 18 && h < 23 ? "a" : "s"; };

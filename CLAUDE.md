@@ -119,3 +119,5 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Düzenle modu (`EDIT`, `EDSNAP`, `syncEd`, `edSet`): girerken `root.days` kopyalanır; buton “Kaydet” olur, yanına `data-edit-cancel` “Vazgeç” eklenir (kopyayı geri yükler). Liste boşalsa da mod açık kalır.
 - Foto kalori Sonuç: mini sohbet `#rChat` / `#rTxt` (`rMsgs`, `CHAT_PROMPT`, `rSend`): eksik bilgi varsa `soru` (+ hazır cevap `data-rq`), yoksa tüm `items` yeniden; değişim `.rdiff` “önce → sonra”.
 - Foto kalori soruları: en fazla 5 soru, 5 hazır cevap; yağ (sıvı/tereyağı gram), tencere toplamı (et kilo / pilav kuru miktar), kişi sayısı (2–6+, tek soru), salata yağı. ITEM_RULES pilav kuru×2,7 / bulgur×2,5 / makarna×2,2, tereyağı 1 yk ≈ 14 g.
+- Bölüm renkleri: `body[data-sec=…]` (setTab yazar) ve `#dnav [data-v=…]` için `--accent` değişir: yemek pembe, su mavi, adim camgöbeği, hareket mor, hab/gorev sarı, supp lacivert; diğerleri turuncu.
+- Alışkanlık grupları (`#hg-s/g/a`) Düzenle: sil (onaysız), `data-hbmv` bölüm taşı, `data-hbup/dn` sırala; `EDSNAP` artık `{days, habits}` (`edState`), taşıma hedef grubu da aynı kopyayla düzenleme moduna sokar.
