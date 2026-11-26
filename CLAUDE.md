@@ -118,3 +118,4 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Foto kalori: ID_PROMPT gerçekçilik kontrolü (ev tabağı et 120–250 g, >300 g yeniden say); ev yemeğinde “tavada toplam kaç kilo, kaç kişi” sorusu; ITEM_RULES üst sınır (pişmiş ≈ çiğ × 0,72, kişi payı, 2. porsiyonla en fazla ≈1,7 kat).
 - Düzenle modu (`EDIT`, `EDSNAP`, `syncEd`, `edSet`): girerken `root.days` kopyalanır; buton “Kaydet” olur, yanına `data-edit-cancel` “Vazgeç” eklenir (kopyayı geri yükler). Liste boşalsa da mod açık kalır.
 - Foto kalori Sonuç: mini sohbet `#rChat` / `#rTxt` (`rMsgs`, `CHAT_PROMPT`, `rSend`): eksik bilgi varsa `soru` (+ hazır cevap `data-rq`), yoksa tüm `items` yeniden; değişim `.rdiff` “önce → sonra”.
+- Foto kalori soruları: en fazla 5 soru, 5 hazır cevap; yağ (sıvı/tereyağı gram), tencere toplamı (et kilo / pilav kuru miktar), kişi sayısı (2–6+, tek soru), salata yağı. ITEM_RULES pilav kuru×2,7 / bulgur×2,5 / makarna×2,2, tereyağı 1 yk ≈ 14 g.
