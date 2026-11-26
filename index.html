@@ -1603,7 +1603,8 @@ const shift = (s, n) => { const d = new Date(s+"T12:00"); d.setDate(d.getDate()+
 const dayName = (s, o) => new Date(s+"T12:00").toLocaleDateString("tr-TR", o);
 const blankDay = () => ({f:[], w:0, wo:"", ca:"", st:"", bu:"", kg:""});
 // Yenilikler: siteyi açınca bir kez çıkar, "Tamam"a basınca bir daha çıkmaz. Yeni yenilik eklerken NEWS.id'yi değiştir.
-const NEWS = {id:"2026-11-26c", items:[
+const NEWS = {id:"2026-11-26d", items:[
+  ["chartbar", "Haftalık sekmesi düzeldi", "Haftanın özeti artık Bu hafta / Geçen hafta seçilebiliyor (eskiden hafta ortasında geçen haftayı gösteriyordu). Haftalık rapor ortalamaları yarım kalan bugünü saymıyor; süren hafta için “kalan N günde ne lazım” yazıyor."],
   ["shoe", "Adım senkronu düzeldi", "Telefon kilitliyken gelen 0 ya da eksik adım artık günün adımını düşürmüyor. Hesap → Apple Sağlık'ta son 10 gönderim görünür; otomasyonu “uygulama açıldığında” olarak kurman önerilir."],
   ["sliders", "Her bölümün kendi rengi", "Antrenman turuncu; Kalori alımı pembe, Su mavi, Adım camgöbeği, Kilo ve ölçüler mor, Alışkanlıklar sarı, Takviyeler lacivert. Menüde de aynı renkler."],
   ["check", "Alışkanlıkları düzenle", "Alışkanlıklar'da Sabah / Gün içi / Akşam kartında “Düzenle”: sil, başka bölüme taşı, ↑↓ ile sırala; Kaydet ya da Vazgeç. 18 yeni hazır alışkanlık da eklendi."],
@@ -2068,6 +2069,8 @@ function renderStreaks(){
   $("bdGo").onclick = () => setTab("prog");
 }
 // ================= İLERLEME SEKMELERİ + SERİLER =================
+let wkPick = "this";
+document.addEventListener("click", e => { const b = e.target.closest("[data-wkp]"); if(!b) return; wkPick = b.dataset.wkp; renderProgTabs(); });
 let progTab = (() => { try{ const t = localStorage.getItem("sd-ptab"); return t && t !== "genel" ? t : "antrenman"; }catch(e){ return "antrenman"; } })();
 document.addEventListener("click", e => { const b = e.target.closest("[data-ptab]"); if(!b) return; progTab = b.dataset.ptab; try{ localStorage.setItem("sd-ptab", progTab); }catch(err){} renderProgTabs(); });
 function skItem(ic, name, ok, sub){
@@ -2079,24 +2082,25 @@ function skItem(ic, name, ok, sub){
 }
 // ---------- Haftanın özeti (Pazar akşamı / Pazartesi ana sayfada, her zaman İlerleme → Genel) ----------
 function weekReview(mon){
-  const g = root.goals, st = weekStats(mon), W = weeklyTasks(mon), prev = weekStats(shift(mon, -7)), good = [], bad = [], next = [];
-  for(const [, t, v, goal] of W) (v >= goal ? good : bad).push(v >= goal ? `${t} tamam` : `${t}: ${fmt(Math.min(v, goal))}/${fmt(goal)}`);
+  const g = root.goals, st = weekStats(mon), W = weeklyTasks(mon), prev = weekStats(shift(mon, -7)), good = [], bad = [], next = [], open = shift(mon, 6) >= today();
+  for(const [, t, v, goal] of W) (v >= goal ? good : bad).push(v >= goal ? `${t} tamam` : `${t}: ${fmt(Math.min(v, goal))}/${fmt(goal)}${open ? " (hafta sürüyor)" : ""}`);
   if(st.p != null){ if(st.p >= g.p * .95) good.push(`Protein ortalaman ${fmt(st.p)} g`); else bad.push(`Protein ortalaman ${fmt(st.p)} g, hedef ${g.p} g`); }
   if(st.net != null){ (st.net < 0 ? good : bad).push(`Toplam ${st.net < 0 ? "açık" : "fazla"} ${fmt(Math.abs(st.net))} kcal (≈ ${String(Math.round(Math.abs(st.net) / 7700 * 100) / 100).replace(".", ",")} kg yağ)`); }
   if(st.kg != null && prev.kg != null){ const d = Math.round((st.kg - prev.kg) * 10) / 10, k = +g.kgW || 0; (k ? (Math.sign(d) === Math.sign(k) || !d ? good : bad) : good).push(`Kilo ${d > 0 ? "+" : ""}${String(d).replace(".", ",")} kg${k ? ` (hedef ${String(k).replace(".", ",")} kg/hafta)` : ""}`); }
-  const wo = W[0]; if(wo[2] < wo[3]) next.push(`Antrenman günlerini takvime şimdiden yaz: ${wo[3]} gün hedefi için ${wo[3] - wo[2]} gün daha lazım.`);
+  const rem = open ? Math.max(1, Math.round((new Date(shift(mon, 6) + "T12:00") - new Date(today() + "T12:00")) / 864e5) + 1) : 7;
+  const wo = W[0]; if(wo[2] < wo[3]) next.push(open ? `Antrenman: ${wo[3]} gün hedefi için ${wo[3] - wo[2]} gün daha lazım, kalan ${rem} gün.` : `Antrenman günlerini takvime şimdiden yaz: ${wo[3]} gün hedefi için ${wo[3] - wo[2]} gün daha lazım.`);
   else next.push(`Antrenman hedefini tuttun; gelecek hafta ana hareketlerde 2,5 kg artırmayı dene.`);
   if(st.p != null && st.p < g.p * .95) next.push(`Her öğüne bir protein ekle (yumurta, süzme yoğurt, tavuk) — günde ${fmt(g.p - st.p)} g eksik kalıyor.`);
-  const wt = W.find(t => t[1].includes("su")); if(wt && wt[2] < wt[3]) next.push("Su hatırlatmasını aç (Su sayfası) — 5 gün hedefinin altında kaldın.");
-  const steps = W.find(t => t[1].includes("adım")); if(steps && steps[2] < steps[3] * .8) next.push(`Günlük ${fmt(Math.ceil((steps[3] - steps[2]) / 7 / 500) * 500)} adım fazladan yürüyüş ekle.`);
+  const wt = W.find(t => t[1].includes("su")); if(wt && wt[2] < wt[3]) next.push(open ? (wt[3] - wt[2] <= rem ? `Su: ${wt[3] - wt[2]} gün daha hedefi tutturursan bu hafta tamam (kalan ${rem} gün).` : `Su hedefi bu hafta yetişmez; kalan ${rem} günün hepsinde hedefi tuttur.`) : "Su hatırlatmasını aç (Su sayfası) — 5 gün hedefinin altında kaldın.");
+  const steps = W.find(t => t[1].includes("adım")); if(steps && steps[2] < steps[3] * (open ? 1 : .8)) next.push(open ? `Adım: kalan ${rem} günde günde ~${fmt(Math.ceil((steps[3] - steps[2]) / rem / 500) * 500)} adım yürürsen haftalık hedef tamam.` : `Günlük ${fmt(Math.ceil((steps[3] - steps[2]) / 7 / 500) * 500)} adım fazladan yürüyüş ekle.`);
   return {good, bad, next: next.slice(0, 3)};
 }
 function weekReviewHtml(mon, closable){
-  const R = weekReview(mon), sun = shift(mon, 6);
+  const R = weekReview(mon), sun = shift(mon, 6), open = sun >= today();
   return `<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px"><h2 style="margin:0">${I("calendar")} Haftanın özeti</h2><span class="small muted">${dayName(mon, {day:"numeric", month:"short"})} – ${dayName(sun, {day:"numeric", month:"short"})}</span>${closable ? `<button class="icon" id="wkClose" aria-label="Kapat">✕</button>` : ""}</div>
     <div class="wrv"><div class="wrc"><div class="rgh">İyi gidenler</div>${R.good.map(t => `<div class="tipl">${I("check")}<span>${esc(t)}</span></div>`).join("") || `<p class="small muted" style="margin:0">Bu hafta pek kayıt yok.</p>`}</div>
-    <div class="wrc"><div class="rgh">Dikkat</div>${R.bad.map(t => `<div class="tipl">${I("alert")}<span>${esc(t)}</span></div>`).join("") || `<p class="small muted" style="margin:0">Her şey hedefte!</p>`}</div>
-    <div class="wrc"><div class="rgh">Gelecek hafta</div>${R.next.map(t => `<div class="tipl">${I("target")}<span>${esc(t)}</span></div>`).join("")}</div></div>`;
+    <div class="wrc"><div class="rgh">${open ? "Henüz tamamlanmadı" : "Dikkat"}</div>${R.bad.map(t => `<div class="tipl">${I("alert")}<span>${esc(t)}</span></div>`).join("") || `<p class="small muted" style="margin:0">Her şey hedefte!</p>`}</div>
+    <div class="wrc"><div class="rgh">${open ? "Bu haftanın kalanı" : "Gelecek hafta"}</div>${R.next.map(t => `<div class="tipl">${I("target")}<span>${esc(t)}</span></div>`).join("")}</div></div>`;
 }
 function renderWeekCard(){
   const dow = new Date(today() + "T12:00").getDay(), hr = new Date().getHours();
@@ -2106,7 +2110,8 @@ function renderWeekCard(){
   $("wkClose").onclick = () => { root.wkSeen = root.wkSeen || {}; root.wkSeen[mon] = 1; save(); renderWeekCard(); };
 }
 function renderProgTabs(){
-  { const dow = new Date(today() + "T12:00").getDay(), mon = dow === 0 || dow >= 5 ? monOf(today()) : shift(monOf(today()), -7); $("pgWeek").innerHTML = weekReviewHtml(mon, false); }
+  { const mon = wkPick === "prev" ? shift(monOf(today()), -7) : monOf(today());
+    $("pgWeek").innerHTML = `<div class="seg" style="margin-bottom:12px"><button type="button" data-wkp="this" class="${wkPick !== "prev" ? "on" : ""}">Bu hafta</button><button type="button" data-wkp="prev" class="${wkPick === "prev" ? "on" : ""}">Geçen hafta</button></div>` + weekReviewHtml(mon, false); }
   $("tProg").dataset.tab = progTab;
   for(const b of document.querySelectorAll("[data-ptab]")) b.classList.toggle("on", b.dataset.ptab === progTab);
   const H = root.habits || [], S = root.supp || [];
@@ -3396,12 +3401,12 @@ function renderCombo(){
   draw(); show(sel); new ResizeObserver(draw).observe(svg);
 }
 // ============ Haftalık rapor ============
-function weekStats(mon){
-  const ds = Array.from({length: 7}, (_, i) => shift(mon, i)).filter(x => x <= today()), D = ds.map(x => ({x, d: root.days[x] || blankDay()}));
+function weekStats(mon, withToday){
+  const all = Array.from({length: 7}, (_, i) => shift(mon, i)).filter(x => x <= today()), ds = withToday || all.length < 2 ? all : all.filter(x => x < today()), D = ds.map(x => ({x, d: root.days[x] || blankDay()}));
   const ate = D.filter(o => o.d.f.length), avg = (a, f) => a.length ? a.reduce((t, o) => t + f(o), 0) / a.length : null;
   const net = ate.filter(o => burnedOf(o.x).v > 0).reduce((t, o) => t + sum(o.d).k - burnedOf(o.x).v, 0);
   const st = D.filter(o => +o.d.st > 0), kg = D.filter(o => +o.d.kg > 0);
-  return {k: avg(ate, o => sum(o.d).k), p: avg(ate, o => sum(o.d).p), net: ate.some(o => burnedOf(o.x).v > 0) ? net : null, wo: D.filter(o => o.d.wo).length, st: avg(st, o => +o.d.st), kg: kg.length ? +kg[kg.length - 1].d.kg : null, days: ds.length};
+  return {k: avg(ate, o => sum(o.d).k), p: avg(ate, o => sum(o.d).p), net: ate.some(o => burnedOf(o.x).v > 0) ? net : null, wo: all.filter(x => (root.days[x] || {}).wo).length, st: avg(st, o => +o.d.st), kg: kg.length ? +kg[kg.length - 1].d.kg : null, days: ds.length};
 }
 function renderReport(){
   const mon = (() => { const d = new Date(today() + "T12:00"); return shift(today(), -((d.getDay() + 6) % 7)); })();
@@ -3410,7 +3415,7 @@ function renderReport(){
     return `<div class="rp"><span>${lbl}</span><b>${a == null ? "—" : f(a)}</b>${df == null || Math.abs(df) < 1e-9 ? "" : `<small class="${(df < 0) === !!goodDown ? "gd" : "bd"}">${df > 0 ? "↑" : "↓"} ${f(Math.abs(df))}</small>`}</div>`; };
   $("rpGrid").innerHTML = cell("Ort. kalori", A.k, B.k, v => fmt(v), true) + cell("Ort. protein", A.p, B.p, v => fmt(v) + " g") + cell("Toplam açık", A.net, B.net, v => fmt(v), true)
     + cell("Antrenman", A.wo, B.wo, v => fmt(v) + " gün") + cell("Ort. adım", A.st, B.st, v => fmt(v)) + cell("Kilo", A.kg, B.kg, v => num(v) + " kg", true);
-  $("rpNote").textContent = `Bu hafta (${A.days} gün) · oklar geçen haftaya göre.`;
+  $("rpNote").textContent = `Bu hafta · ortalamalar biten ${A.days} günden${A.days < 7 && mon <= today() ? " (bugün bitmediği için hariç)" : ""} · oklar geçen haftaya göre.`;
 }
 function drawLift(){
   const id = $("liftSel").value, a = (id && root.lifts[id]) || [];
