@@ -127,3 +127,4 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Bölüm renkleri gruba göre: Ana menü (ozet, gorev, hedef) mor, Kalori (yemek, kalori) pembe, Günlük giriş (su, adim, hab, supp, hareket) mavi, Antrenman (cards, lib, prog) turuncu; menü başlıkları `data-v="ana-g|kalori-g|gun-g|antr-g"`.
 - Yenilikler: `root.newsRead` (okunan madde başlıkları, + localStorage `sd-news-read`); `maybeNews` sadece okunmamış maddeleri gösterir, Tamam hepsini okundu yapar. Eski kullanıcılar (newsSeen var) geçişte o ana kadarkileri okunmuş sayar. Yeni madde başlığı benzersiz olmalı.
 - Çıkış yap `ask` ile onay ister.
+- Ana sayfa Bugünkü takip: alışkanlıklar `HSEG` alt başlıklarıyla (`.tseg`). `habHint` (uyku → “Uyanınca işaretle: dün geceki uykun”, erken yat → “Yatmadan işaretle”); “8 saat uyku” sabah grubunda (`mig.sleep`).
