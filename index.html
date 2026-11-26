@@ -1619,8 +1619,9 @@ const today = () => iso(new Date());
 const shift = (s, n) => { const d = new Date(s+"T12:00"); d.setDate(d.getDate()+n); return iso(d); };
 const dayName = (s, o) => new Date(s+"T12:00").toLocaleDateString("tr-TR", o);
 const blankDay = () => ({f:[], w:0, wo:"", ca:"", st:"", bu:"", kg:""});
-// Yenilikler: siteyi açınca bir kez çıkar, "Tamam"a basınca bir daha çıkmaz. Yeni yenilik eklerken NEWS.id'yi değiştir.
-const NEWS = {id:"2026-11-26e", items:[
+// Yenilikler: okunmamış maddeler siteyi açınca çıkar, "Tamam"a basınca o maddeler bir daha çıkmaz. Yeni madde EN ÜSTE, başlığı benzersiz olsun.
+const NEWS = {id:"2026-11-26f", items:[
+  ["bell", "Sadece yeni yenilikler", "Bu pencerede artık yalnızca okumadığın yenilikler çıkıyor. Hesaptan çıkarken de onay soruluyor."],
   ["sliders", "Tema seçimi", "Hesap'ta Tema: varsayılan “Bölüm renkleri” (her sayfa kendi renginde) ya da tek renk (Turuncu, Pembe, Mavi, Camgöbeği, Mor, Sarı, Lacivert). Yan menü sayfaya göre renk değiştirmez."],
   ["chartbar", "Haftalık sekmesi düzeldi", "Haftanın özeti artık Bu hafta / Geçen hafta seçilebiliyor (eskiden hafta ortasında geçen haftayı gösteriyordu). Haftalık rapor ortalamaları yarım kalan bugünü saymıyor; süren hafta için “kalan N günde ne lazım” yazıyor."],
   ["shoe", "Adım senkronu düzeldi", "Telefon kilitliyken gelen 0 ya da eksik adım artık günün adımını düşürmüyor. Hesap → Apple Sağlık'ta son 10 gönderim görünür; otomasyonu “uygulama açıldığında” olarak kurman önerilir."],
@@ -1645,13 +1646,17 @@ const NEWS = {id:"2026-11-26e", items:[
   ["check", "Alışkanlıklar", "Haftada X gün seçeneği (banyo, tıraş, kitap gibi her gün olmayanlar mükemmel günü bozmaz) ve yeni hazır alışkanlıklar."],
   ["edit", "Silmek için Düzenle", "Yediklerin ve kardiyo listesinde ✕ artık sadece “Düzenle”ye basınca çıkıyor; yanlışlıkla silinmiyor."],
   ["target", "Görevler ve su", "Görevler kendi sayfasında (ana sayfada sağ üstteki hedef). Su: çay bardağı, büyük bardak, yarım / 1 / 1,5 L şişe."]]};
+// Okunan yenilikler başlığıyla tutulur (root.newsRead); pencerede sadece okunmamışlar çıkar
 function maybeNews(){
-  let ls = null; try{ ls = localStorage.getItem("sd-news"); }catch(e){}
-  if(!root || root.newsSeen === NEWS.id || ls === NEWS.id || !$("modal").hidden) return;
-  openSheet(`<h2 style="margin:0 0 4px">${I("bell")} Yenilikler</h2><p class="small muted" style="margin:0 0 12px">Siteye eklenenler</p>
-    <div class="nwl">${NEWS.items.map(([ic, t, d]) => `<div class="nwi"><span class="hico sm">${I(ic)}</span><div><b>${esc(t)}</b><p>${esc(d)}</p></div></div>`).join("")}</div>
+  if(!root || !$("modal").hidden) return;
+  let lsr = []; try{ lsr = JSON.parse(localStorage.getItem("sd-news-read") || "[]"); }catch(e){}
+  if(!Array.isArray(root.newsRead)) root.newsRead = root.newsSeen ? NEWS.items.map(x => x[1]) : []; // eski kullanıcı: şimdiye kadarkiler okunmuş sayılır
+  const read = new Set([...root.newsRead, ...lsr]), L = NEWS.items.filter(x => !read.has(x[1]));
+  if(!L.length) return;
+  openSheet(`<h2 style="margin:0 0 4px">${I("bell")} Yenilikler</h2><p class="small muted" style="margin:0 0 12px">Siteye yeni eklenenler</p>
+    <div class="nwl">${L.map(([ic, t, d]) => `<div class="nwi"><span class="hico sm">${I(ic)}</span><div><b>${esc(t)}</b><p>${esc(d)}</p></div></div>`).join("")}</div>
     <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="small-btn" id="newsOk">Tamam</button></div>`);
-  $("newsOk").onclick = () => { root.newsSeen = NEWS.id; try{ localStorage.setItem("sd-news", NEWS.id); }catch(e){} save(); closeSheet(); };
+  $("newsOk").onclick = () => { const all = [...new Set([...read, ...L.map(x => x[1])])].filter(t => NEWS.items.some(x => x[1] === t)); root.newsRead = all; root.newsSeen = NEWS.id; try{ localStorage.setItem("sd-news-read", JSON.stringify(all)); }catch(e){} save(); closeSheet(); };
 }
 const freshRoot = () => ({v:1, goals:{k:2100, p:130, w:12, st:8000, bu:2500}, days:{}, cards:defaultCards(), lifts:{}, session:null, _ver:0, _dirty:true});
 const FIELDS = ["wo","ca","st","bu","kg"];
@@ -1679,7 +1684,7 @@ function migWk(r){
 }
 function fixRoot(r){
   const f = freshRoot();
-  if(!r) f.newsSeen = NEWS.id; // yeni hesap yenilikleri görmez
+  if(!r){ f.newsSeen = NEWS.id; f.newsRead = NEWS.items.map(x => x[1]); } // yeni hesap yenilikleri görmez
   r = Object.assign(f, r || {});
   r.goals = Object.assign({k:2100, p:130, w:12, st:8000, bu:2500, woW:3, caW:60, weW:2}, r.goals || {});
   r.days = r.days || {}; r.lifts = r.lifts || {}; r.cards = Array.isArray(r.cards) ? r.cards : [];
@@ -3450,7 +3455,7 @@ function drawLift(){
 $("liftSel").onchange = drawLift;
 
 // ================= AÇILIŞ =================
-document.addEventListener("click", e => { if(e.target.id === "logout"){ closeSheet(); lsDel("sd-code"); lsDel("sd-user"); location.reload(); } });
+document.addEventListener("click", e => { if(e.target.closest("#logout")){ closeSheet(); ask("Hesaptan çıkmak istediğine emin misin? Tekrar girmek için kullanıcı adın ve şifren (ya da yedek kodun) gerekir.", "Çıkış yap", () => { lsDel("sd-code"); lsDel("sd-user"); location.reload(); }); } });
 const saved = lsGet("sd-code");
 if(saved){ let r = null; try{ r = JSON.parse(lsGet("sd-root-" + saved)); }catch(e){} startApp(saved, r); if(r && r._ver) root._ver = r._ver; }
 else { $("vLogin").hidden = false; initGoogle(); }
