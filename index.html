@@ -943,13 +943,13 @@
       </div>
       <a class="card dancard" id="danLink" target="_blank" rel="noopener">
         <span class="hico"><i data-i="bulb"></i></span>
-        <div style="flex:1;min-width:0"><b class="dt">Yemeden önce danış</b><small>Seçeneklerin fotoğrafını at, Claude neyi ne kadar yemeni söylesin</small><small id="danLeft"></small></div>
+        <div style="flex:1;min-width:0"><b class="dt">Yemeden önce danış</b><small>Seçeneklerin fotoğrafını at, yapay zekâ neyi ne kadar yemeni söylesin</small><small id="danLeft"></small></div>
         <span class="chev">›</span>
       </a>
       <div class="card" id="addCard">
         <div class="hhead"><span class="hico"><i data-i="utensils"></i></span><div style="flex:1"><h2 style="margin:0">Yemek ekle</h2><div class="small muted" id="addLeft">Hangi öğün?</div></div></div>
         <div class="chips" id="mealSeg" style="margin:12px 0"></div>
-        <div class="seg atabs"><button data-at="ara" class="on">Listeden</button><button data-at="elle">Elle</button><button data-at="foto">Claude</button></div>
+        <div class="seg atabs"><button data-at="ara" class="on">Listeden</button><button data-at="elle">Elle</button><button data-at="foto">Yapay zekâ</button></div>
         <div class="apane" data-ap="ara">
           <input id="fq" type="search" placeholder="Ara: mercimek, whopper, kola…" aria-label="Yemek ara">
           <ul class="fres" id="fres"></ul>
@@ -966,7 +966,7 @@
           </form>
         </div>
         <div class="apane" data-ap="foto" hidden>
-          <p class="small muted" style="margin:0 0 10px">Fotoğrafını at ya da ne yediğini yazıyla anlat: Claude yemekleri çıkarır, bilmediklerini sorar, kaloriyi hesaplar. Sonra tek tuşla buraya eklenir.</p>
+          <p class="small muted" style="margin:0 0 10px">Fotoğrafını at ya da ne yediğini yazıyla anlat; yapay zekâ yemekleri çıkarır, bilmediklerini sorar, kaloriyi hesaplar. Sonra tek tuşla buraya eklenir.</p>
           <div class="row" style="gap:8px;flex-wrap:wrap"><a class="camBtn" id="camLink" target="_blank" rel="noopener" style="display:inline-flex"><i data-i="camera"></i> Fotoğraftan kalori aç</a>
           <a class="camBtn" id="txtLink" target="_blank" rel="noopener" style="display:inline-flex"><i data-i="edit"></i> Anlatarak hesapla</a></div>
           <form id="ymkForm" class="row" style="margin-top:12px"><input id="ymkIn" placeholder="Açılmazsa kodu yapıştır: YMK1.…" autocomplete="off" aria-label="Yemek kodu" style="flex:1 1 180px"><button class="small-btn">Yapıştır</button></form>
@@ -1497,7 +1497,7 @@ const unit = e => e.u || "tekrar";
 
 // Hazır kartlar (yeni hesaba gelir; silinebilir, değiştirilebilir)
 const card = (name, list) => ({id: Math.random().toString(36).slice(2, 9), name, ex: list.map(([id, s, r]) => ({id, s: s ?? EXM[id].s, r: r ?? EXM[id].r}))});
-// Hazır kartlar (Claude'un hazırladığı şablonlar). Yeni hesaba kart yüklenmez; kullanıcı buradan ekler ya da kendi kartını kurar.
+// Hazır kartlar (yapay zekânın hazırladığı şablonlar). Yeni hesaba kart yüklenmez; kullanıcı buradan ekler ya da kendi kartını kurar.
 const TEMPLATES = [
   {name:"Yeni başlayan · Tam vücut", desc:"Haftada 2–3 gün, A ve B dönüşümlü. Salona yeni başlayan için.", cards:[
     ["Tam vücut A", [["Leg_Press",3,10],["Leverage_Chest_Press",3,10],["Wide-Grip_Lat_Pulldown",3,10],["Leverage_Shoulder_Press",3,10],["Lying_Leg_Curls",3,12],["Plank",3,30],["Walking_Treadmill",1,20]]],
@@ -1528,7 +1528,7 @@ function addTemplateCard(name, list){
 }
 function showTemplates(){
   openSheet(`<div class="row" style="justify-content:space-between;align-items:center;flex-wrap:nowrap"><h2 style="margin:0">Hazır kartlar ✦</h2><button class="icon" data-close aria-label="Kapat">✕</button></div>
-    <p class="small muted" style="margin:4px 0 12px">Claude'un hazırladığı programlar. Eklediğin kartı sonra istediğin gibi değiştirebilirsin.</p>
+    <p class="small muted" style="margin:4px 0 12px">Yapay zekânın hazırladığı programlar. Eklediğin kartı sonra istediğin gibi değiştirebilirsin.</p>
     ${TEMPLATES.map((t, ti) => `<div class="tpl"><div class="tplh"><div><b>${esc(t.name)}</b><div class="small muted">${esc(t.desc)}</div></div>${t.cards.length > 1 ? `<button class="ghost" data-tall="${ti}">Hepsini ekle</button>` : ""}</div>
       ${t.cards.map(([cn, list], ci) => `<div class="tplc"><div><b>${esc(cn)}</b><div class="small muted">${list.map(([id]) => esc(EXM[id]?.tr || "")).filter(Boolean).join(", ")}</div></div><button data-tadd="${ti}:${ci}">Ekle</button></div>`).join("")}</div>`).join("")}`);
   $("sheet").onclick = e => {
@@ -1648,7 +1648,7 @@ const dayName = (s, o) => new Date(s+"T12:00").toLocaleDateString("tr-TR", o);
 const blankDay = () => ({f:[], w:0, wo:"", ca:"", st:"", bu:"", kg:""});
 // Yenilikler: okunmamış maddeler siteyi açınca çıkar, "Tamam"a basınca o maddeler bir daha çıkmaz. Yeni madde EN ÜSTE, başlığı benzersiz olsun.
 const NEWS = {id:"2026-11-26j", items:[
-  ["edit", "Anlatarak kalori hesapla", "Kalori alımı → Ekle → Claude: “Anlatarak hesapla” ile fotoğraf olmadan ne yediğini yaz (ör. “kaşarlı sucuklu tost, yanında avokado ve zeytin”). Claude bilmediklerini sorar, hesaplar. Yemekhanede menüdeki kaloriyi yazarsan onu ölçü alır."],
+  ["edit", "Anlatarak kalori hesapla", "Kalori alımı → Ekle → Yapay zekâ: “Anlatarak hesapla” ile fotoğraf olmadan ne yediğini yaz (ör. “kaşarlı sucuklu tost, yanında avokado ve zeytin”). Yapay zekâ bilmediklerini sorar, hesaplar. Yemekhanede menüdeki kaloriyi yazarsan onu ölçü alır."],
   ["user", "Misafir giriş", "Giriş ekranında “Misafir olarak gir”: kayıt olmadan dene, veriler sadece o cihazda durur. Yeni hesaplarda ilk açılışta tema seçimi çıkar."],
   ["utensils", "İçini seçerek ekle", "Sandviç (ekmek: susamlı, francala, tombik, kantin, pastane… + içindekiler), Kantin sandviçi (paketli), Tost, Poğaça, Açma, Börek, Pide (çeşidi), Pizza (çeşit, boyut, kaç dilim), Omlet (yumurta + içine), Makarna (sos) ve Kumpir (malzemeler): seçtikçe kalori kendiliğinden hesaplanır."],
   ["utensils", "62 yeni yemek", "Yemek aramada artık sandviçler (kaşarlı, tavuklu, ton balıklı, hindi füme…), karışık tost, kumru, gözleme, bazlama, sucuk/salam, tavuk but/şiş, kıyma, somon, patates, brokoli, bolonez, kek, kurabiye, leblebi gibi temel şeyler de var."],
@@ -1660,16 +1660,16 @@ const NEWS = {id:"2026-11-26j", items:[
   ["sliders", "Her bölümün kendi rengi", "Menüdeki her grup kendi renginde: Ana menü mor, Kalori pembe, Günlük giriş mavi, Antrenman turuncu; altındaki sayfalar da aynı renkte."],
   ["check", "Alışkanlıkları düzenle", "Alışkanlıklar'da Sabah / Gün içi / Akşam kartında “Düzenle”: sil, başka bölüme taşı, ↑↓ ile sırala; Kaydet ya da Vazgeç. 18 yeni hazır alışkanlık da eklendi."],
   ["edit", "Düzenle'de Kaydet / Vazgeç", "Yediklerin, su geçmişi ve kardiyoda “Düzenle”ye basınca Kaydet ve Vazgeç çıkar. Yanlışlıkla sildiysen Vazgeç'e bas, her şey geri gelir."],
-  ["camera", "Sonuçta Claude ile konuş", "Fotoğraftan kaloride sonucun altına yaz: “tavada 1 kg tavuk vardı, 4 kişi yedik”. Claude eksik bilgiyi sorar (yağ dersen kaç kilo yemeğe kondu gibi), sonra hepsini yeniden hesaplar."],
-  ["camera", "Fotoğraftan kaloride soru-cevap", "Seçim listeleri yerine Claude sadece emin olmadığı 2–3 şeyi soruyor (ör. “Tavuğa ne kadar yağ kondu?”, “Kaç kilo tavuğa?”). Hazır cevaba dokun ya da kendin yaz; bilmiyorsan direkt hesaplat. Küçük kasedeki yemek artık olduğundan fazla sayılmıyor."],
+  ["camera", "Sonuçta yapay zekâyla konuş", "Fotoğraftan kaloride sonucun altına yaz: “tavada 1 kg tavuk vardı, 4 kişi yedik”. Yapay zekâ eksik bilgiyi sorar (yağ dersen kaç kilo yemeğe kondu gibi), sonra hepsini yeniden hesaplar."],
+  ["camera", "Fotoğraftan kaloride soru-cevap", "Seçim listeleri yerine yapay zekâ sadece emin olmadığı 2–3 şeyi soruyor (ör. “Tavuğa ne kadar yağ kondu?”, “Kaç kilo tavuğa?”). Hazır cevaba dokun ya da kendin yaz; bilmiyorsan direkt hesaplat. Küçük kasedeki yemek artık olduğundan fazla sayılmıyor."],
   ["droplet", "Su geçmişi", "Su sayfasında “Bugün eklenenler”: hangi sudan ne kadar, ne zaman eklendiği (fotoğraftan gelen su da “Öğle yemeği fotosundan” gibi yazar). “Düzenle” ile tek tek silebilirsin. 200 ml küçük bardak da eklendi."],
   ["edit", "Öğünü değiştir", "Yediklerinde “Düzenle”ye basınca her yemeğin öğününü (kahvaltı, öğle, akşam, ara öğün) değiştirebilirsin."],
   ["camera", "Detayları bilmiyorsan atla", "Fotoğraftan kaloride Detaylar sayfasında “Bilmiyorum, direkt hesapla”: yemekhane, restoran gibi yerlerde soruları atlayıp hemen hesaplatırsın. Parçalar artık tek tek sayılıyor (tavuk şeridi, köfte, patates dilimi)."],
   ["camera", "Foto 1 / Foto 2 için tek seçim", "Aynı yemek iki fotoğrafta görününce tek tek seçmek zorunda değilsin: “Hepsi için aynı” ile hepsine birden ayrı porsiyon, kalan ya da aynı tabak de."],
-  ["camera", "Fotoğraftan kalori daha doğru", "Nerede yediğini seç (ev, yemekhane, restoran, fast food): dışarıda yağ sorulmaz, standart porsiyonlar kullanılır. Parçaları sayıyor, su da ayrıca suya ekleniyor. Claude modeli: Güçlü varsayılan."],
+  ["camera", "Fotoğraftan kalori daha doğru", "Nerede yediğini seç (ev, yemekhane, restoran, fast food): dışarıda yağ sorulmaz, standart porsiyonlar kullanılır. Parçaları sayıyor, su da ayrıca suya ekleniyor. Yapay zekâ modeli: Güçlü varsayılan."],
   ["utensils", "Danışma otomatik dolar", "“Yemeden önce danış”a basınca doğrudan Yemek danışma açılır; kalan kalori, protein ve hedefin (hedef kilona göre) hesabından gelir."],
-  ["camera", "Fotoğraftan kalori yenilendi", "Claude önce yemekleri tanıyor, sen her birinin nasıl piştiğini (fırın, kızartma…), yağını, kaç kişilik olduğunu ve ne kadarını yediğini seçiyorsun, sonra hesaplıyor. Adımlar ayrı sayfa, ☰ menüden gezersin. Yanlış satırı “Düzelt” ile tek tek yeniden hesaplatabilirsin."],
-  ["utensils", "Yemek danışma", "Kalori alımında “Yemeden önce danış” kartı: seçeneklerin fotoğrafını at, Claude neyi ne kadar yemeni söylesin."],
+  ["camera", "Fotoğraftan kalori yenilendi", "Yapay zekâ önce yemekleri tanıyor, sen her birinin nasıl piştiğini (fırın, kızartma…), yağını, kaç kişilik olduğunu ve ne kadarını yediğini seçiyorsun, sonra hesaplıyor. Adımlar ayrı sayfa, ☰ menüden gezersin. Yanlış satırı “Düzelt” ile tek tek yeniden hesaplatabilirsin."],
+  ["utensils", "Yemek danışma", "Kalori alımında “Yemeden önce danış” kartı: seçeneklerin fotoğrafını at, yapay zekâ neyi ne kadar yemeni söylesin."],
   ["pill", "Vitamin ve mineraller", "Kalori alımının altında: lif, C, D, B12, demir, kalsiyum, magnezyum, potasyum, çinko ve tuz; ihtiyacının ne kadarını aldığın."],
   ["dumbbell", "Antrenman sayfası", "Kardiyo ve Dinlenme günü kart olarak burada; antrenmanda + Kardiyo ekle, set silme, tüm setlere aynı kilo, “Makinede yaptım”, dambıl kilosu açıklaması, kartlara dönüş."],
   ["trend", "Gelişmeyen hareketler", "Kilosu artmayan hareket için olası zayıf kas, nedenler ve odak önerileri; kas yorgunluğu da yanında."],
