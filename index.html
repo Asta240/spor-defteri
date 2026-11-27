@@ -1129,7 +1129,8 @@
         <div class="hhead"><span class="hico"><i data-i="flame"></i></span><div><h2 style="margin:0">Aktivite</h2><div class="small muted">Hareket ve yakım</div></div></div>
         <div class="gfields">
           <label class="f">Adım<input id="gst" type="number" inputmode="numeric" min="0"></label>
-          <label class="f">Yakılan (kcal)<input id="gbu" type="number" inputmode="numeric" min="0"></label>
+          <label class="f">Yakılan · antrenman günü (kcal)<input id="gbu" type="number" inputmode="numeric" min="0"></label>
+          <label class="f">Yakılan · boş gün (kcal)<input id="gbu2" type="number" inputmode="numeric" min="0"></label>
         </div>
       </div>
       <div class="card gseg">
@@ -1647,7 +1648,8 @@ const shift = (s, n) => { const d = new Date(s+"T12:00"); d.setDate(d.getDate()+
 const dayName = (s, o) => new Date(s+"T12:00").toLocaleDateString("tr-TR", o);
 const blankDay = () => ({f:[], w:0, wo:"", ca:"", st:"", bu:"", kg:""});
 // Yenilikler: okunmamış maddeler siteyi açınca çıkar, "Tamam"a basınca o maddeler bir daha çıkmaz. Yeni madde EN ÜSTE, başlığı benzersiz olsun.
-const NEWS = {id:"2026-11-26j", items:[
+const NEWS = {id:"2026-11-27a", items:[
+  ["flame", "Boş gün yakım hedefi", "Hedefler → Aktivite'de iki ayrı yakım hedefi var: antrenman günü ve boş gün. Antrenman yapmadığın günlerde özet halkası boş gün hedefini gösterir."],
   ["edit", "Anlatarak kalori hesapla", "Kalori alımı → Ekle → Yapay zekâ: “Anlatarak hesapla” ile fotoğraf olmadan ne yediğini yaz (ör. “kaşarlı sucuklu tost, yanında avokado ve zeytin”). Yapay zekâ bilmediklerini sorar, hesaplar. Yemekhanede menüdeki kaloriyi yazarsan onu ölçü alır."],
   ["user", "Misafir giriş", "Giriş ekranında “Misafir olarak gir”: kayıt olmadan dene, veriler sadece o cihazda durur. Yeni hesaplarda ilk açılışta tema seçimi çıkar."],
   ["utensils", "İçini seçerek ekle", "Sandviç (ekmek: susamlı, francala, tombik, kantin, pastane… + içindekiler), Kantin sandviçi (paketli), Tost, Poğaça, Açma, Börek, Pide (çeşidi), Pizza (çeşit, boyut, kaç dilim), Omlet (yumurta + içine), Makarna (sos) ve Kumpir (malzemeler): seçtikçe kalori kendiliğinden hesaplanır."],
@@ -1701,7 +1703,7 @@ function maybeNews(){
     <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="small-btn" id="newsOk">Tamam</button></div>`);
   $("newsOk").onclick = () => { const all = [...new Set([...read, ...L.map(x => x[1])])].filter(t => NEWS.items.some(x => x[1] === t)); root.newsRead = all; root.newsSeen = NEWS.id; try{ localStorage.setItem("sd-news-read", JSON.stringify(all)); }catch(e){} save(); closeSheet(); };
 }
-const freshRoot = () => ({v:1, goals:{k:2100, p:130, w:12, st:8000, bu:2500}, days:{}, cards:defaultCards(), lifts:{}, session:null, _ver:0, _dirty:true});
+const freshRoot = () => ({v:1, goals:{k:2100, p:130, w:12, st:8000, bu:2500, bu2:2200}, days:{}, cards:defaultCards(), lifts:{}, session:null, _ver:0, _dirty:true});
 const FIELDS = ["wo","ca","st","bu","kg"];
 let CUR = "", root = null, cur = today(), tab = (() => { try{ return localStorage.getItem("sd-tab") || "ozet"; }catch(e){ return "ozet"; } })(), grp = "Tümü";
 
@@ -1730,6 +1732,7 @@ function fixRoot(r){
   if(!r){ f.newsSeen = NEWS.id; f.newsRead = NEWS.items.map(x => x[1]); f.themeAsk = 1; } // yeni hesap yenilikleri görmez, bir kez tema seçer
   r = Object.assign(f, r || {});
   r.goals = Object.assign({k:2100, p:130, w:12, st:8000, bu:2500, woW:3, caW:60, weW:2}, r.goals || {});
+  if(!(+r.goals.bu2 > 0)) r.goals.bu2 = Math.max(1200, Math.round(r.goals.bu * .88 / 50) * 50); // boş gün yakım hedefi
   r.days = r.days || {}; r.lifts = r.lifts || {}; r.cards = Array.isArray(r.cards) ? r.cards : [];
   // Bir kerelik: kardiyo artık ayrı (Kardiyo kartı / antrenmanda + Kardiyo ekle), kartlardaki incline yürüyüş çıkarılır
   r.mig = r.mig || {};
@@ -2264,7 +2267,7 @@ function renderWeekSum(){
   const avg = (a, f) => a.length ? a.reduce((t, x) => t + f(x), 0) / a.length : 0;
   const aK = avg(ate, x => x.s.k), aP = avg(ate, x => x.s.p), aW = avg(wat, x => x.d.w);
   $("sumRange").textContent = "";
-  $("rings").innerHTML = RG("Beslenme · haftalık ort.", ring(aK, g.k, "var(--bad)", "Ort. kalori", "kcal", "prog") + ring(aP, g.p, "var(--good)", "Ort. protein", "g", "prog") + ring(aW, g.w, "#4dabf7", "Ort. su", "bardak", "prog"), 3) + RG("Aktivite · haftalık ort.", ring(avg(past.filter(x => +x.d.st > 0), x => +x.d.st), g.st, "var(--warn)", "Ort. adım", "", "adim") + ring(avg(past.filter(x => burnedOf(x.ds).v > 0), x => burnedOf(x.ds).v), g.bu, "#ae3ec9", "Ort. yakılan", "kcal", "kalori"), 2);
+  $("rings").innerHTML = RG("Beslenme · haftalık ort.", ring(aK, g.k, "var(--bad)", "Ort. kalori", "kcal", "prog") + ring(aP, g.p, "var(--good)", "Ort. protein", "g", "prog") + ring(aW, g.w, "#4dabf7", "Ort. su", "bardak", "prog"), 3) + RG("Aktivite · haftalık ort.", ring(avg(past.filter(x => +x.d.st > 0), x => +x.d.st), g.st, "var(--warn)", "Ort. adım", "", "adim") + ring(avg(past.filter(x => burnedOf(x.ds).v > 0), x => burnedOf(x.ds).v), Math.round(avg(past, x => buGoal(x.ds))) || g.bu, "#ae3ec9", "Ort. yakılan", "kcal", "kalori"), 2);
   const nets = past.filter(x => burnedOf(x.ds).v > 0 && x.d.f.length), net = nets.reduce((t, x) => t + x.s.k - burnedOf(x.ds).v, 0), anyEst = nets.some(x => burnedOf(x.ds).est);
   const wo = past.filter(x => x.d.wo).length, kgs = past.filter(x => +x.d.kg > 0), dk = kgs.length > 1 ? +kgs[kgs.length - 1].d.kg - +kgs[0].d.kg : null;
   $("bal").innerHTML = `<div class="rgh">Denge</div><div>Toplam açık<strong class="${!nets.length ? "" : net < 0 ? "neg" : "pos"}">${nets.length ? (net > 0 ? "+" : "") + fmt(net) : "—"}</strong></div><div>Antrenman<strong>${wo} gün</strong></div><div>Kilo<strong class="${dk == null ? "" : dk <= 0 ? "neg" : "pos"}">${dk == null ? (kgs.length ? num(kgs[0].d.kg) : "—") : (dk > 0 ? "+" : "") + num(dk) + " kg"}</strong></div>`;
@@ -2310,6 +2313,9 @@ function burnedOf(ds){
   const e = estBurn(ds); return {v: e, est: e > 0};
 }
 const burnTxt = B => B.v ? fmt(B.v) : "—";
+// Yakım hedefi: antrenman yapılan (ya da süren) gün → bu, boş gün → bu2
+const isWoDay = ds => { const d = root.days[ds] || {}; return !!(d.wo || (ds === today() && root.session)); };
+const buGoal = ds => isWoDay(ds) ? root.goals.bu : (+root.goals.bu2 || root.goals.bu);
 const liters = w => (Math.round(w * 250) / 1000).toLocaleString("tr-TR", {minimumFractionDigits: 2}) + " L";
 function renderDay(){
   const d = day(cur), s = sum(d), g = root.goals;
@@ -2331,7 +2337,7 @@ function renderDay(){
     $("sumRange").textContent = "";
     const ringsA = ring(s.k, g.k, "var(--bad)", "Kalori", "kcal", "yemek") + ring(s.p, g.p, "var(--good)", "Protein", "g", "yemek") + ring(d.w, g.w, "#4dabf7", "Su", "bardak", "su");
     const B = burnedOf(cur), net = B.v ? s.k - B.v : null;
-    $("rings").innerHTML = RG("Beslenme", ringsA, 3) + RG("Aktivite", ring(+d.st || 0, g.st, "var(--warn)", "Adım", "", "adim") + ring(B.v, g.bu, "#ae3ec9", "Yakılan", "kcal", "kalori"), 2);
+    $("rings").innerHTML = RG("Beslenme", ringsA, 3) + RG("Aktivite", ring(+d.st || 0, g.st, "var(--warn)", "Adım", "", "adim") + ring(B.v, buGoal(cur), "#ae3ec9", isWoDay(cur) ? "Yakılan" : "Yakılan · boş gün", "kcal", "kalori"), 2);
     $("bal").innerHTML = `<div class="rgh">Denge</div><div>Kalan<strong>${fmt(Math.max(g.k - s.k, 0))}</strong></div><div>Yakılan<strong>${burnTxt(B)}</strong>${bmrOn(cur) ? `<span class="bmrl">BMR ${fmt(bmrOn(cur))}${+d.st > 0 ? " + adım " + fmt(stepKcal(cur)) : ""}${+d.wk > 0 ? " + antrenman " + fmt(+d.wk) : ""}${+d.ck > 0 ? " + kardiyo " + fmt(+d.ck) : ""}${+d.xb > 0 ? " + ekstra " + fmt(+d.xb) : ""}</span>` : ""}</div><div>Açık<strong class="${net == null ? "" : net < 0 ? "neg" : "pos"}">${net == null ? "—" : (net > 0 ? "+" : "") + fmt(net)}</strong></div>`;
   }
   renderHomeWo();
@@ -2392,7 +2398,7 @@ function renderDay(){
   if($("wo")) $("wo").innerHTML = `<option value="">Dinlenme</option>` + names.map(n => `<option>${esc(n)}</option>`).join("");
   for(const k of FIELDS){ const el = $(k); if(el && document.activeElement !== el) el.value = d[k] ?? ""; }
   renderHareket(d);
-  for(const [id, k] of [["gk","k"],["gp","p"],["gw","w"],["gst","st"],["gbu","bu"]]){ const el = $(id); if(document.activeElement !== el) el.value = g[k]; }
+  for(const [id, k] of [["gk","k"],["gp","p"],["gw","w"],["gst","st"],["gbu","bu"],["gbu2","bu2"]]){ const el = $(id); if(document.activeElement !== el) el.value = g[k]; }
   if(document.activeElement !== $("gkg")) $("gkg").value = g.kgT || "";
   for(const [id, k, dv] of [["gwoW","woW",3],["gcaW","caW",60],["gweW","weW",2]]){ const el = $(id); if(document.activeElement !== el) el.value = g[k] ?? dv; }
   if(document.activeElement !== $("gkgW")) $("gkgW").value = g.kgW || "";
@@ -2724,7 +2730,7 @@ $("gkg").addEventListener("input", e => { const v = +e.target.value; root.goals.
 $("gwr").addEventListener("change", async e => { const h = +e.target.value; root.waterRem = h; save();
   if(h && "Notification" in window && Notification.permission === "default"){ try{ await Notification.requestPermission(); }catch(err){} }
   save(); toast(h ? (("Notification" in window) && Notification.permission === "granted" ? "Su hatırlatması açık (site/uygulama açıkken)" : "Bildirim izni yok; hatırlatma sitede uyarı olarak çıkar") : "Su hatırlatması kapalı"); });
-for(const [id, k] of [["gk","k"],["gp","p"],["gw","w"],["gst","st"],["gbu","bu"]]) $(id).addEventListener("input", e => { const v = +e.target.value; if(v > 0){ root.goals[k] = v; save(); renderDay(); } });
+for(const [id, k] of [["gk","k"],["gp","p"],["gw","w"],["gst","st"],["gbu","bu"],["gbu2","bu2"]]) $(id).addEventListener("input", e => { const v = +e.target.value; if(v > 0){ root.goals[k] = v; save(); renderDay(); } });
 
 // Hazır yemek arama
 function renderFoods(){

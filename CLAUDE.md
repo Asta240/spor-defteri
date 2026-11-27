@@ -132,3 +132,4 @@ Yasin'in kişisel kalori/su/antrenman takip sitesi. Sınav Haftası Asistanı (r
 - Foto kalori: **Anlatarak** modu (`MODE`, `setMode`, `#story`, `#modeC`; localStorage `fk-mode`; hash `#anlat`, drawer “Anlatarak hesapla”): fotoğrafsız, ID_PROMPT “ANLATIM MODU”, tüm çağrılar `images: []`. Yemekhanede menü kalorisi porsiyonun tamamı olarak ölçü alınır (YER_RULE, ITEM_RULES, CHAT_PROMPT). Tema: pembe (Kalori) + turuncu geçiş (`--grad`).
 - Site: Kalori alımı → Ekle → “Claude” sekmesi: `#camLink` (#kalori) ve `#txtLink` (#anlat). Girişte “Misafir olarak gir” (`#lgLocal`, LOCAL hesap). Yeni hesapta bir kez `askTheme()` (`root.themeAsk`).
 - Sitede kullanıcıya görünen yerlerde “Claude” yazılmaz, “yapay zekâ” yazılır (sekme: “Yapay zekâ”).
+- Yakım hedefi iki tane: `goals.bu` (antrenman günü), `goals.bu2` (boş gün; yoksa bu×0,88). `buGoal(ds)`/`isWoDay(ds)` (d.wo ya da bugün süren seans).
